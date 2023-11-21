@@ -13,10 +13,9 @@ dst_directory = os.path.expanduser(dst_directory)
 
 # check if the destination directory exists before creating it
 if not os.path.exists(dst_directory):
-    dstdir_name = str(input("Name the folder you want the files to be copied to: "))
     os.makedirs(dst_directory)
 
-# copy the contents of the source directory directly into the destination directory
+# copy the contents of the source directory directly into the destination directory (update this comment)
 for item in src.glob('*'):
 
     # get the creation and modification datetime of the file
@@ -27,7 +26,13 @@ for item in src.glob('*'):
     creation_datetime = t.ctime(creation_time)
     modification_datetime = t.ctime(modification_time)
 
-    print(creation_datetime)
-    print(modification_datetime)
+    # create a variable to hold the creation year of the current item
+    # (currently works for windows only)
+    sorted_dir_name = modification_datetime[len(modification_datetime)-4:]
 
-    shutil.copy2(item, dst_directory)
+    # create a full path for the new dir
+    new_dir = os.path.join(dst_directory, sorted_dir_name)
+    
+    # check if the directory already exists
+    if not os.path.exists(new_dir):
+        os.makedirs(new_dir)
