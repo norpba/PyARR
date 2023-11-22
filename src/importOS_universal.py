@@ -4,7 +4,7 @@ import time as t
 from pathlib import Path
 
 # get the source directory from user input
-src_directory = 'C:\\Users\\norppa\\nerdCorner\\input for sorter' #str(input("Source directory: "))
+src_directory = str(input("Source directory: "))
 src = Path(src_directory).expanduser()
 
 # use os.path.expanduser() to handle ~ in the path
@@ -27,6 +27,9 @@ for item in src.glob('*'):
     creation_datetime = t.ctime(creation_time)
     modification_datetime = t.ctime(modification_time)
 
+    print(creation_datetime)
+    print(modification_datetime)
+    print()
     # create a variable to hold the creation year of the current item
     # (currently works for windows only)
     year_dir_name = modification_datetime[len(modification_datetime)-4:]
