@@ -15,8 +15,8 @@ dst_directory = os.path.expanduser(dst_directory)
 if not os.path.exists(dst_directory):
     os.makedirs(dst_directory)
 
-# copy the contents of the source directory directly into the destination directory (update this comment)
-    # create folders for the files to be put in (?)
+# create folders that are named after the file modification year and copy files from
+# the source directory into the newly created folders based on the file modification year
 for item in src.glob('*'):
 
     # get the creation and modification datetime of the file
@@ -27,11 +27,8 @@ for item in src.glob('*'):
     creation_datetime = t.ctime(creation_time)
     modification_datetime = t.ctime(modification_time)
 
-    print(creation_datetime)
-    print(modification_datetime)
-    print()
     # create a variable to hold the creation year of the current item
-    # (currently works for windows only)
+    # seems to be working for both macos and windows right now
     year_dir_name = modification_datetime[len(modification_datetime)-4:]
 
     # create a full path for the new dir
