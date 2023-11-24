@@ -7,15 +7,6 @@ from tkinter import messagebox
 from tkinter import filedialog
 from sorter import sort_files
 
-
-def select_source_directory():
-    src_directory = filedialog.askdirectory()
-    # call the file sorting logic with the selected source directory
-    sort_files(src_directory, dst_directory)
-
-def select_destination_directory():
-    dst_directory = filedialog.askdirectory()
-
 class WelcomeWindow(Toplevel):
 
     def __init__(self, root, *args, **kwargs):
@@ -37,11 +28,11 @@ class WelcomeWindow(Toplevel):
         w = 300 # width of the welcome window
         h = 100 # height of the welcome window
 
-            # get the screen width and height
+        # get the screen width and height
         screen_x = self.winfo_screenwidth()
         screen_y= self.winfo_screenheight()
 
-            # calculate the x and y positions for centering the window
+        # calculate the x and y positions for centering the window
         x = (screen_x - w) // 2
         y = (screen_y - h) // 2
 
@@ -53,7 +44,7 @@ class MainWindow(Tk):
     # creating the main window and doing some configuration
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-            # load icon from disk
+        # load icon from disk
         self.iconbitmap("C:/Users/norppa/nerdCorner/PyARR/src/titlebar_icon.ico")
         self.title("PyARR v0.1.0")
         self.configure(bg="snow")
@@ -61,7 +52,7 @@ class MainWindow(Tk):
         self.resizable(False, False)
 
 
-            # create frames
+        # create frames
         top_frame = Frame(self, width=580, height=170, bg="PaleVioletRed1")
         top_frame.grid(row=0, column=0, padx=10, pady=5)
 
@@ -74,21 +65,30 @@ class MainWindow(Tk):
         info_frame = Frame(self, width=580, height=15, bg="purple4")
         info_frame.grid(row=3, column=0, padx=10, pady=0)
 
-            # create frames and labels inside the first frames
+        # create frames and labels inside the first frames
                                                                         #continue here <--------------
     def center_window(self):
         w = 600 # width of the welcome window
         h = 600 # height of the welcome window
 
-            # get the screen width and height
+        # get the screen width and height
         screen_x = self.winfo_screenwidth()
         screen_y= self.winfo_screenheight()
 
-            # calculate the x and y positions for centering the window
+        # calculate the x and y positions for centering the window
         x = (screen_x - w) // 2
         y = (screen_y - h) // 2
 
         self.geometry(f'{w}x{h}+{x}+{y}')
+    def select_source_directory():
+        src_directory = filedialog.askdirectory()
+        # call the file sorting logic with the selected source directory
+        sort_files(src_directory, dst_directory)
+
+    def select_destination_directory():
+        dst_directory = filedialog.askdirectory()
+    
+    
 
 if __name__ == ("__main__"):
     main_window = MainWindow()
