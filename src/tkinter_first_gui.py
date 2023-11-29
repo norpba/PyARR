@@ -66,6 +66,8 @@ class MainWindow(Tk):
         info_frame.grid(row=3, column=0, padx=10, pady=0)
 
         # create frames and labels inside the first frames
+        src_dir_btn = ttk.Button(self, text="Select a folder to sort...", command= self.select_source_directory)
+        src_dir_btn.grid(row=0, column=0)
                                                                         #continue here <--------------
     def center_window(self):
         w = 600 # width of the welcome window
