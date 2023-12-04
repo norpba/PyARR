@@ -82,15 +82,12 @@ class MainWindow(Tk):
         y = (screen_y - h) // 2
 
         self.geometry(f'{w}x{h}+{x}+{y}')
-    def select_source_directory():
+
+    def select_source_directory(self):
         src_directory = filedialog.askdirectory()
+        dst_directory = filedialog.askdirectory()
         # call the file sorting logic with the selected source directory
         sort_files(src_directory, dst_directory)
-
-    def select_destination_directory():
-        dst_directory = filedialog.askdirectory()
-    
-    
 
 if __name__ == ("__main__"):
     main_window = MainWindow()
