@@ -23,7 +23,7 @@ class WelcomeWindow(Toplevel):
         self.center_window()
         self.resizable(False, False)
 
-        # making a function to ensure that the window opens in the middle of the screen
+    # making a function to ensure that the window opens in the middle of the screen
     def center_window(self):
         w = 300 # width of the welcome window
         h = 100 # height of the welcome window
@@ -40,7 +40,7 @@ class WelcomeWindow(Toplevel):
 
 class MainWindow(Tk):
 
-    ## main window
+    # main window
     # creating the main window and doing some configuration
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -66,9 +66,18 @@ class MainWindow(Tk):
         info_frame.grid(row=3, column=0, padx=10, pady=0)
 
         # create frames and labels inside the first frames
-        src_dir_btn = ttk.Button(self, text="Select a folder to sort...", command= self.select_source_directory)
+        src_dir_btn = ttk.Button(self, text="Select a folder to sort...", command=self.select_source_directory)
         src_dir_btn.grid(row=0, column=0)
-                                                                        #continue here <--------------
+
+        dest_dir_btn2 = ttk.Button(self, text="Select a folder for the sorted items...", command=self.select_destination_directory)
+        dest_dir_btn2.grid(row=1, column=0)
+
+        start_sorter_btn = ttk.Button(self, text="Sort", command=self.start_sorter)
+        start_sorter_btn.grid(row=2, column=0)
+        
+        
+
+
     def center_window(self):
         w = 600 # width of the welcome window
         h = 600 # height of the welcome window
@@ -84,10 +93,22 @@ class MainWindow(Tk):
         self.geometry(f'{w}x{h}+{x}+{y}')
 
     def select_source_directory(self):
-        src_directory = filedialog.askdirectory()
-        dst_directory = filedialog.askdirectory()
-        # call the file sorting logic with the selected source directory
-        sort_files(src_directory, dst_directory)
+        self.src_directory = filedialog.askdirectory()
+
+    def select_destination_directory(self):
+        self.dst_directory = filedialog.askdirectory()
+
+
+    # call the file sorting logic with the source and destination as the parameters for it
+    # use hasattr-function to check if the user has selected the src and dest folders
+    def start_sorter(self):
+        if hasattr(self, 'src_directory') and hasattr(self, 'dst_directory'):
+            sort_files(self.src_directory, self.dst_directory)
+
+        else:
+            print("placeholder")
+    
+
 
 if __name__ == ("__main__"):
     main_window = MainWindow()
