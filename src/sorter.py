@@ -1,6 +1,6 @@
 import os
 import shutil
-import time as t
+import time
 from pathlib import Path
 
 def sort_files(src_directory, dst_directory):
@@ -21,8 +21,8 @@ def sort_files(src_directory, dst_directory):
         modification_time = os.path.getmtime(item)
 
         # convert the timestamps to datetime objects
-        creation_datetime = t.ctime(creation_time)
-        modification_datetime = t.ctime(modification_time)
+        creation_datetime = time.ctime(creation_time)
+        modification_datetime = time.ctime(modification_time)
 
         # create a variable to hold the creation year of the current item
         # seems to be working for both macOS and windows right now
@@ -36,5 +36,8 @@ def sort_files(src_directory, dst_directory):
             os.makedirs(new_dir)
 
         destination_file_path = os.path.join(new_dir, item.name)
-
-        shutil.copy2(item, destination_file_path)
+        
+        if item.is_dir():
+            shutil.copytree(item, destination_file_path)
+        else:
+            shutil.copy2(item, destination_file_path)
