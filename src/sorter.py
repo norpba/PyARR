@@ -42,5 +42,7 @@ def sort_files(src_directory, dst_directory):
         
         if item.is_dir():
             shutil.copytree(item, destination_file_path)
+            # continue here <--------------------
+            
         else:
             shutil.copy2(item, destination_file_path)

@@ -51,7 +51,6 @@ class MainWindow(Tk):
         self.center_window()
         self.resizable(False, False)
 
-
         # create frames
         top_frame = Frame(self, width=580, height=170, bg="PaleVioletRed1")
         top_frame.grid(row=0, column=0, padx=10, pady=5)
@@ -70,10 +69,10 @@ class MainWindow(Tk):
         src_dir_btn.grid(row=0, column=0)
 
         dest_dir_btn2 = ttk.Button(self, text="Select a folder for the sorted items...", command=self.select_destination_directory)
-        dest_dir_btn2.grid(row=1, column=0)
+        dest_dir_btn2.grid(row=1, column=1)
 
         start_sorter_btn = ttk.Button(self, text="Sort", command=self.start_sorter)
-        start_sorter_btn.grid(row=2, column=0)
+        start_sorter_btn.grid(row=2, column=2)
         
         
 
