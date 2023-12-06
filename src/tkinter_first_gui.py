@@ -35,7 +35,6 @@ class WelcomeWindow(Toplevel):
         # calculate the x and y positions for centering the window
         x = (screen_x - w) // 2
         y = (screen_y - h) // 2
-
         self.geometry(f'{w}x{h}+{x}+{y}')
 
 class MainWindow(Tk):
@@ -47,32 +46,32 @@ class MainWindow(Tk):
         # load icon from disk
         self.iconbitmap("C:/Users/norppa/nerdCorner/PyARR/src/titlebar_icon.ico")
         self.title("PyARR v0.1.0")
-        self.configure(bg="snow")
+        self.configure(bg="dark green")
         self.center_window()
         self.resizable(False, False)
 
         # create frames
-        top_frame = Frame(self, width=580, height=170, bg="PaleVioletRed1")
-        top_frame.grid(row=0, column=0, padx=10, pady=5)
+        top_frame = Frame(self, width=580, height=170, bg="DarkOrange3")
+        top_frame.place(x=10, y=10)
 
-        middle_frame = Frame(self, width=580, height=190, bg="PaleVioletRed1")
-        middle_frame.grid(row=1, column=0, padx=10, pady=5)
+        middle_frame = Frame(self, width=580, height=190, bg="DarkOrange3")
+        middle_frame.place(x=10, y=55)
 
-        bottom_frame = Frame(self, width=580, height=190, bg="PaleVioletRed1")
-        bottom_frame.grid(row=2, column=0, padx=10, pady=5)
+        bottom_frame = Frame(self, width=580, height=190, bg="DarkOrange3")
+        bottom_frame.place(x=10, y=300)
 
         info_frame = Frame(self, width=580, height=15, bg="purple4")
-        info_frame.grid(row=3, column=0, padx=10, pady=0)
+        info_frame.place(x=10, y=500)
 
         # create frames and labels inside the first frames
         src_dir_btn = ttk.Button(self, text="Select a folder to sort...", command=self.select_source_directory)
-        src_dir_btn.grid(row=0, column=0)
+        src_dir_btn.place()
 
         dest_dir_btn2 = ttk.Button(self, text="Select a folder for the sorted items...", command=self.select_destination_directory)
-        dest_dir_btn2.grid(row=1, column=1)
+        dest_dir_btn2.place()
 
         start_sorter_btn = ttk.Button(self, text="Sort", command=self.start_sorter)
-        start_sorter_btn.grid(row=2, column=2)
+        start_sorter_btn.place()
         
         
 
@@ -103,7 +102,6 @@ class MainWindow(Tk):
     def start_sorter(self):
         if hasattr(self, 'src_directory') and hasattr(self, 'dst_directory'):
             sort_files(self.src_directory, self.dst_directory)
-
         else:
             print("placeholder")
     
