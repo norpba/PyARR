@@ -55,14 +55,17 @@ class MainWindow(customtkinter.CTk):
         self.resizable(False, False)
 
         # create frames
-        source_dir_btn_frame = customtkinter.CTkFrame(self, width=270, height=50)
+        source_dir_btn_frame = customtkinter.CTkFrame(self, width=280, height=50)
         source_dir_btn_frame.place(x=10, y=10)
 
-        dest_dir_btn_frame = customtkinter.CTkFrame(self, width=290, height=50)
-        dest_dir_btn_frame.place(x=10, y=200)
+        dest_dir_btn_frame = customtkinter.CTkFrame(self, width=280, height=50)
+        dest_dir_btn_frame.place(x=10, y=70)
 
-        source_dir_info_frame = customtkinter.CTkFrame(self, width=290, height=50)
-        source_dir_info_frame.place(x=290, y=10)
+        source_dir_info_frame = customtkinter.CTkFrame(self, width=280, height=50)
+        source_dir_info_frame.place(x=310, y=10)
+
+        dest_dir_info_frame = customtkinter.CTkFrame(self, width=280, height=50)
+        dest_dir_info_frame.place(x=310, y=70)
 
         
 
@@ -92,13 +95,13 @@ class MainWindow(customtkinter.CTk):
             self,
             text="Sort",
             command=self.start_sorter)
-        start_sorter_btn.place()
+        start_sorter_btn.place(x=20, y=120)
 
-        #self.src_dir_label = customtkinter.CTkLabel(self, text= "Source folder: ")
-        #self.src_dir_label.place(x=250, y=20)
+        self.src_dir_label = customtkinter.CTkLabel(self, text= "Source folder: ")
+        self.src_dir_label.place(x=250, y=20)
 
-        #self.dst_dir_label = customtkinter.CTkLabel(self, text= "Output folder: ")
-        #self.dst_dir_label.place(x=250, y=80)
+        self.dst_dir_label = customtkinter.CTkLabel(self, text= "Output folder: ")
+        self.dst_dir_label.place(x=250, y=80)
 
 
 
@@ -118,11 +121,11 @@ class MainWindow(customtkinter.CTk):
 
     def select_source_directory(self):
         self.src_directory = filedialog.askdirectory()
-        self.src_dir_label.configure(text=self.src_directory)
+        #self.src_dir_label.configure(text=self.src_directory)
 
     def select_destination_directory(self):
         self.dst_directory = filedialog.askdirectory()
-        self.dst_dir_label.configure(text=self.dst_directory)
+        #self.dst_dir_label.configure(text=self.dst_directory)
 
     # call the file sorting logic with the source and destination as the parameters for it
     # use hasattr-function to check if the user has selected the src and dest folders
