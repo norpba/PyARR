@@ -25,6 +25,9 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         self.center_window()
         self.resizable(False, False)
 
+        self.transient(root)
+        self.grab_set()
+
     # making a function to ensure that the window opens in the middle of the screen
     def center_window(self):
         w = 300 # width of the welcome window
@@ -42,7 +45,6 @@ class WelcomeWindow(customtkinter.CTkToplevel):
 class MainWindow(customtkinter.CTk):
     # main window
     # creating the main window and doing some configuration
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -53,11 +55,16 @@ class MainWindow(customtkinter.CTk):
         self.resizable(False, False)
 
         # create frames
-        top_frame = customtkinter.CTkFrame(self, width=580, height=50)
-        top_frame.place(x=10, y=10)
+        source_dir_btn_frame = customtkinter.CTkFrame(self, width=270, height=50)
+        source_dir_btn_frame.place(x=10, y=10)
 
-        top_frame2 = customtkinter.CTkFrame(self, width=580, height=50)
-        top_frame2.place(x=10, y=70)
+        dest_dir_btn_frame = customtkinter.CTkFrame(self, width=290, height=50)
+        dest_dir_btn_frame.place(x=10, y=200)
+
+        source_dir_info_frame = customtkinter.CTkFrame(self, width=290, height=50)
+        source_dir_info_frame.place(x=290, y=10)
+
+        
 
         #middle_frame = customtkinter.CTkFrame(self, width=580, height=300)
         #middle_frame.place(x=10, y=100)
@@ -87,17 +94,17 @@ class MainWindow(customtkinter.CTk):
             command=self.start_sorter)
         start_sorter_btn.place()
 
-        self.src_dir_label = customtkinter.CTkLabel(self, text= "Source folder: ")
-        self.src_dir_label.place(x=250, y=20)
+        #self.src_dir_label = customtkinter.CTkLabel(self, text= "Source folder: ")
+        #self.src_dir_label.place(x=250, y=20)
 
-        self.dst_dir_label = customtkinter.CTkLabel(self, text= "Output folder: ")
-        self.dst_dir_label.place(x=250, y=80)
+        #self.dst_dir_label = customtkinter.CTkLabel(self, text= "Output folder: ")
+        #self.dst_dir_label.place(x=250, y=80)
 
 
 
     def center_window(self):
-        w = 600 # width of the welcome window
-        h = 600 # height of the welcome window
+        w = 600 # width of the root window
+        h = 600 # height of the root window
 
         # get the screen width and height
         screen_x = self.winfo_screenwidth()
@@ -128,4 +135,5 @@ class MainWindow(customtkinter.CTk):
 if __name__ == ("__main__"):
     main_window = MainWindow()
     welcome_window = WelcomeWindow(main_window)
+    main_window.update_idletasks()
     main_window.mainloop()
