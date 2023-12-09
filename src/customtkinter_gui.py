@@ -15,7 +15,8 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         super().__init__(root, *args, **kwargs)
         self.iconbitmap("C:/Users/norppa/nerdCorner/PyARR/src/titlebar_icon.ico")
         self.title("Welcome!")
-        
+        self.geometry('300x100')
+
         info4 = customtkinter.CTkLabel(self, text="Welcome to Python Arranger!")
         info4.pack()
         b1 = customtkinter.CTkButton(
@@ -25,26 +26,10 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         b1.pack()
 
         # call the function center_window
-        self.center_window()
+        #WindowUtils.center_window(self)
         self.resizable(False, False)
-
         self.transient(root)
         self.grab_set()
-
-    # making a function to ensure that the window opens in the middle of the screen
-    def center_window(self):
-        w = 300 # width of the welcome window
-        h = 100 # height of the welcome window
-
-        # get the screen width and height
-        screen_x = self.winfo_screenwidth()
-        screen_y= self.winfo_screenheight()
-
-        # calculate the x and y positions for centering the window
-        x = (screen_x - w) // 2
-        y = (screen_y - h) // 2
-        self.geometry(f'{w}x{h}+{x}+{y}')
-
 class MainWindow(customtkinter.CTk):
     # main window
     # creating the main window and doing some configuration
@@ -54,7 +39,8 @@ class MainWindow(customtkinter.CTk):
         # load icon from disk
         self.iconbitmap("C:/Users/norppa/nerdCorner/PyARR/src/titlebar_icon.ico")
         self.title("PyARR v0.1.0")
-        self.center_window()
+        self.geometry('600x600')
+        WindowUtils.center_window(self)
         self.resizable(False, False)
 
         self.src_frame = source_frame(master=self,
@@ -103,20 +89,6 @@ class MainWindow(customtkinter.CTk):
             command=self.start_sorter)
         start_sorter_btn.place(x=450, y=520)
 
-    def center_window(self):
-        w = 600 # width of the root window
-        h = 600 # height of the root window
-
-        # get the screen width and height
-        screen_x = self.winfo_screenwidth()
-        screen_y= self.winfo_screenheight()
-
-        # calculate the x and y positions for centering the window
-        x = (screen_x - w) // 2
-        y = (screen_y - h) // 2
-
-        self.geometry(f'{w}x{h}+{x}+{y}')
-
     def select_source_directory(self):
         self.src_directory = filedialog.askdirectory()
         self.src_frame.source_dir_info_label.configure(text=self.src_directory)
@@ -161,6 +133,23 @@ class destination_frame(customtkinter.CTkFrame):
             width=10,
             height=30)
         self.dest_dir_info_label.place(x=20, y=10)
+
+class WindowUtils:
+    @staticmethod
+    def center_window(window):
+        w = 600  # width of the window
+        h = 600  # height of the window
+
+        # get the screen width and height
+        screen_x = window.winfo_screenwidth()
+        screen_y = window.winfo_screenheight()
+
+        # calculate the x and y positions for centering the window
+        x = (screen_x - w) // 2
+        y = (screen_y - h) // 2
+
+        #window.geometry(f'{w}x{h}+{x}+{y}')
+
 
 if __name__ == ("__main__"):
     main_window = MainWindow()
