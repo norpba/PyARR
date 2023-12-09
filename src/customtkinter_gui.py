@@ -18,7 +18,10 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         
         info4 = customtkinter.CTkLabel(self, text="Welcome to Python Arranger!")
         info4.pack()
-        b1 = customtkinter.CTkButton(self, text="Close", command=self.destroy)
+        b1 = customtkinter.CTkButton(
+            self,
+            text="Close",
+            command=self.destroy)
         b1.pack()
 
         # call the function center_window
@@ -54,31 +57,34 @@ class MainWindow(customtkinter.CTk):
         self.center_window()
         self.resizable(False, False)
 
-        # create frames
-        source_dir_btn_frame = customtkinter.CTkFrame(self, width=280, height=50)
+        self.src_frame = source_frame(master=self,
+                                      width=280,
+                                      height=50)
+        self.src_frame.place(x=310, y=10)
+
+        self.dest_frame = destination_frame(master=self,
+                                            width=280,
+                                            height=50)
+        self.dest_frame.place(x=310, y=70)
+
+        source_dir_btn_frame = customtkinter.CTkFrame(
+            self,
+            width=280,
+            height=50)
         source_dir_btn_frame.place(x=10, y=10)
 
-        dest_dir_btn_frame = customtkinter.CTkFrame(self, width=280, height=50)
+        dest_dir_btn_frame = customtkinter.CTkFrame(
+            self,
+            width=280,
+            height=50)
         dest_dir_btn_frame.place(x=10, y=70)
 
-        source_dir_info_frame = customtkinter.CTkFrame(self, width=280, height=50)
-        source_dir_info_frame.place(x=310, y=10)
-
-        dest_dir_info_frame = customtkinter.CTkFrame(self, width=280, height=50)
-        dest_dir_info_frame.place(x=310, y=70)
-
-        
-
-        #middle_frame = customtkinter.CTkFrame(self, width=580, height=300)
-        #middle_frame.place(x=10, y=100)
-
-        #bottom_frame = customtkinter.CTkFrame(self, width=580, height=300)
-        #bottom_frame.place(x=10, y=250)
-
-        info_frame = customtkinter.CTkFrame(self, width=580, height=25)
+        info_frame = customtkinter.CTkFrame(
+            self,
+            width=580,
+            height=25)
         info_frame.place(x=10, y=565)
 
-        # create frames and labels inside the first frames
         src_dir_btn = customtkinter.CTkButton(
             self,
             text="Select a folder to sort",
@@ -95,15 +101,7 @@ class MainWindow(customtkinter.CTk):
             self,
             text="Sort",
             command=self.start_sorter)
-        start_sorter_btn.place(x=20, y=120)
-
-        self.src_dir_label = customtkinter.CTkLabel(self, text= "Source folder: ")
-        self.src_dir_label.place(x=250, y=20)
-
-        self.dst_dir_label = customtkinter.CTkLabel(self, text= "Output folder: ")
-        self.dst_dir_label.place(x=250, y=80)
-
-
+        start_sorter_btn.place(x=450, y=520)
 
     def center_window(self):
         w = 600 # width of the root window
@@ -121,20 +119,46 @@ class MainWindow(customtkinter.CTk):
 
     def select_source_directory(self):
         self.src_directory = filedialog.askdirectory()
-        #self.src_dir_label.configure(text=self.src_directory)
+        self.src_dir_label.configure(text=self.src_directory)
 
     def select_destination_directory(self):
         self.dst_directory = filedialog.askdirectory()
-        #self.dst_dir_label.configure(text=self.dst_directory)
+        self.dst_dir_label.configure(text=self.dst_directory)
 
     # call the file sorting logic with the source and destination as the parameters for it
     # use hasattr-function to check if the user has selected the src and dest folders
     def start_sorter(self):
-        if hasattr(self, 'src_directory') and hasattr(self, 'dst_directory'):
-            sort_files(self.src_directory, self.dst_directory)
+        if hasattr(
+            self,
+            'src_directory') and hasattr(
+                self,
+                'dst_directory'):
+            sort_files(
+                self.src_directory,
+                self.dst_directory)
         else:
             print("placeholder")
+class source_frame(customtkinter.CTkFrame):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
 
+        source_dir_info_label = customtkinter.CTkLabel(
+            self,
+            text="Source folder path:",
+            width=10,
+            height=30)
+        source_dir_info_label.place(x=20, y=0)
+
+class destination_frame(customtkinter.CTkFrame):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+
+        dest_dir_info_label = customtkinter.CTkLabel(
+            self,
+            text="Destination folder path:",
+            width=10,
+            height=30)
+        dest_dir_info_label.place(x=20, y=0)
 if __name__ == ("__main__"):
     main_window = MainWindow()
     welcome_window = WelcomeWindow(main_window)
