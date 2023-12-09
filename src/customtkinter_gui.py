@@ -119,11 +119,11 @@ class MainWindow(customtkinter.CTk):
 
     def select_source_directory(self):
         self.src_directory = filedialog.askdirectory()
-        self.src_dir_label.configure(text=self.src_directory)
+        self.src_frame.source_dir_info_label.configure(text=self.src_directory)
 
     def select_destination_directory(self):
         self.dst_directory = filedialog.askdirectory()
-        self.dst_dir_label.configure(text=self.dst_directory)
+        self.dest_frame.dest_dir_info_label.configure(text=self.dst_directory)
 
     # call the file sorting logic with the source and destination as the parameters for it
     # use hasattr-function to check if the user has selected the src and dest folders
@@ -142,23 +142,26 @@ class source_frame(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
 
-        source_dir_info_label = customtkinter.CTkLabel(
+        self.source_dir_info_label = customtkinter.CTkLabel(
             self,
             text="Source folder path:",
+            wraplength=260,
             width=10,
             height=30)
-        source_dir_info_label.place(x=20, y=0)
+        self.source_dir_info_label.place(x=20, y=10)
 
 class destination_frame(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
 
-        dest_dir_info_label = customtkinter.CTkLabel(
+        self.dest_dir_info_label = customtkinter.CTkLabel(
             self,
             text="Destination folder path:",
+            wraplength=260,
             width=10,
             height=30)
-        dest_dir_info_label.place(x=20, y=0)
+        self.dest_dir_info_label.place(x=20, y=10)
+
 if __name__ == ("__main__"):
     main_window = MainWindow()
     welcome_window = WelcomeWindow(main_window)
