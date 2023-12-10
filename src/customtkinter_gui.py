@@ -2,6 +2,7 @@
 # gui for PyARR
 
 import customtkinter
+from tkinter import *
 from tkinter import filedialog
 from sorter import sort_files
 
@@ -15,24 +16,27 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         super().__init__(root, *args, **kwargs)
         self.iconbitmap("C:/Users/norppa/nerdCorner/PyARR/src/titlebar_icon.ico")
         self.title("Welcome!")
-        self.geometry('300x100')
-
-        info4 = customtkinter.CTkLabel(self, text="Welcome to Python Arranger!")
-        info4.pack()
-        b1 = customtkinter.CTkButton(
-            self,
-            text="Close",
-            command=self.destroy)
-        b1.pack()
-
-        # call the function center_window
-        #WindowUtils.center_window(self)
+        self.geometry('250x150')
         self.resizable(False, False)
         self.transient(root)
         self.grab_set()
+        
+        info4 = customtkinter.CTkLabel(self,
+                                       text="Welcome to Python Arranger!",
+                                       font=('', 16))
+        info4.place(x=18, y=20)
+        b1 = customtkinter.CTkButton(
+            self,
+            width=180,
+            height=50,
+            text="Close",
+            command=self.destroy)
+        b1.place(x=35,
+                 y=70)
 class MainWindow(customtkinter.CTk):
     # main window
     # creating the main window and doing some configuration
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
