@@ -114,7 +114,7 @@ class MainWindow(customtkinter.CTk):
                 self.dst_directory)
         else:
             print("placeholder")
-class source_frame(customtkinter.CTkFrame):
+class sourcedestFrame(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
 
@@ -125,11 +125,7 @@ class source_frame(customtkinter.CTkFrame):
             width=10,
             height=30)
         self.source_dir_info_label.place(x=20, y=10)
-
-class destination_frame(customtkinter.CTkFrame):
-    def __init__(self, master, **kwargs):
-        super().__init__(master, **kwargs)
-
+        
         self.dest_dir_info_label = customtkinter.CTkLabel(
             self,
             text="Destination folder path:",
@@ -137,7 +133,7 @@ class destination_frame(customtkinter.CTkFrame):
             width=10,
             height=30)
         self.dest_dir_info_label.place(x=20, y=10)
-
+class sourcedestLabel(customtkinter.CTk)
 class WindowUtils:
     @staticmethod
     def center_window(window):
