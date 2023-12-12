@@ -22,8 +22,15 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
         
-        info4 = customtkinter.CTkLabel(self, text="Welcome to Python Arranger!", font=('', 16))
-        info4.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nwe")
+        info4 = customtkinter.CTkLabel(self,
+                                       font=('', 16),
+                                       text="Welcome to Python Arranger!")
+        info4.grid(row=0,
+                   column=0,
+                   padx=10,
+                   pady=(10, 0),
+                   sticky="nwe")
+        
         b1 = customtkinter.CTkButton(
             self,
             width=180,
@@ -45,13 +52,28 @@ class MainWindow(customtkinter.CTk):
         self.resizable(False, False)
         self.grid_columnconfigure((0, 1), weight=1)
         WindowUtils.center_window(self)
+        self.sourcepath_frame = SourcePathFrame(self)
+        self.sourcepath_frame.grid(columnspan=3,
+                                   row=1,
+                                   column=0,
+                                   padx=10,
+                                   pady=(10, 10),
+                                   sticky="nwe")
         
-        self.sourcebutton_frame = SourceButtonFrame(self)
+        self.sourcebutton_frame = SourceButtonFrame(self.sourcepath_frame, self)
         self.sourcebutton_frame.grid(row=0,
                                      column=0,
                                      padx=10,
                                      pady=(10, 10),
                                      sticky="nw")
+        
+        self.destinationpath_frame = DestinationPathFrame(self)
+        self.destinationpath_frame.grid(columnspan=3,
+                                        row=2,
+                                        column=0,
+                                        padx=10,
+                                        pady=(10, 10),
+                                        sticky="nwe")
         
         self.destinationbutton_frame = DestinationButtonFrame(self)
         self.destinationbutton_frame.grid(row=0,
@@ -66,34 +88,18 @@ class MainWindow(customtkinter.CTk):
                                       padx=10,
                                       pady=(10, 10),
                                       sticky="ne")
-        
-        self.sourcepath_frame = SourcePathFrame(self)
-        self.sourcepath_frame.grid(columnspan=3,
-                                   row=1,
-                                   column=0,
-                                   padx=10,
-                                   pady=(10, 10),
-                                   sticky="nwe")
-        
-        self.destinationpath_frame = DestinationPathFrame(self)
-        self.destinationpath_frame.grid(columnspan=3,
-                                        row=2,
-                                        column=0,
-                                        padx=10,
-                                        pady=(10, 10),
-                                        sticky="nwe")
 
 class SourceButtonFrame(customtkinter.CTkFrame):
-    def __init__(self, master):
-        super().__init__(master)
-        
+    def __init__(self, source_path_frame, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.source_path_frame = source_path_frame
         self.source_button = customtkinter.CTkButton(self, text="Select a folder to sort", command=self.SourceFolder)
         self.source_button.grid(row=0, column=0, padx=10, pady=(10, 10))
         
     def SourceFolder(self):
-        self.source_folder = filedialog.askdirectory()
-        self.source_label.configure(text=self.source_folder)
-        
+        self.src_directory = filedialog.askdirectory()
+        self.source_path_frame.source_label.configure(text=self.src_directory)
+    
 class DestinationButtonFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
@@ -109,8 +115,8 @@ class SortButtonFrame(customtkinter.CTkFrame):
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
 
 class SourcePathFrame(customtkinter.CTkFrame):
-    def __init__(self, master, **kwargs):
-        super().__init__(master, **kwargs)
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
         
         self.source_label = customtkinter.CTkLabel(self, text="Source folder path:", wraplength=560)
         self.source_label.grid(row=0, column=0, padx=20, pady=(10, 10))
@@ -122,8 +128,11 @@ class DestinationPathFrame(customtkinter.CTkFrame):
         self.destination_label = customtkinter.CTkLabel(self, text="Destination folder path:", wraplength=560)
         self.destination_label.grid(row=0, column=0, padx=20, pady=(10, 10))
 
-#class Sorter:
-    #def __init__(self, )
+class Sorter:
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        
+        
     
 class WindowUtils:
     @staticmethod
