@@ -75,7 +75,7 @@ class MainWindow(customtkinter.CTk):
                                         pady=(10, 10),
                                         sticky="nwe")
         
-        self.destinationbutton_frame = DestinationButtonFrame(self)
+        self.destinationbutton_frame = DestinationButtonFrame(self.destinationpath_frame, self)
         self.destinationbutton_frame.grid(row=0,
                                           column=1,
                                           padx=10,
@@ -92,6 +92,7 @@ class MainWindow(customtkinter.CTk):
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, source_path_frame, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
         self.source_path_frame = source_path_frame
         self.source_button = customtkinter.CTkButton(self, text="Select a folder to sort", command=self.SourceFolder)
         self.source_button.grid(row=0, column=0, padx=10, pady=(10, 10))
@@ -101,18 +102,16 @@ class SourceButtonFrame(customtkinter.CTkFrame):
         self.source_path_frame.source_label.configure(text=self.src_directory)
     
 class DestinationButtonFrame(customtkinter.CTkFrame):
-    def __init__(self, master):
-        super().__init__(master)
+    def __init__(self, destination_path_frame, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         
-        self.destination_button = customtkinter.CTkButton(self, text="Select an output folder")
+        self.destination_path_frame = destination_path_frame
+        self.destination_button = customtkinter.CTkButton(self, text="Select an output folder", command=self.DestinationFolder)
         self.destination_button.grid(row=0, column=1, padx=10, pady=(10, 10))
-
-class SortButtonFrame(customtkinter.CTkFrame):
-    def __init__(self, master):
-        super().__init__(master)
         
-        self.sorting_button = customtkinter.CTkButton(self, text="Sort")
-        self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
+    def DestinationFolder(self):
+        self.dst_directory = filedialog.askdirectory()
+        self.destination_path_frame.destination_label.configure(text=self.dst_directory)
 
 class SourcePathFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
@@ -127,6 +126,13 @@ class DestinationPathFrame(customtkinter.CTkFrame):
         
         self.destination_label = customtkinter.CTkLabel(self, text="Destination folder path:", wraplength=560)
         self.destination_label.grid(row=0, column=0, padx=20, pady=(10, 10))
+
+class SortButtonFrame(customtkinter.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
+        
+        self.sorting_button = customtkinter.CTkButton(self, text="Sort")
+        self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
 
 class Sorter:
     def __init__(self, master, *args, **kwargs):
