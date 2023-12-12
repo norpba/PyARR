@@ -2,7 +2,6 @@
 # gui for PyARR
 
 import customtkinter
-from tkinter import *
 from tkinter import filedialog
 from sorter import sort_files
 
@@ -14,7 +13,7 @@ class WelcomeWindow(customtkinter.CTkToplevel):
 
     def __init__(self, root, *args, **kwargs):
         super().__init__(root, *args, **kwargs)
-        self.iconbitmap("C:/Users/norppa/nerdCorner/PyARR/src/titlebar_icon.ico")
+        self.iconbitmap("C:/Users/norppa/code/PyARR/src/titlebar_icon.ico")
         self.title("Welcome!")
         self.geometry('250x150')
         self.resizable(False, False)
@@ -40,7 +39,7 @@ class MainWindow(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.iconbitmap("C:/Users/norppa/nerdCorner/PyARR/src/titlebar_icon.ico")
+        self.iconbitmap("C:/Users/norppa/code/PyARR/src/titlebar_icon.ico")
         self.title("PyARR v0.1.0")
         self.geometry('600x600')
         self.resizable(False, False)
@@ -73,7 +72,7 @@ class MainWindow(customtkinter.CTk):
                                    row=1,
                                    column=0,
                                    padx=10,
-                                   pady=(10, 10,),
+                                   pady=(10, 10),
                                    sticky="nwe")
         
         self.destinationpath_frame = DestinationPathFrame(self)
@@ -81,16 +80,20 @@ class MainWindow(customtkinter.CTk):
                                         row=2,
                                         column=0,
                                         padx=10,
-                                        pady=(10, 10,),
+                                        pady=(10, 10),
                                         sticky="nwe")
 
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         
-        self.source_button = customtkinter.CTkButton(self, text="Select a folder to sort")
+        self.source_button = customtkinter.CTkButton(self, text="Select a folder to sort", command=self.SourceFolder)
         self.source_button.grid(row=0, column=0, padx=10, pady=(10, 10))
-
+        
+    def SourceFolder(self):
+        self.source_folder = filedialog.askdirectory()
+        self.source_label.configure(text=self.source_folder)
+        
 class DestinationButtonFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
@@ -106,8 +109,8 @@ class SortButtonFrame(customtkinter.CTkFrame):
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
 
 class SourcePathFrame(customtkinter.CTkFrame):
-    def __init__(self, master):
-        super().__init__(master)
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
         
         self.source_label = customtkinter.CTkLabel(self, text="Source folder path:", wraplength=560)
         self.source_label.grid(row=0, column=0, padx=20, pady=(10, 10))
@@ -119,6 +122,9 @@ class DestinationPathFrame(customtkinter.CTkFrame):
         self.destination_label = customtkinter.CTkLabel(self, text="Destination folder path:", wraplength=560)
         self.destination_label.grid(row=0, column=0, padx=20, pady=(10, 10))
 
+#class Sorter:
+    #def __init__(self, )
+    
 class WindowUtils:
     @staticmethod
     def center_window(window):
