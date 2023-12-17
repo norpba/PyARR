@@ -9,10 +9,9 @@ customtkinter.set_appearance_mode("system")
 customtkinter.set_default_color_theme("green")
 
 class WelcomeWindow(customtkinter.CTkToplevel):
-    # welcome window
-
     def __init__(self, root, *args, **kwargs):
         super().__init__(root, *args, **kwargs)
+        
         self.iconbitmap("C:/Users/norppa/code/PyARR/src/titlebar_icon.ico")
         self.title("Welcome!")
         self.geometry('250x150')
@@ -22,27 +21,13 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
         
-        info4 = customtkinter.CTkLabel(self,
-                                       font=('', 16),
-                                       text="Welcome to Python Arranger!")
-        info4.grid(row=0,
-                   column=0,
-                   padx=10,
-                   pady=(10, 0),
-                   sticky="nwe")
+        info4 = customtkinter.CTkLabel(self, font=('', 16), text="Welcome to Python Arranger!")
+        info4.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nwe")
         
-        b1 = customtkinter.CTkButton(
-            self,
-            width=180,
-            height=50,
-            text="Close",
-            command=self.destroy)
+        b1 = customtkinter.CTkButton(self, width=180, height=50, text="Close", command=self.destroy)
         b1.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="swe")
         
 class MainWindow(customtkinter.CTk):
-    # main window
-    # creating the main window and doing some configuration
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -54,41 +39,19 @@ class MainWindow(customtkinter.CTk):
         WindowUtils.center_window(self)
         
         self.sourcepath_frame = SourcePathFrame(self)
-        self.sourcepath_frame.grid(columnspan=3,
-                                   row=1,
-                                   column=0,
-                                   padx=10,
-                                   pady=(10, 10),
-                                   sticky="nwe")
+        self.sourcepath_frame.grid(columnspan=3, row=1, column=0, padx=10, pady=(10, 10),sticky="nwe")
         
         self.destinationpath_frame = DestinationPathFrame(self)
-        self.destinationpath_frame.grid(columnspan=3,
-                                        row=2,
-                                        column=0,
-                                        padx=10,
-                                        pady=(10, 10),
-                                        sticky="nwe")
+        self.destinationpath_frame.grid(columnspan=3, row=2, column=0, padx=10, pady=(10, 10), sticky="nwe")
         
         self.sourcebutton_frame = SourceButtonFrame(self.sourcepath_frame, self)
-        self.sourcebutton_frame.grid(row=0,
-                                     column=0,
-                                     padx=10,
-                                     pady=(10, 10),
-                                     sticky="nw")
+        self.sourcebutton_frame.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="nw")
         
         self.destinationbutton_frame = DestinationButtonFrame(self.destinationpath_frame, self)
-        self.destinationbutton_frame.grid(row=0,
-                                          column=1,
-                                          padx=10,
-                                          pady=(10, 10),
-                                          sticky="nw")
+        self.destinationbutton_frame.grid(row=0, column=1, padx=10, pady=(10, 10), sticky="nw")
         
         self.sortingbutton_frame = SortButtonFrame(self, self.sourcebutton_frame, self.destinationbutton_frame)
-        self.sortingbutton_frame.grid(row=0,
-                                      column=2,
-                                      padx=10,
-                                      pady=(10, 10),
-                                      sticky="ne")
+        self.sortingbutton_frame.grid(row=0, column=2, padx=10, pady=(10, 10), sticky="ne")
 
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, source_path_frame, *args, **kwargs):
@@ -134,7 +97,7 @@ class SortButtonFrame(customtkinter.CTkFrame):
     def __init__(self, master, source_button_frame, destination_button_frame, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
-        self.source_button_frame = source_button_frame  # Update the attribute name
+        self.source_button_frame = source_button_frame
         self.destination_button_frame = destination_button_frame
         
         self.sorting_button = customtkinter.CTkButton(self, text="Sort", command=self.run_sorter)
@@ -142,12 +105,8 @@ class SortButtonFrame(customtkinter.CTkFrame):
     
     def run_sorter(self):
         if hasattr(self.source_button_frame, 'src_directory') and hasattr(self.destination_button_frame, 'dst_directory'):
-            src_directory = self.source_button_frame.src_directory  # update the attribute name
-            dst_directory = self.destination_button_frame.dst_directory # update the attribute name
-            
-            print("Source dir: ", src_directory)
-            print("Destination dir: ", dst_directory)
-            
+            src_directory = self.source_button_frame.src_directory
+            dst_directory = self.destination_button_frame.dst_directory
             sort_files(src_directory, dst_directory)
         else:
             print("Source Directory not set.")
@@ -166,13 +125,9 @@ class WindowUtils:
         x = (screen_x - w) // 2
         y = (screen_y - h) // 2
 
-        #window.geometry(f'{w}x{h}+{x}+{y}')
-
 if __name__ == ("__main__"):
     main_window = MainWindow()
     welcome_window = WelcomeWindow(main_window)
-    sort_button_frame = SortButtonFrame(main_window,
-                                        main_window.sourcebutton_frame,
-                                        main_window.destinationbutton_frame)
+    sort_button_frame = SortButtonFrame(main_window, main_window.sourcebutton_frame, main_window.destinationbutton_frame)
     main_window.update_idletasks()
     main_window.mainloop()
