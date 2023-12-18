@@ -14,12 +14,17 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         
         self.iconbitmap("C:/Users/norppa/code/PyARR/src/titlebar_icon.ico")
         self.title("Welcome!")
-        self.geometry('250x150')
         self.resizable(False, False)
         self.transient(root)
         self.grab_set()
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
+        
+        width = 250
+        height = 120
+        self.width = width
+        self.height = height
+        WindowUtils.center_window(self, self.width, self.height)
         
         info4 = customtkinter.CTkLabel(self, font=('', 16), text="Welcome to Python Arranger!")
         info4.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nwe")
@@ -30,13 +35,17 @@ class WelcomeWindow(customtkinter.CTkToplevel):
 class MainWindow(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        
         self.iconbitmap("C:/Users/norppa/code/PyARR/src/titlebar_icon.ico")
         self.title("PyARR v0.1.0")
-        self.geometry('600x600')
         self.resizable(False, False)
         self.grid_columnconfigure((0, 1), weight=1)
-        WindowUtils.center_window(self)
+        
+        width = 600
+        height = 500
+        self.width = width
+        self.height = height
+        WindowUtils.center_window(self, self.width, self.height)
         
         self.sourcepath_frame = SourcePathFrame(self)
         self.sourcepath_frame.grid(columnspan=3, row=1, column=0, padx=10, pady=(10, 10),sticky="nwe")
@@ -58,7 +67,6 @@ class SourceButtonFrame(customtkinter.CTkFrame):
         super().__init__(*args, **kwargs)
         
         self.source_path_frame = source_path_frame
-        
         self.source_button = customtkinter.CTkButton(self, text="Select a folder to sort", command=self.SourceFolder)
         self.source_button.grid(row=0, column=0, padx=10, pady=(10, 10))
         
@@ -71,7 +79,6 @@ class DestinationButtonFrame(customtkinter.CTkFrame):
         super().__init__(*args, **kwargs)
         
         self.destination_path_frame = destination_path_frame
-        
         self.destination_button = customtkinter.CTkButton(self, text="Select an output folder", command=self.DestinationFolder)
         self.destination_button.grid(row=0, column=1, padx=10, pady=(10, 10))
         
@@ -112,18 +119,14 @@ class SortButtonFrame(customtkinter.CTkFrame):
             print("Source Directory not set.")
 
 class WindowUtils:
-    @staticmethod
-    def center_window(window):
-        w = 600  # width of the window
-        h = 600  # height of the window
-
+    def center_window(window, w, h):
         # get the screen width and height
         screen_x = window.winfo_screenwidth()
         screen_y = window.winfo_screenheight()
-
         # calculate the x and y positions for centering the window
         x = (screen_x - w) // 2
         y = (screen_y - h) // 2
+        window.geometry(f'{w}x{h}+{x}+{y}')
 
 if __name__ == ("__main__"):
     main_window = MainWindow()
