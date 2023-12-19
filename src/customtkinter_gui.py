@@ -20,12 +20,11 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
         
-        # self, width * height
-        WindowUtils.center_window(self, 300, 120)
+        # calling the function center window with the parameters; self, width * height
+        center_window(self, 300, 120)
         
         info4 = customtkinter.CTkLabel(self, font=('', 16), text="Welcome to Python Arranger!")
         info4.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nwe")
-        
         b1 = customtkinter.CTkButton(self, width=180, height=50, text="Close", command=self.destroy)
         b1.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="swe")
         
@@ -36,25 +35,29 @@ class MainWindow(customtkinter.CTk):
         self.iconbitmap("C:/Users/norppa/code/PyARR/src/titlebar_icon.ico")
         self.title("PyARR v0.1.0")
         self.resizable(False, False)
-        self.grid_columnconfigure((0, 1), weight=1)
+        self.grid_columnconfigure((0, 1, 2), weight=1)
+        self.grid_rowconfigure((0,1,2), weight=1)
+        self.grid_rowconfigure(3, weight=20) # change the weight when more frames are added
         
-        # self, width * height
-        WindowUtils.center_window(self, 600, 500)
+        center_window(self, 600, 500)
         
         self.sourcepath_frame = SourcePathFrame(self)
-        self.sourcepath_frame.grid(columnspan=3, row=1, column=0, padx=10, pady=(10, 10),sticky="nwe")
+        self.sourcepath_frame.grid(rowspan=1, columnspan=3, row=1, column=0, padx=10, pady=(0, 10), sticky="nwe")
         
         self.destinationpath_frame = DestinationPathFrame(self)
-        self.destinationpath_frame.grid(columnspan=3, row=2, column=0, padx=10, pady=(10, 10), sticky="nwe")
+        self.destinationpath_frame.grid(rowspan=3, columnspan=3, row=2, column=0, padx=10, pady=(0, 10), sticky="nwe")
         
         self.sourcebutton_frame = SourceButtonFrame(self.sourcepath_frame, self)
-        self.sourcebutton_frame.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="nw")
+        self.sourcebutton_frame.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="nwe")
         
         self.destinationbutton_frame = DestinationButtonFrame(self.destinationpath_frame, self)
-        self.destinationbutton_frame.grid(row=0, column=1, padx=10, pady=(10, 10), sticky="nw")
+        self.destinationbutton_frame.grid(row=0, column=1, padx=10, pady=(10, 10), sticky="ne")
         
         self.sortingbutton_frame = SortButtonFrame(self, self.sourcebutton_frame, self.destinationbutton_frame)
         self.sortingbutton_frame.grid(row=0, column=2, padx=10, pady=(10, 10), sticky="ne")
+        
+        self.quitframe = QuitFrame(self)
+        self.quitframe.grid(row=10, column=2, padx=10, pady=(10, 10), sticky="se")
 
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, source_path_frame, *args, **kwargs):
@@ -112,15 +115,21 @@ class SortButtonFrame(customtkinter.CTkFrame):
         else:
             print("Source Directory not set.")
 
-class WindowUtils:
-    def center_window(window, w, h):
-        # get the screen width and height
-        screen_x = window.winfo_screenwidth()
-        screen_y = window.winfo_screenheight()
-        # calculate the x and y positions for centering the window
-        x = (screen_x - w) // 2
-        y = (screen_y - h) // 2
-        window.geometry(f'{w}x{h}+{x}+{y}')
+class QuitFrame(customtkinter.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
+
+        self.quitbutton = customtkinter.CTkButton(self, text="Quit", command=self.quit)
+        self.quitbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
+        
+def center_window(window, w, h):
+    # get the screen width and height
+    screen_x = window.winfo_screenwidth()
+    screen_y = window.winfo_screenheight()
+    # calculate the x and y positions for centering the window
+    x = (screen_x - w) // 2
+    y = (screen_y - h) // 2
+    window.geometry(f'{w}x{h}+{x}+{y}')
 
 if __name__ == ("__main__"):
     main_window = MainWindow()
