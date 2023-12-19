@@ -20,11 +20,8 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
         
-        width = 250
-        height = 120
-        self.width = width
-        self.height = height
-        WindowUtils.center_window(self, self.width, self.height)
+        # self, width * height
+        WindowUtils.center_window(self, 300, 120)
         
         info4 = customtkinter.CTkLabel(self, font=('', 16), text="Welcome to Python Arranger!")
         info4.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nwe")
@@ -41,11 +38,8 @@ class MainWindow(customtkinter.CTk):
         self.resizable(False, False)
         self.grid_columnconfigure((0, 1), weight=1)
         
-        width = 600
-        height = 500
-        self.width = width
-        self.height = height
-        WindowUtils.center_window(self, self.width, self.height)
+        # self, width * height
+        WindowUtils.center_window(self, 600, 500)
         
         self.sourcepath_frame = SourcePathFrame(self)
         self.sourcepath_frame.grid(columnspan=3, row=1, column=0, padx=10, pady=(10, 10),sticky="nwe")
