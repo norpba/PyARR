@@ -29,7 +29,7 @@ def sort_files(src_directory, dst_directory):
 
         # create a variable to hold the creation year of the current item
         # seems to be working for both macOS and windows right now
-        year_dir_name = modification_datetime[len(modification_datetime) - 4:]
+        year_dir_name = creation_datetime[len(creation_datetime) - 4:]
 
         # create a full path for the new dir
         new_dir = os.path.join(dst_directory, year_dir_name)
