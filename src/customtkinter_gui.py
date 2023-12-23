@@ -1,33 +1,13 @@
 
 # gui for PyARR
 
+from typing import Optional, Tuple, Union
 import customtkinter
 from tkinter import filedialog
 from sorter import sort_files
 
 customtkinter.set_appearance_mode("system")
 customtkinter.set_default_color_theme("green")
-
-class WelcomeWindow(customtkinter.CTkToplevel):
-    def __init__(self, root, *args, **kwargs):
-        super().__init__(root, *args, **kwargs)
-        
-        self.iconbitmap("C:/Users/norppa/code/PyARR/src/titlebar_icon.ico")
-        self.title("Welcome!")
-        self.resizable(False, False)
-        self.transient(root)
-        self.grab_set()
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=1)
-        
-        # calling the function center window with the parameters; self, width * height
-        center_window(self, 300, 120)
-        
-        info4 = customtkinter.CTkLabel(self, font=('', 16), text="Welcome to Python Arranger!")
-        info4.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nwe")
-        b1 = customtkinter.CTkButton(self, width=180, height=50, text="Close", command=self.destroy)
-        b1.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="swe")
-        
 class MainWindow(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -38,7 +18,6 @@ class MainWindow(customtkinter.CTk):
         self.grid_columnconfigure((0, 1, 2), weight=1)
         self.grid_rowconfigure((0,1,2), weight=1)
         self.grid_rowconfigure(3, weight=20) # change the weight when more frames are added
-        
         center_window(self, 600, 500)
         
         self.sourcepath_frame = SourcePathFrame(self)
@@ -58,7 +37,49 @@ class MainWindow(customtkinter.CTk):
         
         self.quitframe = QuitFrame(self)
         self.quitframe.grid(row=10, column=2, padx=10, pady=(10, 10), sticky="se")
+        
+class WelcomeWindow(customtkinter.CTkToplevel):
+    def __init__(self, root, *args, **kwargs):
+        super().__init__(root, *args, **kwargs)
+        
+        self.iconbitmap("C:/Users/norppa/code/PyARR/src/titlebar_icon.ico")
+        self.title("Welcome!")
+        self.resizable(False, False)
+        self.transient(root)
+        self.grab_set()
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        
+        # calling the function center window with the parameters; self, width * height
+        center_window(self, 300, 120)
+        
+        info4 = customtkinter.CTkLabel(self, font=('', 16), text="Welcome to Python Arranger!")
+        info4.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nwe")
+        b1 = customtkinter.CTkButton(self, width=180, height=50, text="Close", command=self.destroy)
+        b1.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="swe")
 
+class ConfirmationWindow(customtkinter.CTkToplevel):
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        
+        self.title("Confirmation")
+        self.grid_columnconfigure((1, 2, 3, 4, 5, 6, 7), weight=1)
+        self.grid_rowconfigure((0, 1), weight=1)
+        self.grid_rowconfigure((2), weight=2)
+        self.resizable(False, False)
+        self.transient(master)
+        self.grab_set()
+        center_window(self, 250, 100)
+        
+        self.confirmation_label = customtkinter.CTkLabel(self, text="Are you sure you want to quit?")
+        self.confirmation_label.grid(row=0, column=0, columnspan=5, padx=10, sticky="n")
+        
+        self.confirmation_button = customtkinter.CTkButton(self, width=50, height=25, text="Yes")
+        self.confirmation_button.grid(row=2, column=6, pady=(5, 10), sticky="se")
+        
+        self.cancel_button = customtkinter.CTkButton(self, width=50, height=25, text="No")
+        self.cancel_button.grid(row=2, column=7, padx=20, pady=(5, 10), sticky="se")
+        
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, source_path_frame, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -116,11 +137,13 @@ class SortButtonFrame(customtkinter.CTkFrame):
             print("Source Directory not set.")
 
 class QuitFrame(customtkinter.CTkFrame):
-    def __init__(self, master):
-        super().__init__(master)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        self.quitbutton = customtkinter.CTkButton(self, text="Quit", command=self.quit)
+        self.quitbutton = customtkinter.CTkButton(self, text="Quit", command=self.confwindow)
         self.quitbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
+    def confwindow(self):
+        self.Confirmation_Window = ConfirmationWindow(self)
         
 def center_window(window, w, h):
     # get the screen width and height
