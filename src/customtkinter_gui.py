@@ -1,7 +1,6 @@
 
 # gui for PyARR
 
-from typing import Optional, Tuple, Union
 import customtkinter
 from tkinter import filedialog
 from sorter import sort_files
@@ -27,10 +26,10 @@ class MainWindow(customtkinter.CTk):
         self.destinationpath_frame.grid(rowspan=3, columnspan=3, row=2, column=0, padx=10, pady=(0, 10), sticky="nwe")
         
         self.sourcebutton_frame = SourceButtonFrame(self.sourcepath_frame, self)
-        self.sourcebutton_frame.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="nwe")
+        self.sourcebutton_frame.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="nw")
         
         self.destinationbutton_frame = DestinationButtonFrame(self.destinationpath_frame, self)
-        self.destinationbutton_frame.grid(row=0, column=1, padx=10, pady=(10, 10), sticky="ne")
+        self.destinationbutton_frame.grid(row=0, column=1, padx=10, pady=(10, 10), sticky="nwe")
         
         self.sortingbutton_frame = SortButtonFrame(self, self.sourcebutton_frame, self.destinationbutton_frame)
         self.sortingbutton_frame.grid(row=0, column=2, padx=10, pady=(10, 10), sticky="ne")
@@ -42,6 +41,8 @@ class WelcomeWindow(customtkinter.CTkToplevel):
     def __init__(self, root, *args, **kwargs):
         super().__init__(root, *args, **kwargs)
         
+        # calling the function center window with the parameters; self, width * height
+        center_window(self, 300, 120)
         self.iconbitmap("C:/Users/norppa/code/PyARR/src/titlebar_icon.ico")
         self.title("Welcome!")
         self.resizable(False, False)
@@ -49,9 +50,6 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         self.grab_set()
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
-        
-        # calling the function center window with the parameters; self, width * height
-        center_window(self, 300, 120)
         
         info4 = customtkinter.CTkLabel(self, font=('', 16), text="Welcome to Python Arranger!")
         info4.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nwe")
@@ -62,23 +60,23 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
+        center_window(self, 350, 100)
         self.title("Confirmation")
-        self.grid_columnconfigure((1, 2, 3, 4, 5, 6, 7), weight=1)
-        self.grid_rowconfigure((0, 1), weight=1)
-        self.grid_rowconfigure((2), weight=2)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=8)
+        self.grid_rowconfigure((0, 1, 2, 3, 4, 5), weight=1)
         self.resizable(False, False)
         self.transient(master)
         self.grab_set()
-        center_window(self, 250, 100)
         
-        self.confirmation_label = customtkinter.CTkLabel(self, text="Are you sure you want to quit?")
-        self.confirmation_label.grid(row=0, column=0, columnspan=5, padx=10, sticky="n")
+        self.confirmation_label = customtkinter.CTkLabel(self, text="Are you sure you want to quit?", font=("", 14))
+        self.confirmation_label.grid(row=2, column=1, columnspan=20, padx=(10, 25), pady=(5, 0), sticky="n")
         
-        self.confirmation_button = customtkinter.CTkButton(self, width=50, height=25, text="Yes")
-        self.confirmation_button.grid(row=2, column=6, pady=(5, 10), sticky="se")
+        self.confirmation_button = customtkinter.CTkButton(self, width=70, height=25, text="Yes")
+        self.confirmation_button.grid(row=5, column=6, pady=(10, 15), sticky="se")
         
-        self.cancel_button = customtkinter.CTkButton(self, width=50, height=25, text="No")
-        self.cancel_button.grid(row=2, column=7, padx=20, pady=(5, 10), sticky="se")
+        self.cancel_button = customtkinter.CTkButton(self, width=70, height=25, text="No")
+        self.cancel_button.grid(row=5, column=7, padx=20, pady=(10, 15), sticky="se")
         
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, source_path_frame, *args, **kwargs):
@@ -98,7 +96,7 @@ class DestinationButtonFrame(customtkinter.CTkFrame):
         
         self.destination_path_frame = destination_path_frame
         self.destination_button = customtkinter.CTkButton(self, text="Select an output folder", command=self.DestinationFolder)
-        self.destination_button.grid(row=0, column=1, padx=10, pady=(10, 10))
+        self.destination_button.grid(row=0, column=1, padx=(15, 0), pady=(10, 10), sticky="nwe")
         
     def DestinationFolder(self):
         self.dst_directory = filedialog.askdirectory()
