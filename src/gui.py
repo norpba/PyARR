@@ -23,7 +23,6 @@ class MainWindow(customtkinter.CTk):
         self.grid_rowconfigure((0, 1, 2), weight=1)
         self.grid_rowconfigure(3, weight=20)
         
-        
         self.sourcepath_frame = SourcePathFrame(self)
         self.sourcepath_frame.grid(rowspan=1, columnspan=3, row=1, column=0, padx=10, pady=(0, 10), sticky="nwe")
         
@@ -64,7 +63,6 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
-        center_window(self, 350, 100)
         self.title("Confirmation")
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=8)
@@ -72,6 +70,7 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         self.resizable(False, False)
         self.transient(master)
         self.grab_set()
+        center_window(self, 350, 100)
         
         self.confirmation_label = customtkinter.CTkLabel(self, text="Are you sure you want to quit?", font=("", 14))
         self.confirmation_label.grid(row=2, column=1, columnspan=20, padx=(10, 25), pady=(5, 0), sticky="n")
