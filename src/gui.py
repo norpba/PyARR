@@ -1,8 +1,8 @@
 
 # gui for PyARR
-
+import platform
 import customtkinter
-from tkinter import filedialog
+from tkinter import filedialog, PhotoImage
 from sorter import sort_files
 
 customtkinter.set_appearance_mode("system")
@@ -11,13 +11,18 @@ class MainWindow(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.iconbitmap("C:/Users/norppa/code/PyARR/src/titlebar_icon.ico")
+        icon_path = detect_os()
+        icon_image = PhotoImage(file=icon_path)
+        self.wm_iconphoto(True, icon_image)
+        
+        center_window(self, 600, 500)
+        
         self.title("PyARR v0.1.0")
         self.resizable(False, False)
         self.grid_columnconfigure((0, 1, 2), weight=1)
-        self.grid_rowconfigure((0,1,2), weight=1)
-        self.grid_rowconfigure(3, weight=20) # change the weight when more frames are added
-        center_window(self, 600, 500)
+        self.grid_rowconfigure((0, 1, 2), weight=1)
+        self.grid_rowconfigure(3, weight=20)
+        
         
         self.sourcepath_frame = SourcePathFrame(self)
         self.sourcepath_frame.grid(rowspan=1, columnspan=3, row=1, column=0, padx=10, pady=(0, 10), sticky="nwe")
@@ -43,7 +48,6 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         
         # calling the function center window with the parameters; self, width * height
         center_window(self, 300, 120)
-        self.iconbitmap("C:/Users/norppa/code/PyARR/src/titlebar_icon.ico")
         self.title("Welcome!")
         self.resizable(False, False)
         self.transient(root)
@@ -72,10 +76,10 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         self.confirmation_label = customtkinter.CTkLabel(self, text="Are you sure you want to quit?", font=("", 14))
         self.confirmation_label.grid(row=2, column=1, columnspan=20, padx=(10, 25), pady=(5, 0), sticky="n")
         
-        self.confirmation_button = customtkinter.CTkButton(self, width=70, height=25, text="Yes")
+        self.confirmation_button = customtkinter.CTkButton(self, width=70, height=25, text="Yes", command=self.quit)
         self.confirmation_button.grid(row=5, column=6, pady=(10, 15), sticky="se")
         
-        self.cancel_button = customtkinter.CTkButton(self, width=70, height=25, text="No")
+        self.cancel_button = customtkinter.CTkButton(self, width=70, height=25, text="No", command=self.destroy)
         self.cancel_button.grid(row=5, column=7, padx=20, pady=(10, 15), sticky="se")
         
 class SourceButtonFrame(customtkinter.CTkFrame):
@@ -151,6 +155,12 @@ def center_window(window, w, h):
     x = (screen_x - w) // 2
     y = (screen_y - h) // 2
     window.geometry(f'{w}x{h}+{x}+{y}')
+
+def detect_os():
+    if platform.system() == "Windows":
+        return "titlebar_icon.ico"
+    else:
+        return "titlebar_icon.png"
 
 if __name__ == ("__main__"):
     main_window = MainWindow()
