@@ -11,10 +11,8 @@ class MainWindow(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        icon_path = detect_os()
-        icon_image = PhotoImage(file=icon_path)
-        self.wm_iconphoto(True, icon_image)
-        
+        self.detect_os()
+        print(self.iconbitmap())
         center_window(self, 600, 500)
         
         self.title("PyARR v0.1.0")
@@ -39,12 +37,21 @@ class MainWindow(customtkinter.CTk):
         self.sortingbutton_frame.grid(row=0, column=2, padx=10, pady=(10, 10), sticky="ne")
         
         self.quitframe = QuitFrame(self)
-        self.quitframe.grid(row=10, column=2, padx=10, pady=(10, 10), sticky="se")
+        self.quitframe.grid(row=10, column=2, padx=10, pady=(10, 10), sticky="se")       
+    
+    def detect_os(self):
+        if platform.system() == "Windows":
+            self.wm_iconbitmap(self, default='titlebar_icon.ico')
+        else:
+            self.icon_image = PhotoImage(file='titlebar_icon.png')
+            self.wm_iconphoto(True, 'titlebar_icon.png')
+        print(self.iconbitmap())
+
         
 class WelcomeWindow(customtkinter.CTkToplevel):
     def __init__(self, root, *args, **kwargs):
         super().__init__(root, *args, **kwargs)
-        
+
         # calling the function center window with the parameters; self, width * height
         center_window(self, 300, 120)
         self.title("Welcome!")
@@ -145,7 +152,11 @@ class QuitFrame(customtkinter.CTkFrame):
         self.quitbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
     def confwindow(self):
         self.Confirmation_Window = ConfirmationWindow(self)
-        
+
+class Functions():
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
 def center_window(window, w, h):
     # get the screen width and height
     screen_x = window.winfo_screenwidth()
@@ -154,12 +165,6 @@ def center_window(window, w, h):
     x = (screen_x - w) // 2
     y = (screen_y - h) // 2
     window.geometry(f'{w}x{h}+{x}+{y}')
-
-def detect_os():
-    if platform.system() == "Windows":
-        return "titlebar_icon.ico"
-    else:
-        return "titlebar_icon.png"
 
 if __name__ == ("__main__"):
     main_window = MainWindow()
