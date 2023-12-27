@@ -5,8 +5,9 @@ import os
 import shutil
 import time
 from pathlib import Path
+from queue import Queue
 
-def sort_files(src_directory, dst_directory):
+def sort_files(src_directory, dst_directory, progress_queue):
     # use os.path.expanduser() to handle ~ in the path
     src = Path(src_directory).expanduser()
     dst_directory = os.path.expanduser(dst_directory)
@@ -14,11 +15,15 @@ def sort_files(src_directory, dst_directory):
     # check if the destination directory exists before creating it
     if not os.path.exists(dst_directory):
         os.makedirs(dst_directory)
-
+    
+    item_count = 0
+    total_items = len(list(src.glob('*')))
+    
     # create folders that are named after the file modification year and copy files from
     # the source directory into the newly created folders based on the file modification year
     for item in src.glob('*'):
-
+        item_count +=1
+        
         # get the creation and modification datetime of the file
         creation_time = os.path.getctime(item)
         modification_time = os.path.getmtime(item)
@@ -42,7 +47,12 @@ def sort_files(src_directory, dst_directory):
         
         if item.is_dir():
             shutil.copytree(item, destination_file_path)
-            # continue here <--------------------
-            
         else:
             shutil.copy2(item, destination_file_path)
+        
+        # calculate progress percentage and update the queue after every item
+        progress_percentage = (item_count / total_items) * 100
+        progress_queue.put(progress_percentage)
+    
+    #sorting complete
+    progress_queue.put(100)

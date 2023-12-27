@@ -1,9 +1,10 @@
 
 # gui for PyARR
-import platform
 import customtkinter
 from tkinter import filedialog, PhotoImage
 from sorter import sort_files
+from threading import Thread
+from queue import Queue
 
 customtkinter.set_appearance_mode("system")
 customtkinter.set_default_color_theme("green")
@@ -56,6 +57,7 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         info4.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nwe")
         b1 = customtkinter.CTkButton(self, width=180, height=50, text="Close", command=self.destroy)
         b1.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="swe")
+        
 class ConfirmationWindow(customtkinter.CTkToplevel):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -70,16 +72,34 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         self.transient(master)
         self.grab_set()
         
+        self.frame1 = customtkinter.CTkFrame(self)
+        self.frame1.grid(row=2, column=1, columnspan=20, padx=(10, 10), pady=(5, 0), sticky="n")
         
-        self.confirmation_label = customtkinter.CTkLabel(self, text="Are you sure you want to quit?", font=("", 14))
-        self.confirmation_label.grid(row=2, column=1, columnspan=20, padx=(10, 25), pady=(5, 0), sticky="n")
+        self.confirmation_label = customtkinter.CTkLabel(self.frame1, text="Are you sure you want to quit?", font=("", 14))
+        self.confirmation_label.grid(row=2, column=1, columnspan=20, padx=(10, 10))
         
         self.confirmation_button = customtkinter.CTkButton(self, width=70, height=25, text="Yes", command=self.quit)
         self.confirmation_button.grid(row=5, column=6, pady=(10, 15), sticky="se")
         
         self.cancel_button = customtkinter.CTkButton(self, width=70, height=25, text="No", command=self.destroy)
         self.cancel_button.grid(row=5, column=7, padx=20, pady=(10, 15), sticky="se")
-            
+
+class ProgressBar(customtkinter.CTkToplevel):
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        
+        icon(self)
+        center_window(self, 500, 200)
+        self.title("Sorting progress")
+        self.resizable(False, False)
+        self.grab_set()
+                
+        self.progress_queue = Queue()
+        
+        self.progress_label = customtkinter.CTkLabel(self, text="Sorting items...", font=("", 14))
+        self.progress_label.grid()
+        
+        self.progress_bar = customtkinter.CTkProgressBar(self,)
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, source_path_frame, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -91,6 +111,7 @@ class SourceButtonFrame(customtkinter.CTkFrame):
     def SourceFolder(self):
         self.src_directory = filedialog.askdirectory()
         self.source_path_frame.source_label.configure(text=self.src_directory)
+        
 class DestinationButtonFrame(customtkinter.CTkFrame):
     def __init__(self, destination_path_frame, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -102,18 +123,21 @@ class DestinationButtonFrame(customtkinter.CTkFrame):
     def DestinationFolder(self):
         self.dst_directory = filedialog.askdirectory()
         self.destination_path_frame.destination_label.configure(text=self.dst_directory)
+        
 class SourcePathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         
         self.source_label = customtkinter.CTkLabel(self, text="Source folder path:", wraplength=560)
         self.source_label.grid(row=0, column=0, padx=20, pady=(10, 10))
+        
 class DestinationPathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         
         self.destination_label = customtkinter.CTkLabel(self, text="Destination folder path:", wraplength=560)
         self.destination_label.grid(row=0, column=0, padx=20, pady=(10, 10))
+        
 class SortButtonFrame(customtkinter.CTkFrame):
     def __init__(self, master, source_button_frame, destination_button_frame, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -123,7 +147,7 @@ class SortButtonFrame(customtkinter.CTkFrame):
         
         self.sorting_button = customtkinter.CTkButton(self, text="Sort", command=self.run_sorter)
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
-    
+
     def run_sorter(self):
         if hasattr(self.source_button_frame, 'src_directory') and hasattr(self.destination_button_frame, 'dst_directory'):
             src_directory = self.source_button_frame.src_directory
@@ -131,6 +155,7 @@ class SortButtonFrame(customtkinter.CTkFrame):
             sort_files(src_directory, dst_directory)
         else:
             print("Source Directory not set.")
+            
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -141,6 +166,7 @@ class QuitFrame(customtkinter.CTkFrame):
         self.Confirmation_Window = ConfirmationWindow(self)
 
 def icon(self):
+    # if this does not work on macos, use 'platform.system' and make a if-statement to check whether the script runs on os or windows.
     self.wm_iconbitmap()
     self.after(199, lambda: self.wm_iconphoto(False, PhotoImage(file='titlebar_icon.png')))
             

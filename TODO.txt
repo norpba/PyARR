@@ -1,2 +1,19 @@
 - The program
-- Theme?
+    - somewhat done, need to refactor the logic a bit after I've finished the gui code.
+
+- GUI
+    - Elements that are done:
+        buttons; source dir, destination dir, start the sorting process, confirmation menu (can be reused, but that will need a little bit of refactoring of the code), quit program.
+        frames; source dir, destination dir, sort button, source and dest path.
+    
+    - next up:
+        - progress bar
+            - it will open into a TopLevel window with these elements:
+                - a label
+                - frames for buttons, the label and the progress bar
+                - one button to cancel the sorting progress and an "OK" button in a pop-up TopLevel window that is created after the sorting is completed.
+
+        - "logger" window that shows all the items that have been copied, this will mainly be for the looks and for the sake of my learning process.
+
+- bugs to be fixed before v0.2.0
+    - source and destination paths (labels?) disappearing after canceling or closing the folder selection window.
