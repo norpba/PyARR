@@ -10,9 +10,9 @@ customtkinter.set_default_color_theme("green")
 class MainWindow(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        self.detect_os()
-        print(self.iconbitmap())
+
+        icon(self)
+        # calling the function center window with the parameters; self, width * height
         center_window(self, 600, 500)
         
         self.title("PyARR v0.1.0")
@@ -37,22 +37,13 @@ class MainWindow(customtkinter.CTk):
         self.sortingbutton_frame.grid(row=0, column=2, padx=10, pady=(10, 10), sticky="ne")
         
         self.quitframe = QuitFrame(self)
-        self.quitframe.grid(row=10, column=2, padx=10, pady=(10, 10), sticky="se")       
-    
-    def detect_os(self):
-        if platform.system() == "Windows":
-            self.wm_iconbitmap(self, default='titlebar_icon.ico')
-        else:
-            self.icon_image = PhotoImage(file='titlebar_icon.png')
-            self.wm_iconphoto(True, 'titlebar_icon.png')
-        print(self.iconbitmap())
-
+        self.quitframe.grid(row=10, column=2, padx=10, pady=(10, 10), sticky="se")
         
 class WelcomeWindow(customtkinter.CTkToplevel):
     def __init__(self, root, *args, **kwargs):
         super().__init__(root, *args, **kwargs)
 
-        # calling the function center window with the parameters; self, width * height
+        icon(self)
         center_window(self, 300, 120)
         self.title("Welcome!")
         self.resizable(False, False)
@@ -65,11 +56,12 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         info4.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nwe")
         b1 = customtkinter.CTkButton(self, width=180, height=50, text="Close", command=self.destroy)
         b1.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="swe")
-
 class ConfirmationWindow(customtkinter.CTkToplevel):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
+        icon(self)
+        center_window(self, 350, 100)
         self.title("Confirmation")
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=8)
@@ -77,7 +69,7 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         self.resizable(False, False)
         self.transient(master)
         self.grab_set()
-        center_window(self, 350, 100)
+        
         
         self.confirmation_label = customtkinter.CTkLabel(self, text="Are you sure you want to quit?", font=("", 14))
         self.confirmation_label.grid(row=2, column=1, columnspan=20, padx=(10, 25), pady=(5, 0), sticky="n")
@@ -87,7 +79,7 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         
         self.cancel_button = customtkinter.CTkButton(self, width=70, height=25, text="No", command=self.destroy)
         self.cancel_button.grid(row=5, column=7, padx=20, pady=(10, 15), sticky="se")
-        
+            
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, source_path_frame, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -99,7 +91,6 @@ class SourceButtonFrame(customtkinter.CTkFrame):
     def SourceFolder(self):
         self.src_directory = filedialog.askdirectory()
         self.source_path_frame.source_label.configure(text=self.src_directory)
-    
 class DestinationButtonFrame(customtkinter.CTkFrame):
     def __init__(self, destination_path_frame, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -111,21 +102,18 @@ class DestinationButtonFrame(customtkinter.CTkFrame):
     def DestinationFolder(self):
         self.dst_directory = filedialog.askdirectory()
         self.destination_path_frame.destination_label.configure(text=self.dst_directory)
-
 class SourcePathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         
         self.source_label = customtkinter.CTkLabel(self, text="Source folder path:", wraplength=560)
         self.source_label.grid(row=0, column=0, padx=20, pady=(10, 10))
-
 class DestinationPathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         
         self.destination_label = customtkinter.CTkLabel(self, text="Destination folder path:", wraplength=560)
         self.destination_label.grid(row=0, column=0, padx=20, pady=(10, 10))
-
 class SortButtonFrame(customtkinter.CTkFrame):
     def __init__(self, master, source_button_frame, destination_button_frame, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -143,7 +131,6 @@ class SortButtonFrame(customtkinter.CTkFrame):
             sort_files(src_directory, dst_directory)
         else:
             print("Source Directory not set.")
-
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -153,10 +140,10 @@ class QuitFrame(customtkinter.CTkFrame):
     def confwindow(self):
         self.Confirmation_Window = ConfirmationWindow(self)
 
-class Functions():
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
+def icon(self):
+    self.wm_iconbitmap()
+    self.after(199, lambda: self.wm_iconphoto(False, PhotoImage(file='titlebar_icon.png')))
+            
 def center_window(window, w, h):
     # get the screen width and height
     screen_x = window.winfo_screenwidth()
@@ -165,7 +152,7 @@ def center_window(window, w, h):
     x = (screen_x - w) // 2
     y = (screen_y - h) // 2
     window.geometry(f'{w}x{h}+{x}+{y}')
-
+    
 if __name__ == ("__main__"):
     main_window = MainWindow()
     welcome_window = WelcomeWindow(main_window)
