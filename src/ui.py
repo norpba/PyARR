@@ -110,8 +110,10 @@ class SourceButtonFrame(customtkinter.CTkFrame):
         
     def SourceFolder(self):
         self.src_directory = filedialog.askdirectory()
-        self.source_path_frame.source_label.configure(text=self.src_directory)
-        
+        if self.src_directory:
+            self.source_path_frame.source_label.configure(text=self.src_directory)
+        else:
+            self.source_path_frame.source_label.configure(text="Source folder path: (not selected)")
 class DestinationButtonFrame(customtkinter.CTkFrame):
     def __init__(self, destination_path_frame, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -122,7 +124,10 @@ class DestinationButtonFrame(customtkinter.CTkFrame):
         
     def DestinationFolder(self):
         self.dst_directory = filedialog.askdirectory()
-        self.destination_path_frame.destination_label.configure(text=self.dst_directory)
+        if self.dst_directory:  
+            self.destination_path_frame.destination_label.configure(text=self.dst_directory)
+        else:
+            self.destination_path_frame.destination_label.configure(text="Destination folder path: (not selected)")
         
 class SourcePathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
