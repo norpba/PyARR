@@ -5,9 +5,8 @@ import os
 import shutil
 import time
 from pathlib import Path
-from queue import Queue
 
-def sort_files(src_directory, dst_directory, progress_queue):
+def sort_files(src_directory, dst_directory, total_items, progress_queue):
     # use os.path.expanduser() to handle ~ in the path
     src = Path(src_directory).expanduser()
     dst_directory = os.path.expanduser(dst_directory)
@@ -17,7 +16,6 @@ def sort_files(src_directory, dst_directory, progress_queue):
         os.makedirs(dst_directory)
     
     item_count = 0
-    total_items = len(list(src.glob('*')))
     
     # create folders that are named after the file modification year and copy files from
     # the source directory into the newly created folders based on the file modification year
@@ -30,7 +28,7 @@ def sort_files(src_directory, dst_directory, progress_queue):
 
         # convert the timestamps to datetime objects
         creation_datetime = time.ctime(creation_time)
-        modification_datetime = time.ctime(modification_time)
+        #modification_datetime = time.ctime(modification_time)
 
         # create a variable to hold the creation year of the current item
         # seems to be working for both macOS and windows right now
@@ -51,8 +49,11 @@ def sort_files(src_directory, dst_directory, progress_queue):
             shutil.copy2(item, destination_file_path)
         
         # calculate progress percentage and update the queue after every item
-        progress_percentage = (item_count / total_items) * 100
-        progress_queue.put(progress_percentage)
+        if progress_queue:
+            progress_percentage = (item_count / total_items) * 100
+            print(progress_queue)
+            progress_queue.put(progress_percentage)
     
     #sorting complete
-    progress_queue.put(100)
+    if progress_queue:
+        progress_queue.put(100)
