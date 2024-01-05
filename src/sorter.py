@@ -7,6 +7,9 @@ import time
 from pathlib import Path
 
 def sort_files(src_directory, dst_directory, total_items, progress_queue):
+    
+    time.sleep(1)
+    
     # use os.path.expanduser() to handle ~ in the path
     src = Path(src_directory).expanduser()
     dst_directory = os.path.expanduser(dst_directory)
@@ -23,15 +26,16 @@ def sort_files(src_directory, dst_directory, total_items, progress_queue):
         item_count +=1
         
         # get the creation and modification datetime of the file
+        # currently using creation datetime to sort the files
         creation_time = os.path.getctime(item)
         modification_time = os.path.getmtime(item)
 
         # convert the timestamps to datetime objects
         creation_datetime = time.ctime(creation_time)
-        #modification_datetime = time.ctime(modification_time)
+        # not being used right now
+        # modification_datetime = time.ctime(modification_time)
 
         # create a variable to hold the creation year of the current item
-        # seems to be working for both macOS and windows right now
         year_dir_name = creation_datetime[len(creation_datetime) - 4:]
 
         # create a full path for the new dir
@@ -51,7 +55,6 @@ def sort_files(src_directory, dst_directory, total_items, progress_queue):
         # calculate progress percentage and update the queue after every item
         if progress_queue:
             progress_percentage = (item_count / total_items) * 100
-            print(progress_queue)
             progress_queue.put(progress_percentage)
     
     #sorting complete
