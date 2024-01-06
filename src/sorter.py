@@ -5,14 +5,23 @@ import os
 import shutil
 import time
 from pathlib import Path
+from threading import Thread
+from queue import Queue
+from pathlib import Path
 
-def sort_files(src_directory, dst_directory, total_items, progress_queue):
+def start_thread(src_directory, dst_directory, total_items, percent_var):
     
-    time.sleep(1)
+    progress_queue = Queue()
+    progress_queue.put(0)
+    
+    sorter_thread = Thread(target=sort_files, args=(src_directory, dst_directory, total_items, progress_queue, percent_var))
+    sorter_thread.start()
+    
+def sort_files(src, dst, total_items, progress_queue, percent_var):
     
     # use os.path.expanduser() to handle ~ in the path
-    src = Path(src_directory).expanduser()
-    dst_directory = os.path.expanduser(dst_directory)
+    src = Path(src).expanduser()
+    dst_directory = os.path.expanduser(dst)
 
     # check if the destination directory exists before creating it
     if not os.path.exists(dst_directory):
@@ -32,6 +41,7 @@ def sort_files(src_directory, dst_directory, total_items, progress_queue):
 
         # convert the timestamps to datetime objects
         creation_datetime = time.ctime(creation_time)
+        
         # not being used right now
         # modification_datetime = time.ctime(modification_time)
 
@@ -52,11 +62,12 @@ def sort_files(src_directory, dst_directory, total_items, progress_queue):
         else:
             shutil.copy2(item, destination_file_path)
         
-        # calculate progress percentage and update the queue after every item
-        if progress_queue:
-            progress_percentage = (item_count / total_items) * 100
-            progress_queue.put(progress_percentage)
+        time.sleep(5)
+        
+        progress_percentage = (item_count / total_items) * 100
+        percent_var.set(f"{progress_percentage:.2f}%")
+        progress_queue.put(progress_percentage)
     
-    #sorting complete
-    if progress_queue:
-        progress_queue.put(100)
+    progress_queue.put("DONE")
+    percent_var.set("100.0%")
+    progress_queue.put(100.0)

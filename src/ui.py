@@ -2,11 +2,12 @@
 # gui for PyARR
 import customtkinter
 
-from sorter import sort_files
+from sorter import start_thread
 from tkinter import filedialog, PhotoImage, StringVar
-from threading import Thread
-from queue import Queue
 from pathlib import Path
+import queue
+from functools import partial
+
 
 customtkinter.set_appearance_mode("system")
 customtkinter.set_default_color_theme("green")
@@ -87,7 +88,7 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         self.cancel_button.grid(row=5, column=7, padx=20, pady=(10, 15), sticky="se")
 
 class ProgressBar(customtkinter.CTkToplevel):
-    def __init__(self, master, total_items, percent, *args, **kwargs):
+    def __init__(self, master, percent_var, progress_queue, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
         icon(self)
@@ -98,17 +99,22 @@ class ProgressBar(customtkinter.CTkToplevel):
         self.grid_columnconfigure((0, 1, 2), weight=1)
         self.grid_rowconfigure((0, 1), weight=1)
         
+        self.percent = percent_var
+        self.progress_queue = progress_queue
+        
         self.progress_bar = customtkinter.CTkProgressBar(self, height=20)
         self.progress_bar.grid(row=0, column=0, columnspan=3, padx=10, pady=(20, 10), sticky="nwe")
-        
-        self.progress_bar.set(total_items)
-        self.percent = percent
-        
+
         self.progress_label = customtkinter.CTkLabel(self, textvariable=self.percent)
         self.progress_label.grid(row=1, column=1, padx=10, sticky="we")
         
-        self.cancel_button = customtkinter.CTkButton(self, width=60, text="Cancel", command=self.destroy)
+        self.cancel_button = customtkinter.CTkButton(self, width=60, text="Cancel", command=self.cancel_sorting)
         self.cancel_button.grid(row=2, column=2, padx=10, pady=(10, 10), sticky="se")
+        
+        self.is_sorting_cancelled = False
+    
+    def cancel_sorting(self):
+        self.is_sorting_cancelled = True
         
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, source_path_frame, *args, **kwargs):
@@ -157,9 +163,10 @@ class SortButtonFrame(customtkinter.CTkFrame):
         self.source_button_frame = source_button_frame
         self.destination_button_frame = destination_button_frame
         
-        self.progress_queue = Queue()
-        self.percent = StringVar()
+        self.percent_var = StringVar()
+        self.percent_var.set("0%")
         
+        self.progress_queue = queue.Queue()
         self.sorting_button = customtkinter.CTkButton(self, text="Sort", command=self.run_sorter)
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
 
@@ -168,37 +175,29 @@ class SortButtonFrame(customtkinter.CTkFrame):
             src_directory = self.source_button_frame.src_directory
             dst_directory = self.destination_button_frame.dst_directory
             
+            # count total items in the source dir
             total_items = sum(1 for item in Path(src_directory).rglob('*') if item.is_file())
             
-            print("total item count:", total_items) #debug
+            progress_bar_window = ProgressBar(self.master, self.percent_var, self.progress_queue)
+            start_thread(src_directory, dst_directory, total_items, self.percent_var)
             
-            if total_items > 0:
-                self.Progress_Bar_Window = ProgressBar(self, total_items, self.percent)
-                self.progress_queue.put(0)
-
-                # start sorting process in a new thread
-                sorter_thread = Thread(target=sort_files, args=(src_directory, dst_directory, total_items, self.progress_queue))
-                sorter_thread.start()
-                
-                sorter_thread.join()
-                
-                # updating the progress bar per item sorted
-                while sorter_thread.is_alive():
-                    for progress_percentage in iter(self.progress_queue.get, None):
-                        print("sorting start per item")
-                        self.Progress_Bar_Window.progress_bar.set(progress_percentage)
-                        self.percent.set(str(int(progress_percentage))+"%")    
-                        print(int(progress_percentage))
-                        self.update_idletasks()
-                        print("sorting end per item")
-                    
-                self.Progress_Bar_Window.progress_bar.set(100)
-                self.percent.set("100%")
+            self.master.after(100, partial(self.monitor_progress, progress_bar_window))
+            
+    def monitor_progress(self, progress_bar_window):
+        try:
+            progress_percentage = progress_bar_window.progress_queue.get_nowait()
+            self.percent_var.set(f"{progress_percentage:.2f}%")
+            progress_bar_window.progress_bar.update()
+            self.master.after(100, partial(self.monitor_progress, progress_bar_window))
+        except queue.Empty:
+            if not progress_bar_window.is_sorting_cancelled:
+                self.master.after(100, partial(self.monitor_progress, progress_bar_window))
             else:
-                print("No items") # add functionality; pop-up window to inform about src/dst directories being empty
-        else:
-            print("Source Directory not set.")
-            
+                # implement cancellation logic here
+                pass
+        except Exception as e:
+            print(f"Error in monitor_progress: {e}")
+
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
