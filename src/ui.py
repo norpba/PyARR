@@ -39,7 +39,7 @@ class MainWindow(customtkinter.CTk):
         self.destinationbutton_frame = DestinationButtonFrame(self.destinationpath_frame, self)
         self.destinationbutton_frame.grid(row=0, column=1, padx=10, pady=(10, 10), sticky="nwe")
         
-        self.sortingbutton_frame = SortButtonFrame(self, self.sourcebutton_frame, self.destinationbutton_frame)
+        self.sortingbutton_frame = SortButtonFrame(self, self.sourcebutton_frame, self.destinationbutton_frame, self.percent_var)
         self.sortingbutton_frame.grid(row=0, column=2, padx=10, pady=(10, 10), sticky="ne")
         
         self.quitframe = QuitFrame(self)
@@ -150,11 +150,12 @@ class DestinationPathFrame(customtkinter.CTkFrame):
         self.destination_label.grid(row=0, column=0, padx=20, pady=(10, 10))
         
 class SortButtonFrame(customtkinter.CTkFrame):
-    def __init__(self, master, source_button_frame, destination_button_frame, *args, **kwargs):
+    def __init__(self, master, source_button_frame, destination_button_frame, percent_var, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         self.source_button_frame = source_button_frame
         self.destination_button_frame = destination_button_frame
+        self.percent_var = percent_var
         
         self.percent_var = StringVar()
         self.percent_var.set("0%")
@@ -169,7 +170,8 @@ class SortButtonFrame(customtkinter.CTkFrame):
         if self.source_button_frame.src_directory and self.destination_button_frame.dst_directory:
             print("here")
             Logic.sorter_logic(self.source_button_frame.src_directory, self.destination_button_frame.dst_directory)
-        else:
+            
+        else: #debug
             print(f"no {self.src_directory} src")
             print(f"no {self.dst_directory} dst")
 class QuitFrame(customtkinter.CTkFrame):
@@ -184,7 +186,8 @@ class QuitFrame(customtkinter.CTkFrame):
 
 class Logic:
     @staticmethod
-    def sorter_logic(src_directory, dst_directory):
+    
+    def sorter_logic(src_directory, dst_directory, percent_var):
         src_directory = src_directory
         dst_directory = dst_directory
         
@@ -194,8 +197,15 @@ class Logic:
         if not os.path.exists(destination):
             os.makedirs(dst_directory)
         
+        total_items = sum(1 for item in Path(src_directory).rglob('*') if item.is_file)
         item_count = 0
+        
+        print(total_items)
         print(item_count)
+        
+        progress_bar_window = ProgressBar(percent_var, progress_percentage)
+        
+        
         for item in source.glob('*'):
             item_count +=1    
 
@@ -219,7 +229,18 @@ class Logic:
             else:
                 shutil.copy2(item, destination_file_path)
             
-            #progress_percentage = (item_count / total_items) * 100
+            progress_percentage = (item_count / total_items) * 100
+            
+            
+        
+            
+            
+            
+            
+            
+            
+            
+            
             
 def icon(self):
     # if this does not work on macos, use 'platform.system' and make a if-statement to check whether the script runs on os or windows.
