@@ -6,7 +6,6 @@ import time
 
 # ui modules
 import customtkinter
-import queue
 from tkinter import filedialog, PhotoImage, StringVar
 from pathlib import Path
 
@@ -24,8 +23,8 @@ class MainWindow(customtkinter.CTk):
         
         self.title("PyARR v0.1.0")
         self.resizable(False, False)
-        self.grid_columnconfigure((0, 1, 2, 3), weight=1)
-        self.grid_rowconfigure((0, 1, 2, 3), weight=1)
+        self.grid_columnconfigure((0, 1, 2), weight=1)
+        self.grid_rowconfigure((0, 1, 2), weight=1)
         self.grid_rowconfigure(4, weight=20)
         
         self.sourcepath_frame = SourcePathFrame(self)
@@ -34,7 +33,7 @@ class MainWindow(customtkinter.CTk):
         self.destinationpath_frame = DestinationPathFrame(self)
         self.destinationpath_frame.grid(rowspan=3, columnspan=3, row=2, column=0, padx=10, pady=(0, 10), sticky="nwe")
         
-        self.sourcebutton_frame = SourceButtonFrame(self.sourcepath_frame, self)
+        self.sourcebutton_frame = SourceButtonFrame(self)
         self.sourcebutton_frame.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="nw")
         
         self.destinationbutton_frame = DestinationButtonFrame(self.destinationpath_frame, self)
@@ -92,7 +91,7 @@ class ProgressBar(customtkinter.CTkToplevel):
         super().__init__(master, *args, **kwargs)
         
         icon(self)
-        center_window(self, 490, 100)
+        center_window(self, 500, 100)
         self.title("Sorting progress")
         self.resizable(False, False)
         self.grab_set()
@@ -101,29 +100,25 @@ class ProgressBar(customtkinter.CTkToplevel):
         
         self.total_items = total_items
         
-        self.progress_bar = customtkinter.CTkProgressBar(self, height=40)
+        self.progress_bar = customtkinter.CTkProgressBar(self, height=20)
         self.progress_bar.grid(row=0, column=0, columnspan=3, padx=10, pady=(20, 10))
 
-        self.progress_label = customtkinter.CTkLabel(self, textvariable=self.percent)
+        self.progress_label = customtkinter.CTkLabel(self)
         self.progress_label.grid(row=1, column=1, padx=10, pady=(10, 50), sticky="we")
-        
-        self.cancel_button = customtkinter.CTkButton(self, width=60, text="Cancel", command=self.cancel_sorting)
-        self.cancel_button.grid(row=2, column=2, padx=10, pady=(10, 10), sticky="se")
 
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
-        #self.source_path_frame = source_path_frame
         self.source_button = customtkinter.CTkButton(self, text="Select a folder to sort", command=self.SourceFolder)
         self.source_button.grid(row=0, column=0, padx=10, pady=(10, 10))
         
-        self.src_directory = None
+        #self.src_directory = None
         
     def SourceFolder(self):
         self.src_directory = filedialog.askdirectory()
         if self.src_directory:
-            self.source_path_frame.source_label.configure(text=self.src_directory)
+            self.source_label.configure(text=self.src_directory)
 
 class DestinationButtonFrame(customtkinter.CTkFrame):
     def __init__(self, destination_path_frame, *args, **kwargs):
@@ -162,7 +157,6 @@ class SortButtonFrame(customtkinter.CTkFrame):
         self.percent_var = StringVar()
         self.percent_var.set("0%")
         
-        self.progress_queue = queue.Queue()
         self.sorting_button = customtkinter.CTkButton(self, text="Sort", command=sorter_logic)
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
 
@@ -186,7 +180,7 @@ def sorter_logic(self, src_directory, dst_directory, total_items, percent_var):
     if not os.path.exists(destination):
         os.makedirs(dst_directory)
     
-    item_count = int
+    item_count = 0
     print(item_count)
     for item in source.glob('*'):
         item_count +=1    
@@ -212,7 +206,6 @@ def sorter_logic(self, src_directory, dst_directory, total_items, percent_var):
             shutil.copy2(item, destination_file_path)
         
         progress_percentage = (item_count / total_items) * 100
-        percent_var.set(f"{progress_percentage:.2f}%")
             
 def icon(self):
     # if this does not work on macos, use 'platform.system' and make a if-statement to check whether the script runs on os or windows.
