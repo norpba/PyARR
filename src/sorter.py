@@ -5,18 +5,7 @@ import os
 import shutil
 import time
 from pathlib import Path
-from threading import Thread
-from queue import Queue
-from pathlib import Path
 
-def start_thread(src_directory, dst_directory, total_items, percent_var):
-    
-    progress_queue = Queue()
-    progress_queue.put(0)
-    
-    sorter_thread = Thread(target=sort_files, args=(src_directory, dst_directory, total_items, progress_queue, percent_var))
-    sorter_thread.start()
-    
 def sort_files(src, dst, total_items, progress_queue, percent_var):
     
     # use os.path.expanduser() to handle ~ in the path

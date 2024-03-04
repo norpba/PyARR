@@ -1,29 +1,32 @@
 
-# gui for PyARR
-import customtkinter
+# sorter logic modules
+import os
+import shutil
+import time
 
-from sorter import start_thread
+# ui modules
+import customtkinter
+import queue
 from tkinter import filedialog, PhotoImage, StringVar
 from pathlib import Path
-import queue
-from functools import partial
-
 
 customtkinter.set_appearance_mode("system")
 customtkinter.set_default_color_theme("green")
+
 class MainWindow(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         icon(self)
+        
         # calling the function center window with the parameters; self, width * height
-        center_window(self, 600, 270)
+        center_window(self, 600, 370)
         
         self.title("PyARR v0.1.0")
         self.resizable(False, False)
-        self.grid_columnconfigure((0, 1, 2), weight=1)
-        self.grid_rowconfigure((0, 1, 2), weight=1)
-        self.grid_rowconfigure(3, weight=20)
+        self.grid_columnconfigure((0, 1, 2, 3), weight=1)
+        self.grid_rowconfigure((0, 1, 2, 3), weight=1)
+        self.grid_rowconfigure(4, weight=20)
         
         self.sourcepath_frame = SourcePathFrame(self)
         self.sourcepath_frame.grid(rowspan=1, columnspan=3, row=1, column=0, padx=10, pady=(0, 10), sticky="nwe")
@@ -75,9 +78,6 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         self.transient(master)
         self.grab_set()
         
-        #self.frame1 = customtkinter.CTkFrame(self)
-        #self.frame1.grid(row=2, column=1, columnspan=20, padx=(10, 10), pady=(5, 0), sticky="n")
-        
         self.confirmation_label = customtkinter.CTkLabel(self, text="Are you sure you want to quit?", font=("", 14))
         self.confirmation_label.grid(row=2, column=1, columnspan=20, padx=(10, 10))
         
@@ -88,7 +88,7 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         self.cancel_button.grid(row=5, column=7, padx=20, pady=(10, 15), sticky="se")
 
 class ProgressBar(customtkinter.CTkToplevel):
-    def __init__(self, master, percent_var, progress_queue, *args, **kwargs):
+    def __init__(self, master, total_items, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
         icon(self)
@@ -99,30 +99,26 @@ class ProgressBar(customtkinter.CTkToplevel):
         self.grid_columnconfigure((0, 1, 2), weight=1)
         self.grid_rowconfigure((0, 1), weight=1)
         
-        self.percent = percent_var
-        self.progress_queue = progress_queue
+        self.total_items = total_items
         
-        self.progress_bar = customtkinter.CTkProgressBar(self, height=20)
-        self.progress_bar.grid(row=0, column=0, columnspan=3, padx=10, pady=(20, 10), sticky="nwe")
+        self.progress_bar = customtkinter.CTkProgressBar(self, height=40)
+        self.progress_bar.grid(row=0, column=0, columnspan=3, padx=10, pady=(20, 10))
 
         self.progress_label = customtkinter.CTkLabel(self, textvariable=self.percent)
-        self.progress_label.grid(row=1, column=1, padx=10, sticky="we")
+        self.progress_label.grid(row=1, column=1, padx=10, pady=(10, 50), sticky="we")
         
         self.cancel_button = customtkinter.CTkButton(self, width=60, text="Cancel", command=self.cancel_sorting)
         self.cancel_button.grid(row=2, column=2, padx=10, pady=(10, 10), sticky="se")
-        
-        self.is_sorting_cancelled = False
-    
-    def cancel_sorting(self):
-        self.is_sorting_cancelled = True
-        
+
 class SourceButtonFrame(customtkinter.CTkFrame):
-    def __init__(self, source_path_frame, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
         
-        self.source_path_frame = source_path_frame
+        #self.source_path_frame = source_path_frame
         self.source_button = customtkinter.CTkButton(self, text="Select a folder to sort", command=self.SourceFolder)
         self.source_button.grid(row=0, column=0, padx=10, pady=(10, 10))
+        
+        self.src_directory = None
         
     def SourceFolder(self):
         self.src_directory = filedialog.askdirectory()
@@ -139,7 +135,7 @@ class DestinationButtonFrame(customtkinter.CTkFrame):
         
     def DestinationFolder(self):
         self.dst_directory = filedialog.askdirectory()
-        if self.dst_directory:  
+        if self.dst_directory:
             self.destination_path_frame.destination_label.configure(text=self.dst_directory)
    
 class SourcePathFrame(customtkinter.CTkFrame):
@@ -147,7 +143,7 @@ class SourcePathFrame(customtkinter.CTkFrame):
         super().__init__(master)
         
         self.source_label = customtkinter.CTkLabel(self, text="Source folder path:", wraplength=560)
-        self.source_label.grid(row=0, column=0, padx=20, pady=(10, 10))
+        self.source_label.grid(row=1, column=0, padx=20, pady=(10, 10))
         
 class DestinationPathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
@@ -167,36 +163,8 @@ class SortButtonFrame(customtkinter.CTkFrame):
         self.percent_var.set("0%")
         
         self.progress_queue = queue.Queue()
-        self.sorting_button = customtkinter.CTkButton(self, text="Sort", command=self.run_sorter)
+        self.sorting_button = customtkinter.CTkButton(self, text="Sort", command=sorter_logic)
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
-
-    def run_sorter(self):
-        if hasattr(self.source_button_frame, 'src_directory') and hasattr(self.destination_button_frame, 'dst_directory'):
-            src_directory = self.source_button_frame.src_directory
-            dst_directory = self.destination_button_frame.dst_directory
-            
-            # count total items in the source dir
-            total_items = sum(1 for item in Path(src_directory).rglob('*') if item.is_file())
-            
-            progress_bar_window = ProgressBar(self.master, self.percent_var, self.progress_queue)
-            start_thread(src_directory, dst_directory, total_items, self.percent_var)
-            
-            self.master.after(100, partial(self.monitor_progress, progress_bar_window))
-            
-    def monitor_progress(self, progress_bar_window):
-        try:
-            progress_percentage = progress_bar_window.progress_queue.get_nowait()
-            self.percent_var.set(f"{progress_percentage:.2f}%")
-            progress_bar_window.progress_bar.update()
-            self.master.after(100, partial(self.monitor_progress, progress_bar_window))
-        except queue.Empty:
-            if not progress_bar_window.is_sorting_cancelled:
-                self.master.after(100, partial(self.monitor_progress, progress_bar_window))
-            else:
-                # implement cancellation logic here
-                pass
-        except Exception as e:
-            print(f"Error in monitor_progress: {e}")
 
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
@@ -204,14 +172,53 @@ class QuitFrame(customtkinter.CTkFrame):
 
         self.quitbutton = customtkinter.CTkButton(self, text="Quit", command=self.confwindow)
         self.quitbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
+        
     def confwindow(self):
         self.Confirmation_Window = ConfirmationWindow(self)
+ 
+def sorter_logic(self, src_directory, dst_directory, total_items, percent_var):
+    self.src_directory = src_directory
+    self.dst_directory = dst_directory
+    
+    source = Path(src_directory).expanduser()
+    destination = os.path.expanduser(dst_directory)
+    
+    if not os.path.exists(destination):
+        os.makedirs(dst_directory)
+    
+    item_count = int
+    print(item_count)
+    for item in source.glob('*'):
+        item_count +=1    
 
+        creation_time = os.path.getctime(item)
+        modification_time = os.path.getmtime(item)
+        
+        creation_datetime = time.ctime(creation_time)
+        modification_datetime = time.ctime(modification_time)
+    
+        year_dir_name = creation_datetime[len(creation_datetime) - 4:]
+
+        new_dir = os.path.join(dst_directory, year_dir_name)
+
+        if not os.path.exists(new_dir):
+            os.makedirs(new_dir)
+        
+        destination_file_path = os.path.join(new_dir, item.name)
+        
+        if item.is_dir():
+            shutil.copytree(item, destination_file_path)
+        else:
+            shutil.copy2(item, destination_file_path)
+        
+        progress_percentage = (item_count / total_items) * 100
+        percent_var.set(f"{progress_percentage:.2f}%")
+            
 def icon(self):
     # if this does not work on macos, use 'platform.system' and make a if-statement to check whether the script runs on os or windows.
     self.wm_iconbitmap()
     self.after(199, lambda: self.wm_iconphoto(False, PhotoImage(file='titlebar_icon.png')))
-            
+           
 def center_window(window, w, h):
     # get the screen width and height
     screen_x = window.winfo_screenwidth()
@@ -220,7 +227,7 @@ def center_window(window, w, h):
     x = (screen_x - w) // 2
     y = (screen_y - h) // 2
     window.geometry(f'{w}x{h}+{x}+{y}')
-    
+     
 if __name__ == ("__main__"):
     main_window = MainWindow()
     welcome_window = WelcomeWindow(main_window)
