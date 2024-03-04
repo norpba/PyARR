@@ -155,8 +155,6 @@ class SortButtonFrame(customtkinter.CTkFrame):
 
         self.source_button_frame = source_button_frame
         self.destination_button_frame = destination_button_frame
-        self.src_directory = None
-        self.dst_directory = None
         
         self.percent_var = StringVar()
         self.percent_var.set("0%")
@@ -168,9 +166,12 @@ class SortButtonFrame(customtkinter.CTkFrame):
         self.src_destination = src_directory
     
     def begin_sorting_task(self):
-        if self.src_directory and self.destination_button_frame.dst_directory:
-            Logic.sorter_logic(self.src_directory, self.destination_button_frame.dst_directory)
-
+        if self.source_button_frame.src_directory and self.destination_button_frame.dst_directory:
+            print("here")
+            Logic.sorter_logic(self.source_button_frame.src_directory, self.destination_button_frame.dst_directory)
+        else:
+            print(f"no {self.src_directory} src")
+            print(f"no {self.dst_directory} dst")
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
