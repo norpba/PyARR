@@ -33,7 +33,7 @@ class MainWindow(customtkinter.CTk):
         self.destinationpath_frame = DestinationPathFrame(self)
         self.destinationpath_frame.grid(rowspan=3, columnspan=3, row=2, column=0, padx=10, pady=(0, 10), sticky="nwe")
         
-        self.sourcebutton_frame = SourceButtonFrame(self)
+        self.sourcebutton_frame = SourceButtonFrame(self.sourcepath_frame, self)
         self.sourcebutton_frame.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="nw")
         
         self.destinationbutton_frame = DestinationButtonFrame(self.destinationpath_frame, self)
@@ -107,9 +107,10 @@ class ProgressBar(customtkinter.CTkToplevel):
         self.progress_label.grid(row=1, column=1, padx=10, pady=(10, 50), sticky="we")
 
 class SourceButtonFrame(customtkinter.CTkFrame):
-    def __init__(self, master, *args, **kwargs):
+    def __init__(self, sourcepath_frame, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
+        self.sourcepath_frame = sourcepath_frame
         self.src_directory = None
         self.source_button = customtkinter.CTkButton(self, text="Select a folder to sort", command=self.SourceFolder)
         self.source_button.grid(row=0, column=0, padx=10, pady=(10, 10))
@@ -118,6 +119,7 @@ class SourceButtonFrame(customtkinter.CTkFrame):
         self.src_directory = filedialog.askdirectory()
         if self.src_directory:
             self.master.sortingbutton_frame.update_src_directory(self.src_directory)
+            self.sourcepath_frame.source_label.configure(text=self.src_directory)
 
 class DestinationButtonFrame(customtkinter.CTkFrame):
     def __init__(self, destination_path_frame, *args, **kwargs):
@@ -236,7 +238,7 @@ if __name__ == ("__main__"):
     main_window = MainWindow()
     welcome_window = WelcomeWindow(main_window)
     
-    src = SourceButtonFrame(main_window)
+    src = SourceButtonFrame(main_window.sourcepath_frame, main_window)
     dst = DestinationButtonFrame(main_window.destinationpath_frame, main_window)
     
     sort_button_frame = SortButtonFrame(main_window, src, dst)
