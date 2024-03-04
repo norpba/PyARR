@@ -110,20 +110,20 @@ class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
+        self.src_directory = None
         self.source_button = customtkinter.CTkButton(self, text="Select a folder to sort", command=self.SourceFolder)
         self.source_button.grid(row=0, column=0, padx=10, pady=(10, 10))
-        
-        #self.src_directory = None
         
     def SourceFolder(self):
         self.src_directory = filedialog.askdirectory()
         if self.src_directory:
-            self.source_label.configure(text=self.src_directory)
+            self.master.sortingbutton_frame.update_src_directory(self.src_directory)
 
 class DestinationButtonFrame(customtkinter.CTkFrame):
     def __init__(self, destination_path_frame, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
+        self.dst_directory = None
         self.destination_path_frame = destination_path_frame
         self.destination_button = customtkinter.CTkButton(self, text="Select an output folder", command=self.DestinationFolder)
         self.destination_button.grid(row=0, column=1, padx=(15, 0), pady=(10, 10), sticky="nwe")
@@ -153,12 +153,21 @@ class SortButtonFrame(customtkinter.CTkFrame):
 
         self.source_button_frame = source_button_frame
         self.destination_button_frame = destination_button_frame
+        self.src_directory = None
+        self.dst_directory = None
         
         self.percent_var = StringVar()
         self.percent_var.set("0%")
         
-        self.sorting_button = customtkinter.CTkButton(self, text="Sort", command=sorter_logic)
+        self.sorting_button = customtkinter.CTkButton(self, text="Sort", command=self.begin_sorting_task)
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
+        
+    def update_src_directory(self, src_directory):
+        self.src_destination = src_directory
+    
+    def begin_sorting_task(self):
+        if self.src_directory and self.destination_button_frame.dst_directory:
+            Logic.sorter_logic(self.src_directory, self.destination_button_frame.dst_directory)
 
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
@@ -169,43 +178,45 @@ class QuitFrame(customtkinter.CTkFrame):
         
     def confwindow(self):
         self.Confirmation_Window = ConfirmationWindow(self)
- 
-def sorter_logic(self, src_directory, dst_directory, total_items, percent_var):
-    self.src_directory = src_directory
-    self.dst_directory = dst_directory
-    
-    source = Path(src_directory).expanduser()
-    destination = os.path.expanduser(dst_directory)
-    
-    if not os.path.exists(destination):
-        os.makedirs(dst_directory)
-    
-    item_count = 0
-    print(item_count)
-    for item in source.glob('*'):
-        item_count +=1    
 
-        creation_time = os.path.getctime(item)
-        modification_time = os.path.getmtime(item)
+class Logic:
+    @staticmethod
+    def sorter_logic(src_directory, dst_directory):
+        src_directory = src_directory
+        dst_directory = dst_directory
         
-        creation_datetime = time.ctime(creation_time)
-        modification_datetime = time.ctime(modification_time)
-    
-        year_dir_name = creation_datetime[len(creation_datetime) - 4:]
+        source = Path(src_directory).expanduser()
+        destination = os.path.expanduser(dst_directory)
+        
+        if not os.path.exists(destination):
+            os.makedirs(dst_directory)
+        
+        item_count = 0
+        print(item_count)
+        for item in source.glob('*'):
+            item_count +=1    
 
-        new_dir = os.path.join(dst_directory, year_dir_name)
+            creation_time = os.path.getctime(item)
+            modification_time = os.path.getmtime(item)
+            
+            creation_datetime = time.ctime(creation_time)
+            modification_datetime = time.ctime(modification_time)
+        
+            year_dir_name = creation_datetime[len(creation_datetime) - 4:]
 
-        if not os.path.exists(new_dir):
-            os.makedirs(new_dir)
-        
-        destination_file_path = os.path.join(new_dir, item.name)
-        
-        if item.is_dir():
-            shutil.copytree(item, destination_file_path)
-        else:
-            shutil.copy2(item, destination_file_path)
-        
-        progress_percentage = (item_count / total_items) * 100
+            new_dir = os.path.join(dst_directory, year_dir_name)
+
+            if not os.path.exists(new_dir):
+                os.makedirs(new_dir)
+            
+            destination_file_path = os.path.join(new_dir, item.name)
+            
+            if item.is_dir():
+                shutil.copytree(item, destination_file_path)
+            else:
+                shutil.copy2(item, destination_file_path)
+            
+            #progress_percentage = (item_count / total_items) * 100
             
 def icon(self):
     # if this does not work on macos, use 'platform.system' and make a if-statement to check whether the script runs on os or windows.
@@ -224,6 +235,11 @@ def center_window(window, w, h):
 if __name__ == ("__main__"):
     main_window = MainWindow()
     welcome_window = WelcomeWindow(main_window)
-    sort_button_frame = SortButtonFrame(main_window, main_window.sourcebutton_frame, main_window.destinationbutton_frame)
+    
+    src = SourceButtonFrame(main_window)
+    dst = DestinationButtonFrame(main_window.destinationpath_frame, main_window)
+    
+    sort_button_frame = SortButtonFrame(main_window, src, dst)
+    
     main_window.update_idletasks()
     main_window.mainloop()
