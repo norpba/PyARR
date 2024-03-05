@@ -3,6 +3,7 @@
 import os
 import shutil
 import time
+from functools import partial
 
 # ui modules
 import customtkinter
@@ -39,7 +40,7 @@ class MainWindow(customtkinter.CTk):
         self.destinationbutton_frame = DestinationButtonFrame(self.destinationpath_frame, self)
         self.destinationbutton_frame.grid(row=0, column=1, padx=10, pady=(10, 10), sticky="nwe")
         
-        self.sortingbutton_frame = SortButtonFrame(self, self.sourcebutton_frame, self.destinationbutton_frame, self.percent_var)
+        self.sortingbutton_frame = SortButtonFrame(self, self.sourcebutton_frame, self.destinationbutton_frame)
         self.sortingbutton_frame.grid(row=0, column=2, padx=10, pady=(10, 10), sticky="ne")
         
         self.quitframe = QuitFrame(self)
@@ -150,15 +151,13 @@ class DestinationPathFrame(customtkinter.CTkFrame):
         self.destination_label.grid(row=0, column=0, padx=20, pady=(10, 10))
         
 class SortButtonFrame(customtkinter.CTkFrame):
-    def __init__(self, master, source_button_frame, destination_button_frame, percent_var, *args, **kwargs):
+    def __init__(self, master, source_button_frame, destination_button_frame, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         self.source_button_frame = source_button_frame
         self.destination_button_frame = destination_button_frame
-        self.percent_var = percent_var
         
         self.percent_var = StringVar()
-        self.percent_var.set("0%")
         
         self.sorting_button = customtkinter.CTkButton(self, text="Sort", command=self.begin_sorting_task)
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
@@ -168,8 +167,16 @@ class SortButtonFrame(customtkinter.CTkFrame):
     
     def begin_sorting_task(self):
         if self.source_button_frame.src_directory and self.destination_button_frame.dst_directory:
-            print("here")
-            Logic.sorter_logic(self.source_button_frame.src_directory, self.destination_button_frame.dst_directory)
+            
+            print("begin sortin task - function") #debug
+            
+            Logic.sorter_logic.progress_percentage = 0
+            
+            total_items = sum(1 for item in Path(self.source_button_frame.src_directory).rglob('*') if item.is_file)
+            
+            progress_bar_window = ProgressBar(self.master, total_items)
+            
+            Logic.sorter_logic(self.source_button_frame.src_directory, self.destination_button_frame.dst_directory, self.percent_var)
             
         else: #debug
             print(f"no {self.src_directory} src")
@@ -196,19 +203,14 @@ class Logic:
         
         if not os.path.exists(destination):
             os.makedirs(dst_directory)
-        
-        total_items = sum(1 for item in Path(src_directory).rglob('*') if item.is_file)
+                  
         item_count = 0
-        
-        print(total_items)
-        print(item_count)
-        
-        progress_bar_window = ProgressBar(percent_var, progress_percentage)
-        
-        
+        total_items = SortButtonFrame.total_items
         for item in source.glob('*'):
             item_count +=1    
 
+            print("Item count per iteration, program is inside the for-loop. Item count: ", item_count) #debug
+            
             creation_time = os.path.getctime(item)
             modification_time = os.path.getmtime(item)
             
