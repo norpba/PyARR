@@ -172,7 +172,10 @@ class SortButtonFrame(customtkinter.CTkFrame):
             #dst_directory = self.destination_button_frame.dst_directory
             
             print("call sorter_logic - function inside Logic class 2/2") #debug
-            Logic.sorter_logic(self.source_button_frame.src_directory, self.destination_button_frame.dst_directory)
+            progress_generator = Logic.sorter_logic(self.source_button_frame.src_directory, self.destination_button_frame.dst_directory)
+            
+            for progress_percentage, total_items in progress_generator:
+                self.progressbar_frame.update_progress(progress_percentage)
             
         else: #debug
             print(f"no {self.src_directory} src")
