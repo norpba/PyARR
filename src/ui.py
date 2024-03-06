@@ -25,14 +25,17 @@ class MainWindow(customtkinter.CTk):
         self.title("PyARR v0.1.0")
         self.resizable(False, False)
         self.grid_columnconfigure((0, 1, 2), weight=1)
-        self.grid_rowconfigure((0, 1, 2), weight=1)
+        self.grid_rowconfigure((1, 2, 3), weight=10)
         self.grid_rowconfigure(4, weight=20)
         
         self.sourcepath_frame = SourcePathFrame(self)
-        self.sourcepath_frame.grid(rowspan=1, columnspan=3, row=1, column=0, padx=10, pady=(0, 10), sticky="nwe")
+        self.sourcepath_frame.grid(rowspan=2, columnspan=3, row=1, column=0, padx=10, pady=(0, 10), sticky="nwe")
         
         self.destinationpath_frame = DestinationPathFrame(self)
-        self.destinationpath_frame.grid(rowspan=3, columnspan=3, row=2, column=0, padx=10, pady=(0, 10), sticky="nwe")
+        self.destinationpath_frame.grid(rowspan=2, columnspan=3, row=2, column=0, padx=10, pady=(20, 10), sticky="nwe")
+        
+        self.progressbar_frame = ProgressBarFrame(self)
+        self.progressbar_frame.grid(rowspan=1, columnspan=3, row=3, column=0, padx=10, pady=(35, 0), sticky="we")
         
         self.sourcebutton_frame = SourceButtonFrame(self.sourcepath_frame, self)
         self.sourcebutton_frame.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="nw")
@@ -40,11 +43,11 @@ class MainWindow(customtkinter.CTk):
         self.destinationbutton_frame = DestinationButtonFrame(self.destinationpath_frame, self)
         self.destinationbutton_frame.grid(row=0, column=1, padx=10, pady=(10, 10), sticky="nwe")
         
-        self.sortingbutton_frame = SortButtonFrame(self, self.sourcebutton_frame, self.destinationbutton_frame)
+        self.sortingbutton_frame = SortButtonFrame(self, self.sourcebutton_frame, self.destinationbutton_frame, self.progressbar_frame)
         self.sortingbutton_frame.grid(row=0, column=2, padx=10, pady=(10, 10), sticky="ne")
         
         self.quitframe = QuitFrame(self)
-        self.quitframe.grid(row=10, column=2, padx=10, pady=(10, 10), sticky="se")
+        self.quitframe.grid(row=10, column=2, padx=10, pady=(0, 10), sticky="se")
         
 class WelcomeWindow(customtkinter.CTkToplevel):
     def __init__(self, root, *args, **kwargs):
@@ -87,26 +90,21 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         self.cancel_button = customtkinter.CTkButton(self, width=70, height=25, text="No", command=self.destroy)
         self.cancel_button.grid(row=5, column=7, padx=20, pady=(10, 15), sticky="se")
 
-class ProgressBar(customtkinter.CTkToplevel):
-    def __init__(self, master, total_items, *args, **kwargs):
+class ProgressBarFrame(customtkinter.CTkFrame):
+    def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
-        
-        icon(self)
-        center_window(self, 500, 100)
-        self.title("Sorting progress")
-        self.resizable(False, False)
-        self.grab_set()
-        self.grid_columnconfigure((0, 1, 2), weight=1)
-        self.grid_rowconfigure((0, 1), weight=1)
-        
-        self.total_items = total_items
-        
-        self.progress_bar = customtkinter.CTkProgressBar(self, height=20)
-        self.progress_bar.grid(row=0, column=0, columnspan=3, padx=10, pady=(20, 10))
 
         self.progress_label = customtkinter.CTkLabel(self)
-        self.progress_label.grid(row=1, column=1, padx=10, pady=(10, 50), sticky="we")
-
+        self.progress_label.grid(row=0, column=1, padx=10, pady=(10, 10))
+        
+        self.progress_bar = customtkinter.CTkProgressBar(self, width=560, height=20)
+        self.progress_bar.grid(row=1, column=1, columnspan=5, padx=10, pady=(10, 10))
+        
+        self.progress_bar.set(100)
+        
+    def update_progress(self, progress_percentage):
+        self.progress_bar.set(progress_percentage) #updating the progress bar
+        
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, sourcepath_frame, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -128,6 +126,7 @@ class DestinationButtonFrame(customtkinter.CTkFrame):
         
         self.dst_directory = None
         self.destination_path_frame = destination_path_frame
+        
         self.destination_button = customtkinter.CTkButton(self, text="Select an output folder", command=self.DestinationFolder)
         self.destination_button.grid(row=0, column=1, padx=(15, 0), pady=(10, 10), sticky="nwe")
         
@@ -151,13 +150,12 @@ class DestinationPathFrame(customtkinter.CTkFrame):
         self.destination_label.grid(row=0, column=0, padx=20, pady=(10, 10))
         
 class SortButtonFrame(customtkinter.CTkFrame):
-    def __init__(self, master, source_button_frame, destination_button_frame, *args, **kwargs):
+    def __init__(self, master, source_button_frame, destination_button_frame, progressbar_frame, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         self.source_button_frame = source_button_frame
         self.destination_button_frame = destination_button_frame
-        
-        self.percent_var = StringVar()
+        self.progressbar_frame = progressbar_frame
         
         self.sorting_button = customtkinter.CTkButton(self, text="Sort", command=self.begin_sorting_task)
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
@@ -168,19 +166,18 @@ class SortButtonFrame(customtkinter.CTkFrame):
     def begin_sorting_task(self):
         if self.source_button_frame.src_directory and self.destination_button_frame.dst_directory:
             
-            print("begin sortin task - function") #debug
+            print("inside begin_sorting_task 1/2")
             
-            Logic.sorter_logic.progress_percentage = 0
+            #src_directory = self.source_button_frame.src_directory
+            #dst_directory = self.destination_button_frame.dst_directory
             
-            total_items = sum(1 for item in Path(self.source_button_frame.src_directory).rglob('*') if item.is_file)
-            
-            progress_bar_window = ProgressBar(self.master, total_items)
-            
-            Logic.sorter_logic(self.source_button_frame.src_directory, self.destination_button_frame.dst_directory, self.percent_var)
+            print("call sorter_logic - function inside Logic class 2/2") #debug
+            Logic.sorter_logic(self.source_button_frame.src_directory, self.destination_button_frame.dst_directory)
             
         else: #debug
             print(f"no {self.src_directory} src")
             print(f"no {self.dst_directory} dst")
+
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -193,19 +190,19 @@ class QuitFrame(customtkinter.CTkFrame):
 
 class Logic:
     @staticmethod
-    
-    def sorter_logic(src_directory, dst_directory, percent_var):
-        src_directory = src_directory
-        dst_directory = dst_directory
+    def sorter_logic(src_directory, dst_directory):
+        print("begin sorter_logic function, so program is inside Logic class")
         
         source = Path(src_directory).expanduser()
         destination = os.path.expanduser(dst_directory)
         
         if not os.path.exists(destination):
             os.makedirs(dst_directory)
-                  
+        
+        total_items = sum(1 for item in source.rglob('*') if item.is_file)
+        print(total_items)
         item_count = 0
-        total_items = SortButtonFrame.total_items
+        
         for item in source.glob('*'):
             item_count +=1    
 
@@ -233,17 +230,8 @@ class Logic:
             
             progress_percentage = (item_count / total_items) * 100
             
-            
-        
-            
-            
-            
-            
-            
-            
-            
-            
-            
+            yield progress_percentage, total_items
+                     
 def icon(self):
     # if this does not work on macos, use 'platform.system' and make a if-statement to check whether the script runs on os or windows.
     self.wm_iconbitmap()
@@ -265,7 +253,7 @@ if __name__ == ("__main__"):
     src = SourceButtonFrame(main_window.sourcepath_frame, main_window)
     dst = DestinationButtonFrame(main_window.destinationpath_frame, main_window)
     
-    sort_button_frame = SortButtonFrame(main_window, src, dst)
+    sort_button_frame = SortButtonFrame(main_window, src, dst, main_window.progressbar_frame)
     
     main_window.update_idletasks()
     main_window.mainloop()
