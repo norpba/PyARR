@@ -28,6 +28,8 @@ class MainWindow(customtkinter.CTk):
         self.grid_rowconfigure((1, 2, 3), weight=10)
         self.grid_rowconfigure(4, weight=20)
         
+        self.protocol("WM_DELETE_WINDOW", partial(ConfirmationWindow, self))
+        
         self.sourcepath_frame = SourcePathFrame(self)
         self.sourcepath_frame.grid(rowspan=2, columnspan=3, row=1, column=0, padx=10, pady=(0, 10), sticky="nwe")
         
@@ -161,20 +163,17 @@ class SortButtonFrame(customtkinter.CTkFrame):
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
         
     def update_src_directory(self, src_directory):
-        self.src_destination = src_directory
+        self.src_dire = src_directory
     
     def begin_sorting_task(self):
         if self.source_button_frame.src_directory and self.destination_button_frame.dst_directory:
             
-            print("inside begin_sorting_task 1/2")
+            self.total_items = sum(1 for item in self.source_button_frame.src_directory.rglob('*') if item.is_file)
             
-            #src_directory = self.source_button_frame.src_directory
-            #dst_directory = self.destination_button_frame.dst_directory
-            
-            print("call sorter_logic - function inside Logic class 2/2") #debug
+            print("call sorter_logic - function inside Logic class 1/2") #debug
             progress_generator = Logic.sorter_logic(self.source_button_frame.src_directory, self.destination_button_frame.dst_directory)
             
-            for progress_percentage, total_items in progress_generator:
+            for progress_percentage, self.total_items in progress_generator:
                 self.progressbar_frame.update_progress(progress_percentage)
             
         else: #debug
@@ -202,7 +201,7 @@ class Logic:
         if not os.path.exists(destination):
             os.makedirs(dst_directory)
         
-        total_items = sum(1 for item in source.rglob('*') if item.is_file)
+        #total_items = sum(1 for item in source.rglob('*') if item.is_file)
         print(total_items)
         item_count = 0
         
