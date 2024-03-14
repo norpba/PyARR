@@ -163,15 +163,21 @@ class SortButtonFrame(customtkinter.CTkFrame):
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
         
     def update_src_directory(self, src_directory):
-        self.src_dire = src_directory
+        self.src_directory = src_directory
     
     def begin_sorting_task(self):
         if self.source_button_frame.src_directory and self.destination_button_frame.dst_directory:
             
-            self.total_items = sum(1 for item in self.source_button_frame.src_directory.rglob('*') if item.is_file)
+            print("source dir", self.source_button_frame.src_directory)
+            print("dest dir", self.destination_button_frame.dst_directory)
             
+            source = Path(self.source_button_frame.src_directory).expanduser()
+            destination = os.path.expanduser(self.destination_button_frame.dst_directory)
+            self.total_items = sum(1 for item in source.rglob('*') if item.is_file)
+            
+            print("total item count", self.total_items)
             print("call sorter_logic - function inside Logic class 1/2") #debug
-            progress_generator = Logic.sorter_logic(self.source_button_frame.src_directory, self.destination_button_frame.dst_directory)
+            progress_generator = Logic.sorter_logic(self.destination_button_frame.dst_directory, self.total_items, source, destination)
             
             for progress_percentage, self.total_items in progress_generator:
                 self.progressbar_frame.update_progress(progress_percentage)
@@ -180,29 +186,14 @@ class SortButtonFrame(customtkinter.CTkFrame):
             print(f"no {self.src_directory} src")
             print(f"no {self.dst_directory} dst")
 
-class QuitFrame(customtkinter.CTkFrame):
-    def __init__(self, master, *args, **kwargs):
-        super().__init__(master, *args, **kwargs)
-
-        self.quitbutton = customtkinter.CTkButton(self, text="Quit", command=self.confwindow)
-        self.quitbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
-        
-    def confwindow(self):
-        self.Confirmation_Window = ConfirmationWindow(self)
-
 class Logic:
     @staticmethod
-    def sorter_logic(src_directory, dst_directory):
+    def sorter_logic(dst_directory, total_items, source, destination):
         print("begin sorter_logic function, so program is inside Logic class")
-        
-        source = Path(src_directory).expanduser()
-        destination = os.path.expanduser(dst_directory)
         
         if not os.path.exists(destination):
             os.makedirs(dst_directory)
         
-        #total_items = sum(1 for item in source.rglob('*') if item.is_file)
-        print(total_items)
         item_count = 0
         
         for item in source.glob('*'):
@@ -233,7 +224,17 @@ class Logic:
             progress_percentage = (item_count / total_items) * 100
             
             yield progress_percentage, total_items
-                     
+
+class QuitFrame(customtkinter.CTkFrame):
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+
+        self.quitbutton = customtkinter.CTkButton(self, text="Quit", command=self.confwindow)
+        self.quitbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
+        
+    def confwindow(self):
+        self.Confirmation_Window = ConfirmationWindow(self)
+        
 def icon(self):
     # if this does not work on macos, use 'platform.system' and make a if-statement to check whether the script runs on os or windows.
     self.wm_iconbitmap()
