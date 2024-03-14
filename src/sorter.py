@@ -7,7 +7,7 @@ from functools import partial
 
 # ui modules
 import customtkinter
-from tkinter import filedialog, PhotoImage, StringVar
+from tkinter import filedialog, PhotoImage
 from pathlib import Path
 
 customtkinter.set_appearance_mode("system")
@@ -95,17 +95,33 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
 class ProgressBarFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
-
+        
         self.progress_label = customtkinter.CTkLabel(self)
         self.progress_label.grid(row=0, column=1, padx=10, pady=(10, 10))
         
         self.progress_bar = customtkinter.CTkProgressBar(self, width=560, height=20)
         self.progress_bar.grid(row=1, column=1, columnspan=5, padx=10, pady=(10, 10))
         
-        self.progress_bar.set(100)
+        self.progress_bar.set(0)
         
-    def update_progress(self, progress_percentage):
-        self.progress_bar.set(progress_percentage) #updating the progress bar
+    def update_progress(self, progress_value, item_count, total_items):
+        #time.sleep(0.3) #debug
+        
+        if item_count == 1:
+            self.progress_bar.start()
+        
+        self.progress_bar.configure(determinate_speed=progress_value)
+        deter_value = self.progress_bar.cget("determinate_speed")
+        print("new value for determinate_speed", deter_value)
+        
+        #self.progress_bar.start() #updating the progress bar
+        
+        value_debug = self.progress_bar.get()
+        print("Current progress_bar value: ", value_debug) #debug
+        print()
+        if item_count == item_count:
+            self.progress_bar.stop()
+            self.progress_bar.set(100)
         
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, sourcepath_frame, master, *args, **kwargs):
@@ -167,39 +183,33 @@ class SortButtonFrame(customtkinter.CTkFrame):
     
     def begin_sorting_task(self):
         if self.source_button_frame.src_directory and self.destination_button_frame.dst_directory:
-            
-            print("source dir", self.source_button_frame.src_directory)
-            print("dest dir", self.destination_button_frame.dst_directory)
-            
+ 
             source = Path(self.source_button_frame.src_directory).expanduser()
             destination = os.path.expanduser(self.destination_button_frame.dst_directory)
             self.total_items = sum(1 for item in source.rglob('*') if item.is_file)
             
-            print("total item count", self.total_items)
-            print("call sorter_logic - function inside Logic class 1/2") #debug
             progress_generator = Logic.sorter_logic(self.destination_button_frame.dst_directory, self.total_items, source, destination)
             
-            for progress_percentage, self.total_items in progress_generator:
-                self.progressbar_frame.update_progress(progress_percentage)
-            
-        else: #debug
-            print(f"no {self.src_directory} src")
-            print(f"no {self.dst_directory} dst")
+            for progress_percentage, item_count in progress_generator:
+                progress_value = progress_percentage / 100.0
+                print("progress_value: ", progress_value) #debug
+                self.progressbar_frame.update_progress(progress_value, item_count, self.total_items)
 
 class Logic:
     @staticmethod
     def sorter_logic(dst_directory, total_items, source, destination):
         print("begin sorter_logic function, so program is inside Logic class")
+        print()
         
         if not os.path.exists(destination):
             os.makedirs(dst_directory)
         
         item_count = 0
-        
         for item in source.glob('*'):
             item_count +=1    
 
-            print("Item count per iteration, program is inside the for-loop. Item count: ", item_count) #debug
+            print("Class - Logic: item count ", item_count) #debug
+            print()
             
             creation_time = os.path.getctime(item)
             modification_time = os.path.getmtime(item)
@@ -221,9 +231,11 @@ class Logic:
             else:
                 shutil.copy2(item, destination_file_path)
             
-            progress_percentage = (item_count / total_items) * 100
+            progress_percentage = int((item_count / total_items) * 100)
             
-            yield progress_percentage, total_items
+            #print("Logic class: progress_percentage variable value is now: ", progress_percentage)
+            
+            yield progress_percentage, item_count
 
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
