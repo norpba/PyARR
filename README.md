@@ -1,11 +1,12 @@
 # PyARR - Python Arranger - a simple python-based sorting tool
-This is going to be my very first project that I'm going to work on. What I have in mind (for now, that is) is a file-sorter that takes in various filetypes (code, pictures, videos, and more) and organizes them into folders. These folders are created by the program and named based on a prompt from the user.
 
-# Functionality:
-1. User inputs files of a specific type into the program, for example image files.
-2. User chooses a location for the base directory for their sorted files. For example "C:\Users\usernamehere\Pictures\PyARR_images".
-3. User inputs a name for the directory. PyARR will add an identifier in the end of the sub.dir. name based on the creation year; ("Sorted images - 2022" for example).
-4. The newly created and sorted directory could look something like this:
+A simple file sorter that takes in a folder with files from the user. The script then reads the metadata of each file in the folder, from which the file creation year is used to name the folders in the output directory. Each file is then sorted into it's corresponding folder.
+
+# Functionality
+
+1. User chooses the source directory for the files to be sorted.
+2. User then chooses an output directory for the sorted files. When the sorting button is pressed, the script sorts the files into folders, which are named by the file creation year of each file.
+3. The output directory could look something like this:
 
        Directory:
        - C:\Users\usernamehere\Pictures\PyARR images
