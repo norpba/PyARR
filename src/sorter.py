@@ -103,16 +103,11 @@ class ProgressBarFrame(customtkinter.CTkFrame):
         self.progress_bar = customtkinter.CTkProgressBar(self, width=560, height=20)
         self.progress_bar.grid(row=1, column=1, columnspan=5, padx=10, pady=(10, 10))
         
-        self.progress_bar.set(0)
+        self.progress_bar.set(100)
         
-    def update_progress(self, progress_value, item_count, total_items):
-        if item_count == 1:
-            print(total_items)
-            self.thread = threading.Thread(target=self.update_progress(progress_value, item_count, total_items))
-            self.thread.start()
+    def update_progress(self, progress_percentage):
+        self.progress_bar.set(progress_percentage)
         
-        self.progress_bar.set(progress_value)
-        time.sleep(0.3) #debug
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, sourcepath_frame, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -164,6 +159,7 @@ class SortButtonFrame(customtkinter.CTkFrame):
         self.source_button_frame = source_button_frame
         self.destination_button_frame = destination_button_frame
         self.progressbar_frame = progressbar_frame
+        self.progressbar_thread = None
         
         self.sorting_button = customtkinter.CTkButton(self, text="Sort", command=self.begin_sorting_task)
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
@@ -173,54 +169,72 @@ class SortButtonFrame(customtkinter.CTkFrame):
     
     def begin_sorting_task(self):
         if self.source_button_frame.src_directory and self.destination_button_frame.dst_directory:
- 
+            
             source = Path(self.source_button_frame.src_directory).expanduser()
             destination = os.path.expanduser(self.destination_button_frame.dst_directory)
-            self.total_items = sum(1 for item in source.rglob('*') if item.is_file)
+            total_items = sum(1 for item in source.rglob('*') if item.is_file)
             
-            progress_generator = Logic.sorter_logic(self.destination_button_frame.dst_directory, self.total_items, source, destination)
+            print("Total item count:", total_items) #debug
+            print("source folder:", source) #debug
+            print("destination folder", destination) #debug
+    
+            print("step before threading initialized") #debug
+            self.progressbar_thread = threading.Thread(target=self.sort_files, args=(source, destination, total_items))
+            print("step after threading initialized, step before thread.start")
+            self.progressbar_thread.start()
             
-            for progress_percentage, item_count in progress_generator:
-                progress_value = progress_percentage / 100.0
-                print("progress_value:", progress_value) #debug
-                self.progressbar_frame.update_progress(progress_value, item_count, self.total_items)
-
+    def sort_files(self, source, destination, total_items):
+        progress_generator = Logic.sorter_logic(source, destination, total_items)
+        
+        for progress_percentage in progress_generator:
+            print("progress_value:", progress_percentage) #debug
+            print()
+            self.progressbar_frame.update_progress(progress_percentage)
+            
 class Logic:
     @staticmethod
-    def sorter_logic(dst_directory, total_items, source, destination):
-        print("begin sorter_logic function, so program is inside Logic class")
-        print()
+    def sorter_logic(source, destination, total_items):
         
-        if not os.path.exists(destination):
-            os.makedirs(dst_directory)
+        print("begin sorter_logic function, so program is inside Logic class") #debug
+        print() #debug
         
         item_count = 0
         for item in source.glob('*'):
             item_count +=1    
 
+            if not os.path.exists(destination):
+                os.makedirs(destination)
+            
             print("Class - Logic: item count ", item_count) #debug
             print()
             
             creation_time = os.path.getctime(item)
-            modification_time = os.path.getmtime(item)
+            print("Logic class - creation_time: ", creation_time) #debug
+            #modification_time = os.path.getmtime(item)
             
             creation_datetime = time.ctime(creation_time)
-            modification_datetime = time.ctime(modification_time)
+            print("Logic class - creation_datetime: ", creation_datetime) #debug
+            #modification_datetime = time.ctime(modification_time)
         
             year_dir_name = creation_datetime[len(creation_datetime) - 4:]
-            new_dir = os.path.join(dst_directory, year_dir_name)
+            print("Logic class - year_dir_name: ", year_dir_name)
+            new_dir = os.path.join(destination, year_dir_name)
 
             if not os.path.exists(new_dir):
                 os.makedirs(new_dir)
+                
             destination_file_path = os.path.join(new_dir, item.name)
+            print("Logic class - destination_file_path", destination_file_path)
             
             if item.is_dir():
                 shutil.copytree(item, destination_file_path)
             else:
                 shutil.copy2(item, destination_file_path)
             
-            progress_percentage = int((item_count / total_items) * 100)
-            yield progress_percentage, item_count
+            #time.sleep(1)
+            
+            progress_percentage = ((item_count / total_items) * 100) / 100.0
+            yield progress_percentage
 
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
