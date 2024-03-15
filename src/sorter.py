@@ -175,12 +175,8 @@ class SortButtonFrame(customtkinter.CTkFrame):
             total_items = sum(1 for item in source.rglob('*') if item.is_file)
             
             print("Total item count:", total_items) #debug
-            print("source folder:", source) #debug
-            print("destination folder", destination) #debug
-    
-            print("step before threading initialized") #debug
+
             self.progressbar_thread = threading.Thread(target=self.sort_files, args=(source, destination, total_items))
-            print("step after threading initialized, step before thread.start")
             self.progressbar_thread.start()
             
     def sort_files(self, source, destination, total_items):
@@ -194,31 +190,32 @@ class SortButtonFrame(customtkinter.CTkFrame):
 class Logic:
     @staticmethod
     def sorter_logic(source, destination, total_items):
-        
-        print("begin sorter_logic function, so program is inside Logic class") #debug
-        print() #debug
-        
         item_count = 0
+        
         for item in source.glob('*'):
             item_count +=1
             
-            print("Class - Logic: item count ", item_count) #debug
-            print() #debug
+            print("Item value: ", item) #debug
             
             item_modification_date = time.ctime(os.path.getmtime(item))
-            item_mod_date_filter = item_modification_date[len(item_modification_date) - 4:] 
-            print("Logic class - year_dir_name: ", item_mod_date_filter)
-            
+            item_mod_date_filter = item_modification_date[len(item_modification_date) - 4:]
             new_dir = os.path.join(destination, item_mod_date_filter)
             
             if not os.path.exists(new_dir):
                 os.makedirs(new_dir)
                 
             destination_file_path = os.path.join(new_dir, item.name)
-            #print("Logic class - destination_file_path", destination_file_path)
             
-            if item.is_dir():
-                shutil.copytree(item, destination_file_path)
+            if item.is_dir(): #continue here <------------------------------------------------------------------
+                for i in item.glob('*'):
+                    
+                    print(i)
+                    print(item.glob('*'))
+                    
+                    shutil.copy2(i, destination_file_path)
+                
+
+                #shutil.copytree(item, destination_file_path)
             else:
                 shutil.copy2(item, destination_file_path)
             
