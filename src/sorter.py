@@ -4,6 +4,7 @@ import os
 import shutil
 import time
 from functools import partial
+import threading
 
 # ui modules
 import customtkinter
@@ -105,24 +106,13 @@ class ProgressBarFrame(customtkinter.CTkFrame):
         self.progress_bar.set(0)
         
     def update_progress(self, progress_value, item_count, total_items):
-        #time.sleep(0.3) #debug
-        
         if item_count == 1:
-            self.progress_bar.start()
+            print(total_items)
+            self.thread = threading.Thread(target=self.update_progress(progress_value, item_count, total_items))
+            self.thread.start()
         
-        self.progress_bar.configure(determinate_speed=progress_value)
-        deter_value = self.progress_bar.cget("determinate_speed")
-        print("new value for determinate_speed", deter_value)
-        
-        #self.progress_bar.start() #updating the progress bar
-        
-        value_debug = self.progress_bar.get()
-        print("Current progress_bar value: ", value_debug) #debug
-        print()
-        if item_count == item_count:
-            self.progress_bar.stop()
-            self.progress_bar.set(100)
-        
+        self.progress_bar.set(progress_value)
+        time.sleep(0.3) #debug
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, sourcepath_frame, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -192,7 +182,7 @@ class SortButtonFrame(customtkinter.CTkFrame):
             
             for progress_percentage, item_count in progress_generator:
                 progress_value = progress_percentage / 100.0
-                print("progress_value: ", progress_value) #debug
+                print("progress_value:", progress_value) #debug
                 self.progressbar_frame.update_progress(progress_value, item_count, self.total_items)
 
 class Logic:
@@ -218,12 +208,10 @@ class Logic:
             modification_datetime = time.ctime(modification_time)
         
             year_dir_name = creation_datetime[len(creation_datetime) - 4:]
-
             new_dir = os.path.join(dst_directory, year_dir_name)
 
             if not os.path.exists(new_dir):
                 os.makedirs(new_dir)
-            
             destination_file_path = os.path.join(new_dir, item.name)
             
             if item.is_dir():
@@ -232,9 +220,6 @@ class Logic:
                 shutil.copy2(item, destination_file_path)
             
             progress_percentage = int((item_count / total_items) * 100)
-            
-            #print("Logic class: progress_percentage variable value is now: ", progress_percentage)
-            
             yield progress_percentage, item_count
 
 class QuitFrame(customtkinter.CTkFrame):
