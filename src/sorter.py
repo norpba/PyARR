@@ -1,15 +1,15 @@
 
 # sorter logic modules
 import os
+import threading
 import shutil
 import time
-from functools import partial
-import threading
+from pathlib import Path
 
 # ui modules
 import customtkinter
 from tkinter import filedialog, PhotoImage
-from pathlib import Path
+from functools import partial
 
 customtkinter.set_appearance_mode("system")
 customtkinter.set_default_color_theme("green")
@@ -51,7 +51,7 @@ class MainWindow(customtkinter.CTk):
         
         self.quitframe = QuitFrame(self)
         self.quitframe.grid(row=10, column=2, padx=10, pady=(0, 10), sticky="se")
-        
+
 class WelcomeWindow(customtkinter.CTkToplevel):
     def __init__(self, root, *args, **kwargs):
         super().__init__(root, *args, **kwargs)
@@ -69,7 +69,7 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         info4.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nwe")
         b1 = customtkinter.CTkButton(self, width=180, height=50, text="Close", command=self.destroy)
         b1.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="swe")
-        
+
 class ConfirmationWindow(customtkinter.CTkToplevel):
     def __init__(self, master):
         super().__init__(master)
@@ -93,21 +93,6 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         self.cancel_button = customtkinter.CTkButton(self, width=70, height=25, text="No", command=self.destroy)
         self.cancel_button.grid(row=5, column=7, padx=20, pady=(10, 15), sticky="se")
 
-class ProgressBarFrame(customtkinter.CTkFrame):
-    def __init__(self, master, *args, **kwargs):
-        super().__init__(master, *args, **kwargs)
-        
-        self.progress_label = customtkinter.CTkLabel(self)
-        self.progress_label.grid(row=0, column=1, padx=10, pady=(10, 10))
-        
-        self.progress_bar = customtkinter.CTkProgressBar(self, width=560, height=20)
-        self.progress_bar.grid(row=1, column=1, columnspan=5, padx=10, pady=(10, 10))
-        
-        self.progress_bar.set(100)
-        
-    def update_progress(self, progress_percentage):
-        self.progress_bar.set(progress_percentage)
-        
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, sourcepath_frame, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -137,21 +122,36 @@ class DestinationButtonFrame(customtkinter.CTkFrame):
         self.dst_directory = filedialog.askdirectory()
         if self.dst_directory:
             self.destination_path_frame.destination_label.configure(text=self.dst_directory)
-   
+
 class SourcePathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         
         self.source_label = customtkinter.CTkLabel(self, text="Source folder path:", wraplength=560)
         self.source_label.grid(row=1, column=0, padx=20, pady=(10, 10))
-        
+
 class DestinationPathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         
         self.destination_label = customtkinter.CTkLabel(self, text="Destination folder path:", wraplength=560)
         self.destination_label.grid(row=0, column=0, padx=20, pady=(10, 10))
+
+class ProgressBarFrame(customtkinter.CTkFrame):
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
         
+        self.progress_label = customtkinter.CTkLabel(self)
+        self.progress_label.grid(row=0, column=1, padx=10, pady=(10, 10))
+        
+        self.progress_bar = customtkinter.CTkProgressBar(self, width=560, height=20)
+        self.progress_bar.grid(row=1, column=1, columnspan=5, padx=10, pady=(10, 10))
+        
+        self.progress_bar.set(100)
+        
+    def update_progress(self, progress_percentage):
+        self.progress_bar.set(progress_percentage)
+
 class SortButtonFrame(customtkinter.CTkFrame):
     def __init__(self, master, source_button_frame, destination_button_frame, progressbar_frame, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -200,38 +200,27 @@ class Logic:
         
         item_count = 0
         for item in source.glob('*'):
-            item_count +=1    
-
-            if not os.path.exists(destination):
-                os.makedirs(destination)
+            item_count +=1
             
             print("Class - Logic: item count ", item_count) #debug
-            print()
+            print() #debug
             
-            creation_time = os.path.getctime(item)
-            print("Logic class - creation_time: ", creation_time) #debug
-            #modification_time = os.path.getmtime(item)
+            item_modification_date = time.ctime(os.path.getmtime(item))
+            item_mod_date_filter = item_modification_date[len(item_modification_date) - 4:] 
+            print("Logic class - year_dir_name: ", item_mod_date_filter)
             
-            creation_datetime = time.ctime(creation_time)
-            print("Logic class - creation_datetime: ", creation_datetime) #debug
-            #modification_datetime = time.ctime(modification_time)
-        
-            year_dir_name = creation_datetime[len(creation_datetime) - 4:]
-            print("Logic class - year_dir_name: ", year_dir_name)
-            new_dir = os.path.join(destination, year_dir_name)
-
+            new_dir = os.path.join(destination, item_mod_date_filter)
+            
             if not os.path.exists(new_dir):
                 os.makedirs(new_dir)
                 
             destination_file_path = os.path.join(new_dir, item.name)
-            print("Logic class - destination_file_path", destination_file_path)
+            #print("Logic class - destination_file_path", destination_file_path)
             
             if item.is_dir():
                 shutil.copytree(item, destination_file_path)
             else:
                 shutil.copy2(item, destination_file_path)
-            
-            #time.sleep(1)
             
             progress_percentage = ((item_count / total_items) * 100) / 100.0
             yield progress_percentage
