@@ -189,20 +189,22 @@ class Logic:
     def sorter_logic(source, destination, total_items):
         item_count = 0
         
-        for dirpath, dirnames, filenames in os.walk(source):
-            print(dirpath)
-            print(dirnames)
-            print(filenames)
+        for item in source.glob('*'):
+            fullpath = item.expanduser()
+            print(fullpath)
+            if item.is_dir():
+                currentdir_list = os.listdir(item)
+                for file in currentdir_list:
+                    shutil.copy2(file, destination)
+            elif item.is_file():
+                shutil.copy2(item, destination)
+                  
+            item_mod_date= time.ctime(os.path.getmtime())
+            converted_date = item_mod_date[len(item_mod_date) - 4:]
             
-            filepath = os.path.join(dirpath, name)
-            
-            
-            #item_mod_date= time.ctime(os.path.getmtime()
-            #converted_date = item_mod_date[len(item_mod_date) - 4:]
-            
-            #new_dir = os.path.join(destination, converted_date)
-            #if not os.path.exists(new_dir):
-            #    os.makedirs(new_dir)
+            new_dir = os.path.join(destination, converted_date)
+            if not os.path.exists(new_dir):
+                os.makedirs(new_dir)
                         
             #destination_file_path = os.path.join(new_dir, )
             #shutil.copy2(files, destination_file_path)
