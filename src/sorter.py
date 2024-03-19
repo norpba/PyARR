@@ -19,7 +19,6 @@ class MainWindow(customtkinter.CTk):
         super().__init__(*args, **kwargs)
 
         icon(self)
-        
         # calling the function center window with the parameters; self, width * height
         center_window(self, 600, 370)
         
@@ -173,18 +172,16 @@ class SortButtonFrame(customtkinter.CTkFrame):
             source = Path(self.source_button_frame.src_directory).expanduser()
             destination = os.path.expanduser(self.destination_button_frame.dst_directory)
             total_items = sum(1 for item in source.rglob('*') if item.is_file)
+            print("total_items:", total_items)
             
-            print("Total item count:", total_items) #debug
-
             self.progressbar_thread = threading.Thread(target=self.sort_files, args=(source, destination, total_items))
             self.progressbar_thread.start()
             
     def sort_files(self, source, destination, total_items):
         progress_generator = Logic.sorter_logic(source, destination, total_items)
-        
         for progress_percentage in progress_generator:
-            print("progress_value:", progress_percentage) #debug
-            print()
+            #print("progress_value:", progress_percentage) #debug
+            #print()
             self.progressbar_frame.update_progress(progress_percentage)
             
 class Logic:
@@ -192,35 +189,26 @@ class Logic:
     def sorter_logic(source, destination, total_items):
         item_count = 0
         
-        for item in source.glob('*'):
-            item_count +=1
+        for dirpath, dirnames, filenames in os.walk(source):
+            print(dirpath)
+            print(dirnames)
+            print(filenames)
             
-            print("Item value: ", item) #debug
+            filepath = os.path.join(dirpath, name)
             
-            item_modification_date = time.ctime(os.path.getmtime(item))
-            item_mod_date_filter = item_modification_date[len(item_modification_date) - 4:]
-            new_dir = os.path.join(destination, item_mod_date_filter)
             
-            if not os.path.exists(new_dir):
-                os.makedirs(new_dir)
-                
-            destination_file_path = os.path.join(new_dir, item.name)
+            #item_mod_date= time.ctime(os.path.getmtime()
+            #converted_date = item_mod_date[len(item_mod_date) - 4:]
             
-            if item.is_dir(): #continue here <------------------------------------------------------------------
-                for i in item.glob('*'):
-                    
-                    print(i)
-                    print(item.glob('*'))
-                    
-                    shutil.copy2(i, destination_file_path)
-                
+            #new_dir = os.path.join(destination, converted_date)
+            #if not os.path.exists(new_dir):
+            #    os.makedirs(new_dir)
+                        
+            #destination_file_path = os.path.join(new_dir, )
+            #shutil.copy2(files, destination_file_path)
 
-                #shutil.copytree(item, destination_file_path)
-            else:
-                shutil.copy2(item, destination_file_path)
-            
-            progress_percentage = ((item_count / total_items) * 100) / 100.0
-            yield progress_percentage
+            #progress_percentage = ((item_count / total_items) * 100) / 100.0
+            #yield progress_percentage
 
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
