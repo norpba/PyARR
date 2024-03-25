@@ -168,7 +168,7 @@ class SortButtonFrame(customtkinter.CTkFrame):
     
     def begin_sorting_task(self):
         if self.source_button_frame.src_directory and self.destination_button_frame.dst_directory:
-            
+            self.sorting_button.configure(state='disabled')
             source = Path(self.source_button_frame.src_directory).expanduser()
             destination = os.path.expanduser(self.destination_button_frame.dst_directory)
             self.progressbar_thread = threading.Thread(target=self.sort_files, args=(source, destination))
@@ -178,6 +178,8 @@ class SortButtonFrame(customtkinter.CTkFrame):
         progress_generator = Logic.sorter_logic(source, destination)
         for progress_percentage in progress_generator:
             print("progress_value:", progress_percentage) #debug
+            if progress_percentage >= 1:
+                self.sorting_button.configure(state='normal')
             self.progressbar_frame.update_progress(progress_percentage)
             
 class Logic:
