@@ -188,30 +188,30 @@ class Logic:
     @staticmethod
     def sorter_logic(source, destination, total_items):
         item_count = 0
-        
-        for item in source.glob('*'):
-            fullpath = item.expanduser()
-            print(fullpath)
-            #if item.is_dir():
-            #    currentdir_list = os.listdir(item)
-            #    for file in currentdir_list:
-            #        shutil.copy2(file, destination)
-            #elif item.is_file():
-            #    shutil.copy2(item, destination)
-                  
-            #item_mod_date= time.ctime(os.path.getmtime())
-            #converted_date = item_mod_date[len(item_mod_date) - 4:]
+        item_list = []
+        for root, dirs, files in os.walk(source):
+            for f in files:
+                if not f.startswith('.'):
+                    fullpath = os.path.join(root, f)
+                    item_list.append(fullpath)
+                    
+        for i in item_list:
+            print(i)
+            item_count+=1 # <----- continue 
             
-            #new_dir = os.path.join(destination, converted_date)
-            #if not os.path.exists(new_dir):
-            #    os.makedirs(new_dir)
+            item_mod_date= time.ctime(os.path.getmtime(i))
+            converted_date = item_mod_date[len(item_mod_date) - 4:]
+            
+            new_dir = os.path.join(destination, converted_date)
+            if not os.path.exists(new_dir):
+                os.makedirs(new_dir)
                         
-            #destination_file_path = os.path.join(new_dir, )
-            #shutil.copy2(files, destination_file_path)
+            destination_file_path = os.path.join(new_dir, os.path.basename(i))
+            shutil.copy2(i, destination_file_path)
 
-            #progress_percentage = ((item_count / total_items) * 100) / 100.0
-            #yield progress_percentage
-
+            progress_percentage = ((item_count / total_items) * 100) / 100.0
+            yield progress_percentage
+            
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
