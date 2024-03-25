@@ -6,11 +6,12 @@ import shutil
 import time
 from pathlib import Path
 
-# ui modules
+# UI modules
 import customtkinter
 from tkinter import filedialog, PhotoImage
 from functools import partial
 
+# set UI theme
 customtkinter.set_appearance_mode("system")
 customtkinter.set_default_color_theme("green")
 
@@ -28,7 +29,7 @@ class MainWindow(customtkinter.CTk):
         self.grid_rowconfigure((1, 2, 3), weight=10)
         self.grid_rowconfigure(4, weight=20)
         
-        self.protocol("WM_DELETE_WINDOW", partial(ConfirmationWindow, self))
+        self.protocol("WM_DELETE_WINDOW", partial(ConfirmationWindow, self)) # capture the user closing application from toolbar and bring ConfirmationWindow
         
         self.sourcepath_frame = SourcePathFrame(self)
         self.sourcepath_frame.grid(rowspan=2, columnspan=3, row=1, column=0, padx=10, pady=(0, 10), sticky="nwe")
@@ -175,11 +176,17 @@ class SortButtonFrame(customtkinter.CTkFrame):
             self.progressbar_thread.start()
             
     def sort_files(self, source, destination):
+        start_time = time.time()
         progress_generator = Logic.sorter_logic(source, destination)
         for progress_percentage in progress_generator:
             print("progress_value:", progress_percentage) #debug
+            
             if progress_percentage >= 1:
                 self.sorting_button.configure(state='normal')
+                self.end_time = time.time()
+                self.time_decimal = self.end_time - start_time
+                print(f"Sorting completed in {"%.2f" % self.time_decimal} seconds.")
+                
             self.progressbar_frame.update_progress(progress_percentage)
             
 class Logic:
@@ -196,8 +203,7 @@ class Logic:
                     item_list.append(fullpath)
                     
         for i in item_list:
-            print(i)
-            item_count+=1 # <----- continue 
+            item_count+=1
             
             item_mod_date= time.ctime(os.path.getmtime(i))
             converted_date = item_mod_date[len(item_mod_date) - 4:]
@@ -208,17 +214,15 @@ class Logic:
                         
             destination_file_path = os.path.join(new_dir, os.path.basename(i))
             shutil.copy2(i, destination_file_path)
-
+            
             progress_percentage = ((item_count / total_items) * 100) / 100.0
             yield progress_percentage
             
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
-
         self.quitbutton = customtkinter.CTkButton(self, text="Quit", command=self.confwindow)
         self.quitbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
-        
     def confwindow(self):
         self.Confirmation_Window = ConfirmationWindow(self)
         
@@ -239,11 +243,8 @@ def center_window(window, w, h):
 if __name__ == ("__main__"):
     main_window = MainWindow()
     welcome_window = WelcomeWindow(main_window)
-    
     src = SourceButtonFrame(main_window.sourcepath_frame, main_window)
     dst = DestinationButtonFrame(main_window.destinationpath_frame, main_window)
-    
     sort_button_frame = SortButtonFrame(main_window, src, dst, main_window.progressbar_frame)
-    
     main_window.update_idletasks()
     main_window.mainloop()
