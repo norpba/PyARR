@@ -171,27 +171,25 @@ class SortButtonFrame(customtkinter.CTkFrame):
             
             source = Path(self.source_button_frame.src_directory).expanduser()
             destination = os.path.expanduser(self.destination_button_frame.dst_directory)
-            total_items = sum(1 for item in source.rglob('*') if item.is_file)
-            print("total_items:", total_items)
-            
-            self.progressbar_thread = threading.Thread(target=self.sort_files, args=(source, destination, total_items))
+            self.progressbar_thread = threading.Thread(target=self.sort_files, args=(source, destination))
             self.progressbar_thread.start()
             
-    def sort_files(self, source, destination, total_items):
-        progress_generator = Logic.sorter_logic(source, destination, total_items)
+    def sort_files(self, source, destination):
+        progress_generator = Logic.sorter_logic(source, destination)
         for progress_percentage in progress_generator:
-            #print("progress_value:", progress_percentage) #debug
-            #print()
+            print("progress_value:", progress_percentage) #debug
             self.progressbar_frame.update_progress(progress_percentage)
             
 class Logic:
     @staticmethod
-    def sorter_logic(source, destination, total_items):
+    def sorter_logic(source, destination):
+        total_items = 0
         item_count = 0
         item_list = []
         for root, dirs, files in os.walk(source):
             for f in files:
                 if not f.startswith('.'):
+                    total_items+=1
                     fullpath = os.path.join(root, f)
                     item_list.append(fullpath)
                     
