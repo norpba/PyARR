@@ -8,7 +8,7 @@ from pathlib import Path
 
 # UI modules
 import customtkinter
-from tkinter import filedialog, PhotoImage
+from tkinter import filedialog, PhotoImage, StringVar
 from functools import partial
 
 # set UI theme
@@ -105,14 +105,13 @@ class SourceButtonFrame(customtkinter.CTkFrame):
     def SourceFolder(self):
         self.src_directory = filedialog.askdirectory()
         if self.src_directory:
-            self.master.sortingbutton_frame.update_src_directory(self.src_directory)
             self.sourcepath_frame.source_label.configure(text=self.src_directory)
 
 class DestinationButtonFrame(customtkinter.CTkFrame):
     def __init__(self, destination_path_frame, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.dst_directory = None
+        #self.dst_directory = None
         self.destination_path_frame = destination_path_frame
         
         self.destination_button = customtkinter.CTkButton(self, text="Select an output folder", command=self.DestinationFolder)
@@ -141,8 +140,11 @@ class ProgressBarFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
-        self.progress_label = customtkinter.CTkLabel(self)
-        self.progress_label.grid(row=0, column=1, padx=10, pady=(10, 10))
+        #self.sortingbutton_frame = sortingbutton_frame
+        progress_stringvar = StringVar(master=)
+        
+        self.progress_label = customtkinter.CTkLabel(self, text="")
+        self.progress_label.grid(row=0, column=0, columnspan=2, pady=(10, 10))
         
         self.progress_bar = customtkinter.CTkProgressBar(self, width=560, height=20)
         self.progress_bar.grid(row=1, column=1, columnspan=5, padx=10, pady=(10, 10))
@@ -163,10 +165,7 @@ class SortButtonFrame(customtkinter.CTkFrame):
         
         self.sorting_button = customtkinter.CTkButton(self, text="Sort", command=self.begin_sorting_task)
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
-        
-    def update_src_directory(self, src_directory):
-        self.src_directory = src_directory
-    
+
     def begin_sorting_task(self):
         if self.source_button_frame.src_directory and self.destination_button_frame.dst_directory:
             self.sorting_button.configure(state='disabled')
