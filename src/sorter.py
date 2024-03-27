@@ -21,7 +21,7 @@ class MainWindow(customtkinter.CTk):
 
         icon(self)
         # calling the function center window with the parameters; self, width * height
-        center_window(self, 600, 370)
+        center_window(self, 600, 340)
         
         self.title("PyARR v0.1.0")
         self.resizable(False, False)
@@ -29,16 +29,16 @@ class MainWindow(customtkinter.CTk):
         self.grid_rowconfigure((1, 2, 3), weight=10)
         self.grid_rowconfigure(4, weight=20)
         
-        self.protocol("WM_DELETE_WINDOW", partial(ConfirmationWindow, self)) # capture the user closing application from toolbar and bring ConfirmationWindow
+        self.protocol("WM_DELETE_WINDOW", partial(ConfirmationWindow, self)) # capture the user closing application from toolbar and bring up ConfirmationWindow
         
         self.sourcepath_frame = SourcePathFrame(self)
-        self.sourcepath_frame.grid(rowspan=2, columnspan=3, row=1, column=0, padx=10, pady=(0, 10), sticky="nwe")
+        self.sourcepath_frame.grid(rowspan=2, columnspan=3, row=1, column=0, padx=10, pady=(0, 20), sticky="nwe")
         
         self.destinationpath_frame = DestinationPathFrame(self)
         self.destinationpath_frame.grid(rowspan=2, columnspan=3, row=2, column=0, padx=10, pady=(20, 10), sticky="nwe")
         
         self.progressbar_frame = ProgressBarFrame(self)
-        self.progressbar_frame.grid(rowspan=1, columnspan=3, row=3, column=0, padx=10, pady=(35, 0), sticky="we")
+        self.progressbar_frame.grid(rowspan=2, columnspan=3, row=3, column=0, padx=10, pady=(30, 0), sticky="we")
         
         self.sourcebutton_frame = SourceButtonFrame(self.sourcepath_frame, self)
         self.sourcebutton_frame.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="nw")
