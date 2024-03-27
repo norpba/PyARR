@@ -141,16 +141,18 @@ class ProgressBarFrame(customtkinter.CTkFrame):
         super().__init__(master, *args, **kwargs)
         
         #self.sortingbutton_frame = sortingbutton_frame
-        progress_stringvar = StringVar(master=)
+        progress_stringvar = StringVar(value="Waiting for the sorting to begin ...")
         
-        self.progress_label = customtkinter.CTkLabel(self, text="")
-        self.progress_label.grid(row=0, column=0, columnspan=2, pady=(10, 10))
+        self.progress_label = customtkinter.CTkLabel(self, textvariable=progress_stringvar)
+        self.progress_label.grid(row=0, column=0, columnspan=7, pady=(10, 10), sticky="ew")
         
         self.progress_bar = customtkinter.CTkProgressBar(self, width=560, height=20)
         self.progress_bar.grid(row=1, column=1, columnspan=5, padx=10, pady=(10, 10))
         
         self.progress_bar.set(100)
-        
+    def update_stringvar(self, progress_percentage):
+        orig_percentage = int(progress_percentage * 100)
+        self.
     def update_progress(self, progress_percentage):
         self.progress_bar.set(progress_percentage)
 
@@ -185,9 +187,9 @@ class SortButtonFrame(customtkinter.CTkFrame):
                 self.end_time = time.time()
                 self.time_decimal = self.end_time - start_time
                 print(f"Sorting completed in {"%.2f" % self.time_decimal} seconds.")
-                
-            self.progressbar_frame.update_progress(progress_percentage)
             
+            self.progressbar_frame.update_progress(progress_percentage)
+            self.progressbar_frame.update_stringvar(progress_percentage)
 class Logic:
     @staticmethod
     def sorter_logic(source, destination):
