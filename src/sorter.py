@@ -21,36 +21,35 @@ class MainWindow(customtkinter.CTk):
 
         icon(self)
         # calling the function center window with the parameters; self, width * height
-        center_window(self, 600, 340)
+        center_window(self, 600, 300)
         
         self.title("PyARR v0.1.0")
         self.resizable(False, False)
         self.grid_columnconfigure((0, 1, 2), weight=1)
-        self.grid_rowconfigure((1, 2, 3), weight=10)
-        self.grid_rowconfigure(4, weight=20)
+        self.grid_rowconfigure((0, 1, 2, 3), weight=1)
         
         self.protocol("WM_DELETE_WINDOW", partial(ConfirmationWindow, self)) # capture the user closing application from toolbar and bring up ConfirmationWindow
         
         self.sourcepath_frame = SourcePathFrame(self)
-        self.sourcepath_frame.grid(rowspan=2, columnspan=3, row=1, column=0, padx=10, pady=(0, 20), sticky="nwe")
+        self.sourcepath_frame.grid(column=0, row=1, columnspan=3, rowspan=1, padx=10, pady=(0, 10), sticky="nwe")
         
         self.destinationpath_frame = DestinationPathFrame(self)
-        self.destinationpath_frame.grid(rowspan=2, columnspan=3, row=2, column=0, padx=10, pady=(20, 10), sticky="nwe")
+        self.destinationpath_frame.grid(column=0, row=2, columnspan=3, rowspan=1, padx=10, pady=(0, 10), sticky="nwe")
         
         self.progressbar_frame = ProgressBarFrame(self)
-        self.progressbar_frame.grid(rowspan=2, columnspan=3, row=3, column=0, padx=10, pady=(30, 0), sticky="we")
+        self.progressbar_frame.grid(column=0, row=3, columnspan=2, padx=10, pady=(0, 5), sticky="nwe")
         
         self.sourcebutton_frame = SourceButtonFrame(self.sourcepath_frame, self)
-        self.sourcebutton_frame.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="nw")
+        self.sourcebutton_frame.grid(column=0, row=0, padx=10, pady=(10, 10), sticky="nw")
         
         self.destinationbutton_frame = DestinationButtonFrame(self.destinationpath_frame, self)
-        self.destinationbutton_frame.grid(row=0, column=1, padx=10, pady=(10, 10), sticky="nwe")
+        self.destinationbutton_frame.grid(column=1, row=0, padx=10, pady=(10, 10), sticky="nwe")
         
         self.sortingbutton_frame = SortButtonFrame(self, self.sourcebutton_frame, self.destinationbutton_frame, self.progressbar_frame)
-        self.sortingbutton_frame.grid(row=0, column=2, padx=10, pady=(10, 10), sticky="ne")
+        self.sortingbutton_frame.grid(column=2, row=0, padx=10, pady=(10, 10), sticky="ne")
         
         self.quitframe = QuitFrame(self)
-        self.quitframe.grid(row=10, column=2, padx=10, pady=(0, 10), sticky="se")
+        self.quitframe.grid(column=2, row=3, columnspan=1, padx=10, pady=(0, 10), sticky="se")
 
 class WelcomeWindow(customtkinter.CTkToplevel):
     def __init__(self, root, *args, **kwargs):
@@ -146,7 +145,7 @@ class ProgressBarFrame(customtkinter.CTkFrame):
         self.progress_label = customtkinter.CTkLabel(self, textvariable=self.progress_stringvar)
         self.progress_label.grid(row=0, column=0, columnspan=7, pady=(10, 10), sticky="ew")
         
-        self.progress_bar = customtkinter.CTkProgressBar(self, width=560, height=20)
+        self.progress_bar = customtkinter.CTkProgressBar(self, height=20)
         self.progress_bar.grid(row=1, column=1, columnspan=5, padx=10, pady=(10, 10))
         
         self.progress_bar.set(100)
