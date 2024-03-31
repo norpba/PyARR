@@ -1,1 +1,8 @@
-- on macOS, the window can NOT be tiled with another file on a space (desktop).
+Implementation ideas:
+- on macOS, the window can NOT be tiled with another app on a space (any desktop).
+- Path elements need to be changed into entry boxes.
+- Option menu for the user to choose with more sorting options
+- Some symbolic graphics animation while the 
+
+Research etc:
+- research into installers and how to include dependencies in the installer. 
