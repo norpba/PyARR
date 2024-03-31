@@ -98,48 +98,44 @@ class SourceButtonFrame(customtkinter.CTkFrame):
         super().__init__(master, *args, **kwargs)
         
         self.sourcepath_frame = sourcepath_frame
-        self.src_directory = None
         self.source_button = customtkinter.CTkButton(self, text="Select a folder to sort", command=self.SourceFolder)
         self.source_button.grid(row=0, column=0, padx=10, pady=(10, 10))
         
     def SourceFolder(self):
         self.src_directory = filedialog.askdirectory()
         if self.src_directory:
-            self.sourcepath_frame.source_stringvar.set(self.src_directory)
+            self.sourcepath_frame.source_stringvar.set(f"Source folder path: {self.src_directory}")
 
 class DestinationButtonFrame(customtkinter.CTkFrame):
     def __init__(self, destination_path_frame, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        #self.dst_directory = None
         self.destination_path_frame = destination_path_frame
-        
         self.destination_button = customtkinter.CTkButton(self, text="Select an output folder", command=self.DestinationFolder)
         self.destination_button.grid(row=0, column=1, padx=(15, 0), pady=(10, 10), sticky="nwe")
         
     def DestinationFolder(self):
         self.dst_directory = filedialog.askdirectory()
         if self.dst_directory:
-            self.destination_path_frame.destination_label.configure(text=self.dst_directory)
+            self.destination_path_frame.dest_stringvar.set(f"Destination folder path: {self.dst_directory}")
 
 class SourcePathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         
-        self.source_stringvar = StringVar(value="")
+        self.source_stringvar = StringVar(value="Source folder path: ")
         
-        self.source_label = customtkinter.CTkLabel(self, text="Source folder path:", wraplength=560)
-        self.source_label.grid(row=1, column=0, padx=19, pady=(10, 10))
-        
-        self.source_entry = customtkinter.CTkEntry(self, textvariable=self.source_stringvar, width=355)
-        self.source_entry.grid(row=1, column=1, padx=60)
+        self.source_entry = customtkinter.CTkEntry(self, textvariable=self.source_stringvar, width=560, state="disabled")
+        self.source_entry.grid(row=1, column=0, padx=10, pady=(10, 10))
 
 class DestinationPathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         
-        self.destination_label = customtkinter.CTkLabel(self, text="Destination folder path:", wraplength=560)
-        self.destination_label.grid(row=0, column=0, padx=20, pady=(10, 10))
+        self.dest_stringvar = StringVar(value="Destination folder path: ")
+        
+        self.dest_entry = customtkinter.CTkEntry(self, textvariable=self.dest_stringvar, width=560, state="disabled")
+        self.dest_entry.grid(row=1, column=0, padx=10, pady=(10, 10))
 
 class ProgressBarFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
