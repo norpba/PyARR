@@ -21,7 +21,7 @@ class MainWindow(customtkinter.CTk):
 
         icon(self)
         # calling the function center window with the parameters; self, width * height
-        center_window(self, 600, 340)
+        center_window(self, 600, 350)
         
         self.title("PyARR v0.1.0")
         self.resizable(False, False)
@@ -35,10 +35,10 @@ class MainWindow(customtkinter.CTk):
         self.sourcepath_frame.grid(rowspan=2, columnspan=3, row=1, column=0, padx=10, pady=(0, 20), sticky="nwe")
         
         self.destinationpath_frame = DestinationPathFrame(self)
-        self.destinationpath_frame.grid(rowspan=2, columnspan=3, row=2, column=0, padx=10, pady=(20, 10), sticky="nwe")
+        self.destinationpath_frame.grid(rowspan=2, columnspan=3, row=2, column=0, padx=10, pady=(10, 10), sticky="nwe")
         
         self.progressbar_frame = ProgressBarFrame(self)
-        self.progressbar_frame.grid(rowspan=2, columnspan=3, row=3, column=0, padx=10, pady=(30, 0), sticky="we")
+        self.progressbar_frame.grid(rowspan=2, columnspan=3, row=3, column=0, padx=10, pady=(20, 0), sticky="we")
         
         self.sourcebutton_frame = SourceButtonFrame(self.sourcepath_frame, self)
         self.sourcebutton_frame.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="nw")
@@ -149,13 +149,11 @@ class ProgressBarFrame(customtkinter.CTkFrame):
         self.progress_bar.grid(row=1, column=1, columnspan=5, padx=10, pady=(10, 10))
         
         self.progress_bar.set(100)
-    #def update_stringvar(self, progress_percentage):
-        #orig_percentage = int(progress_percentage * 100)
-        #self.progress_stringvar.set(f"{orig_percentage}%")
+        
     def update_progress(self, progress_percentage):
         self.progress_bar.set(progress_percentage)
         self.orig_percentage = int(progress_percentage * 100)
-        self.progress_stringvar.set(f"Sorting...{self.orig_percentage}% done.")
+        self.progress_stringvar.set(f"Sorting... {self.orig_percentage}% done.")
             
 class SortButtonFrame(customtkinter.CTkFrame):
     def __init__(self, master, source_button_frame, destination_button_frame, progressbar_frame, *args, **kwargs):
@@ -183,17 +181,14 @@ class SortButtonFrame(customtkinter.CTkFrame):
         for progress_percentage in progress_generator:
             print("progress_value:", progress_percentage) #debug
             
+            self.progressbar_frame.update_progress(progress_percentage)
             if progress_percentage >= 1:
                 self.sorting_button.configure(state='normal')
                 self.end_time = time.time()
                 self.time_decimal = self.end_time - start_time
-                self.progressbar_frame.progress_stringvar.set(f"Sorting completed. Task took {self.time_decimal} seconds")
+                self.progressbar_frame.progress_stringvar.set(f"Sorting completed. Task took {"%.1f" % self.time_decimal} seconds")
                 print(f"Sorting completed in {"%.2f" % self.time_decimal} seconds.")
-            
-            self.progressbar_frame.update_progress(progress_percentage)
-            
-            #self.progressbar_frame.update_stringvar(progress_percentage)
-            
+                
 class Logic:
     @staticmethod
     def sorter_logic(source, destination):
