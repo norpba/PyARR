@@ -26,7 +26,7 @@ class MainWindow(customtkinter.CTk):
         self.title("PyARR v0.1.0")
         self.resizable(False, False)
         self.grid_columnconfigure((0, 1, 2), weight=1)
-        self.grid_rowconfigure((0, 1, 2, 3), weight=1)
+        self.grid_rowconfigure((0, 1, 2, 3, 4), weight=1)
         
         self.protocol("WM_DELETE_WINDOW", partial(ConfirmationWindow, self)) # capture the user closing application from toolbar and bring up ConfirmationWindow
         
@@ -48,8 +48,11 @@ class MainWindow(customtkinter.CTk):
         self.sortingbutton_frame = SortButtonFrame(self, self.sourcebutton_frame, self.destinationbutton_frame, self.progressbar_frame)
         self.sortingbutton_frame.grid(column=2, row=0, padx=10, pady=(10, 10), sticky="ne")
         
+        self.options_frame = OptionsFrame(self)
+        self.options_frame.grid(column=2, row=3, columnspan=1, rowspan=1, padx=10, pady=(0, 10), sticky="ne")
+        
         self.quitframe = QuitFrame(self)
-        self.quitframe.grid(column=2, row=3, columnspan=1, padx=10, pady=(0, 10), sticky="se")
+        self.quitframe.grid(column=2, row=3, columnspan=1, padx=10, pady=(50, 10), sticky="ne")
 
 class WelcomeWindow(customtkinter.CTkToplevel):
     def __init__(self, root, *args, **kwargs):
@@ -143,7 +146,7 @@ class ProgressBarFrame(customtkinter.CTkFrame):
         self.progress_stringvar = StringVar(value="Waiting for the sorting to begin ...")
         
         self.progress_label = customtkinter.CTkLabel(self, textvariable=self.progress_stringvar)
-        self.progress_label.grid(row=0, column=0, columnspan=7, pady=(10, 10), sticky="ew")
+        self.progress_label.grid(row=0, column=0, columnspan=7, ipady=(5), pady=(10, 10), sticky="ew")
         
         self.progress_bar = customtkinter.CTkProgressBar(self, height=20)
         self.progress_bar.grid(row=1, column=1, columnspan=5, padx=10, pady=(10, 10))
@@ -216,6 +219,17 @@ class Logic:
             progress_percentage = ((item_count / total_items) * 100) / 100.0
             yield progress_percentage
             
+class OptionsFrame(customtkinter.CTkFrame):
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        
+        self.optionsbutton = customtkinter.CTkButton(self)
+        self.optionsbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
+    
+    
+    
+    
+    
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
