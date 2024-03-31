@@ -102,11 +102,10 @@ class SourceButtonFrame(customtkinter.CTkFrame):
         self.sourcepath_frame = sourcepath_frame
         self.source_button = customtkinter.CTkButton(self, text="Select a folder to sort", command=self.SourceFolder)
         self.source_button.grid(row=0, column=0, padx=10, pady=(10, 10))
-        
     def SourceFolder(self):
         self.src_directory = filedialog.askdirectory()
         if self.src_directory:
-            self.sourcepath_frame.source_stringvar.set(f"Source folder path: {self.src_directory}")
+            self.sourcepath_frame.source_stringvar.set(f"Source folder path ➙ {self.src_directory}")
 
 class DestinationButtonFrame(customtkinter.CTkFrame):
     def __init__(self, destination_path_frame, *args, **kwargs):
@@ -115,17 +114,18 @@ class DestinationButtonFrame(customtkinter.CTkFrame):
         self.destination_path_frame = destination_path_frame
         self.destination_button = customtkinter.CTkButton(self, text="Select an output folder", command=self.DestinationFolder)
         self.destination_button.grid(row=0, column=1, padx=(15, 0), pady=(10, 10), sticky="nwe")
-        
     def DestinationFolder(self):
         self.dst_directory = filedialog.askdirectory()
         if self.dst_directory:
-            self.destination_path_frame.dest_stringvar.set(f"Destination folder path: {self.dst_directory}")
+            self.destination_path_frame.dest_stringvar.set(f"Destination folder path ➙ {self.dst_directory}")
 
 class SourcePathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         
-        self.source_stringvar = StringVar(value="Source folder path: ")
+        # todo -> make path entry scrollable from side to side
+        
+        self.source_stringvar = StringVar(value="Source folder path ➙ ")
         
         self.source_entry = customtkinter.CTkEntry(self, textvariable=self.source_stringvar, width=560, state="disabled")
         self.source_entry.grid(row=1, column=0, padx=10, pady=(10, 10))
@@ -134,7 +134,9 @@ class DestinationPathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         
-        self.dest_stringvar = StringVar(value="Destination folder path: ")
+        # todo -> make path entry scrollable from side to side
+        
+        self.dest_stringvar = StringVar(value="Destination folder path ➙ ")
         
         self.dest_entry = customtkinter.CTkEntry(self, textvariable=self.dest_stringvar, width=560, state="disabled")
         self.dest_entry.grid(row=1, column=0, padx=10, pady=(10, 10))
@@ -148,14 +150,16 @@ class ProgressBarFrame(customtkinter.CTkFrame):
         self.progress_label = customtkinter.CTkLabel(self, textvariable=self.progress_stringvar)
         self.progress_label.grid(row=0, column=0, columnspan=7, ipady=(5), pady=(10, 10), sticky="ew")
         
-        self.progress_bar = customtkinter.CTkProgressBar(self, height=20)
-        self.progress_bar.grid(row=1, column=1, columnspan=5, padx=10, pady=(10, 10))
+        # fix progress bar alignment <----------------------
         
+        self.progress_bar = customtkinter.CTkProgressBar(self, width=370, height=20)
+        self.progress_bar.grid(row=1, column=1, columnspan=5, padx=5, pady=(10, 10), sticky="we")
         self.progress_bar.set(100)
+        
     def update_progress(self, progress_percentage):
         self.progress_bar.set(progress_percentage)
         self.orig_percentage = int(progress_percentage * 100)
-        self.progress_stringvar.set(f"Sorting...{self.orig_percentage}% done.")
+        self.progress_stringvar.set(f"Sorting... {self.orig_percentage}% done.")
             
 class SortButtonFrame(customtkinter.CTkFrame):
     def __init__(self, master, source_button_frame, destination_button_frame, progressbar_frame, *args, **kwargs):
@@ -170,25 +174,31 @@ class SortButtonFrame(customtkinter.CTkFrame):
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
 
     def begin_sorting_task(self):
-        if self.source_button_frame.src_directory and self.destination_button_frame.dst_directory:
-            self.sorting_button.configure(state='disabled')
-            source = Path(self.source_button_frame.src_directory).expanduser()
-            destination = os.path.expanduser(self.destination_button_frame.dst_directory)
-            self.progressbar_thread = threading.Thread(target=self.sort_files, args=(source, destination))
-            self.progressbar_thread.start()
+        try:
+            if self.source_button_frame.src_directory and self.destination_button_frame.dst_directory:
+                self.sorting_button.configure(state='disabled')
+                source = Path(self.source_button_frame.src_directory).expanduser()
+                destination = os.path.expanduser(self.destination_button_frame.dst_directory)
+                self.progressbar_thread = threading.Thread(target=self.sort_files, args=(source, destination))
+                self.progressbar_thread.start()
+        except AttributeError:
+            self.error_window()
             
     def sort_files(self, source, destination):
         start_time = time.time()
         progress_generator = Logic.sorter_logic(source, destination)
         for progress_percentage in progress_generator:
             print("progress_value:", progress_percentage) #debug
-            #self.progressbar_frame.update_progress(progress_percentage)
+            self.progressbar_frame.update_progress(progress_percentage)
             if progress_percentage >= 1:
                 self.sorting_button.configure(state='normal')
                 self.end_time = time.time()
                 self.time_decimal = self.end_time - start_time
-                self.progressbar_frame.progress_stringvar.set(f"Sorting completed. Task took {"%.2f" % self.time_decimal} seconds")
+                self.progressbar_frame.progress_stringvar.set(f"Sorting completed. Task took {"%.2f" % self.time_decimal} seconds.")
                 print(f"Sorting completed in {self.time_decimal} seconds.")
+                
+    def error_window(self):
+        pass
                 
 class Logic:
     @staticmethod
@@ -225,24 +235,16 @@ class OptionsFrame(customtkinter.CTkFrame):
         
         self.optionsbutton = customtkinter.CTkButton(self)
         self.optionsbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
-    
-    
-    
-    
-    
+
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         self.quitbutton = customtkinter.CTkButton(self, text="Quit", command=self.confwindow)
         self.quitbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
     def confwindow(self):
-        self.Confirmation_Window = ConfirmationWindow(self)
+        confirmation_window = ConfirmationWindow(self.master)
+        center_window(confirmation_window, 350, 100)
         
-def icon(self):
-    # if this does not work on macos, use 'platform.system' and make a if-statement to check whether the script runs on os or windows.
-    self.wm_iconbitmap()
-    self.after(199, lambda: self.wm_iconphoto(False, PhotoImage(file='titlebar_icon.png')))
-           
 def center_window(window, w, h):
     # get the screen width and height
     screen_x = window.winfo_screenwidth()
@@ -251,7 +253,12 @@ def center_window(window, w, h):
     x = (screen_x - w) // 2
     y = (screen_y - h) // 2
     window.geometry(f'{w}x{h}+{x}+{y}')
-     
+    
+def icon(self):
+    # if this does not work on macos, use 'platform.system' and make a if-statement to check whether the script runs on os or windows.
+    self.wm_iconbitmap()
+    self.after(199, lambda: self.wm_iconphoto(False, PhotoImage(file='titlebar_icon.png')))
+      
 if __name__ == ("__main__"):
     main_window = MainWindow()
     welcome_window = WelcomeWindow(main_window)
