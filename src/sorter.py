@@ -105,7 +105,7 @@ class SourceButtonFrame(customtkinter.CTkFrame):
     def SourceFolder(self):
         self.src_directory = filedialog.askdirectory()
         if self.src_directory:
-            self.sourcepath_frame.source_label.configure(text=self.src_directory)
+            self.sourcepath_frame.source_stringvar.set(self.src_directory)
 
 class DestinationButtonFrame(customtkinter.CTkFrame):
     def __init__(self, destination_path_frame, *args, **kwargs):
@@ -126,8 +126,13 @@ class SourcePathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         
+        self.source_stringvar = StringVar(value="")
+        
         self.source_label = customtkinter.CTkLabel(self, text="Source folder path:", wraplength=560)
-        self.source_label.grid(row=1, column=0, padx=20, pady=(10, 10))
+        self.source_label.grid(row=1, column=0, padx=19, pady=(10, 10))
+        
+        self.source_entry = customtkinter.CTkEntry(self, textvariable=self.source_stringvar, width=355)
+        self.source_entry.grid(row=1, column=1, padx=60)
 
 class DestinationPathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
@@ -149,9 +154,6 @@ class ProgressBarFrame(customtkinter.CTkFrame):
         self.progress_bar.grid(row=1, column=1, columnspan=5, padx=10, pady=(10, 10))
         
         self.progress_bar.set(100)
-    #def update_stringvar(self, progress_percentage):
-        #orig_percentage = int(progress_percentage * 100)
-        #self.progress_stringvar.set(f"{orig_percentage}%")
     def update_progress(self, progress_percentage):
         self.progress_bar.set(progress_percentage)
         self.orig_percentage = int(progress_percentage * 100)
@@ -182,18 +184,14 @@ class SortButtonFrame(customtkinter.CTkFrame):
         progress_generator = Logic.sorter_logic(source, destination)
         for progress_percentage in progress_generator:
             print("progress_value:", progress_percentage) #debug
-            
+            #self.progressbar_frame.update_progress(progress_percentage)
             if progress_percentage >= 1:
                 self.sorting_button.configure(state='normal')
                 self.end_time = time.time()
                 self.time_decimal = self.end_time - start_time
-                self.progressbar_frame.progress_stringvar.set(f"Sorting completed. Task took {self.time_decimal} seconds")
-                print(f"Sorting completed in {"%.2f" % self.time_decimal} seconds.")
-            
-            self.progressbar_frame.update_progress(progress_percentage)
-            
-            #self.progressbar_frame.update_stringvar(progress_percentage)
-            
+                self.progressbar_frame.progress_stringvar.set(f"Sorting completed. Task took {"%.2f" % self.time_decimal} seconds")
+                print(f"Sorting completed in {self.time_decimal} seconds.")
+                
 class Logic:
     @staticmethod
     def sorter_logic(source, destination):
