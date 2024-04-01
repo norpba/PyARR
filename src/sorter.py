@@ -20,11 +20,11 @@ class MainWindow(customtkinter.CTk):
         super().__init__(*args, **kwargs)
 
         icon(self)
-        # calling the function center window with the parameters; self, width * height
+        # calling the function center_window with the parameters; self, width * height
         center_window(self, 600, 300)
-        
         self.title("PyARR v0.1.0")
         self.resizable(False, False)
+        
         self.grid_columnconfigure((0, 1, 2), weight=1)
         self.grid_rowconfigure((0, 1, 2, 3, 4), weight=1)
         
@@ -49,10 +49,10 @@ class MainWindow(customtkinter.CTk):
         self.sortingbutton_frame.grid(column=2, row=0, padx=10, pady=(10, 10), sticky="ne")
         
         self.options_frame = OptionsFrame(self)
-        self.options_frame.grid(column=2, row=3, columnspan=1, rowspan=1, padx=10, pady=(0, 10), sticky="ne")
+        self.options_frame.grid(column=2, row=3, columnspan=1, padx=10, pady=(0, 0), sticky="ne")
         
         self.quitframe = QuitFrame(self)
-        self.quitframe.grid(column=2, row=3, columnspan=1, padx=10, pady=(50, 10), sticky="ne")
+        self.quitframe.grid(column=2, row=3, columnspan=1, padx=10, pady=(50, 0), sticky="ne")
 
 class WelcomeWindow(customtkinter.CTkToplevel):
     def __init__(self, root, *args, **kwargs):
@@ -64,13 +64,14 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         self.resizable(False, False)
         self.transient(root)
         self.grab_set()
+        
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
         
-        info4 = customtkinter.CTkLabel(self, font=('', 16), text="Welcome to Python Arranger!")
-        info4.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nwe")
-        b1 = customtkinter.CTkButton(self, width=180, height=50, text="Close", command=self.destroy)
-        b1.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="swe")
+        welcome_text = customtkinter.CTkLabel(self, font=('', 16), text="Welcome to Python Arranger!")
+        welcome_text.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nwe")
+        close_button = customtkinter.CTkButton(self, width=180, height=50, text="Close", command=self.destroy)
+        close_button.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="swe")
 
 class ConfirmationWindow(customtkinter.CTkToplevel):
     def __init__(self, master):
@@ -79,22 +80,38 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         icon(self)
         center_window(self, 350, 100)
         self.title("Confirmation")
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=8)
-        self.grid_rowconfigure((0, 1, 2, 3, 4, 5), weight=1)
         self.resizable(False, False)
         self.transient(master)
         self.grab_set()
         
+        self.rowconfigure((0, 1), weight=1)
+        self.grid_columnconfigure((0, 1), weight=1)
+        
         self.confirmation_label = customtkinter.CTkLabel(self, text="Are you sure you want to quit?", font=("", 14))
-        self.confirmation_label.grid(row=2, column=1, columnspan=20, padx=(10, 10))
+        self.confirmation_label.grid(row=0, column=0, columnspan=2, sticky="ew")
         
-        self.confirmation_button = customtkinter.CTkButton(self, width=70, height=25, text="Yes", command=self.quit)
-        self.confirmation_button.grid(row=5, column=6, pady=(10, 15), sticky="se")
+        self.confirmation_buttonframe = customtkinter.CTkFrame(self)
+        self.confirmation_buttonframe.grid(row=1, column=0, padx=10, pady=(10, 10))
         
-        self.cancel_button = customtkinter.CTkButton(self, width=70, height=25, text="No", command=self.destroy)
-        self.cancel_button.grid(row=5, column=7, padx=20, pady=(10, 15), sticky="se")
+        self.cancel_buttonframe = customtkinter.CTkFrame(self)
+        self.cancel_buttonframe.grid(row=1, column=1, padx=10, pady=(10, 10))
+        
+        self.confirmation_button = customtkinter.CTkButton(master=self.confirmation_buttonframe, text="Yes", command=self.quit)
+        self.confirmation_button.grid(row=0, column=0, padx=5, pady=(5, 5))
+        
+        self.cancel_button = customtkinter.CTkButton(master=self.cancel_buttonframe, text="No", command=self.destroy)
+        self.cancel_button.grid(row=0, column=0, padx=5, pady=(5, 5))
 
+class ErrorWindow(customtkinter.CTkToplevel):
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        
+        icon(self) # if these  doesn't work on other error functions, try adding it inside the function that is being called
+        self.title("An error occurred!")
+        self.resizable(False, False)
+        self.transient(master)
+        self.grab_set()
+        
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, sourcepath_frame, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -113,7 +130,7 @@ class DestinationButtonFrame(customtkinter.CTkFrame):
         
         self.destination_path_frame = destination_path_frame
         self.destination_button = customtkinter.CTkButton(self, text="Select an output folder", command=self.DestinationFolder)
-        self.destination_button.grid(row=0, column=1, padx=(15, 0), pady=(10, 10), sticky="nwe")
+        self.destination_button.grid(row=0, column=1, padx=(15, 0), pady=(10, 10), sticky="we")
     def DestinationFolder(self):
         self.dst_directory = filedialog.askdirectory()
         if self.dst_directory:
@@ -168,7 +185,6 @@ class SortButtonFrame(customtkinter.CTkFrame):
         self.source_button_frame = source_button_frame
         self.destination_button_frame = destination_button_frame
         self.progressbar_frame = progressbar_frame
-        self.progressbar_thread = None
         
         self.sorting_button = customtkinter.CTkButton(self, text="Sort", command=self.begin_sorting_task)
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
@@ -182,7 +198,7 @@ class SortButtonFrame(customtkinter.CTkFrame):
                 self.progressbar_thread = threading.Thread(target=self.sort_files, args=(source, destination))
                 self.progressbar_thread.start()
         except AttributeError:
-            self.error_window()
+            pass #implement calling error class
             
     def sort_files(self, source, destination):
         start_time = time.time()
@@ -196,9 +212,6 @@ class SortButtonFrame(customtkinter.CTkFrame):
                 self.time_decimal = self.end_time - start_time
                 self.progressbar_frame.progress_stringvar.set(f"Sorting completed. Task took {"%.2f" % self.time_decimal} seconds.")
                 print(f"Sorting completed in {self.time_decimal} seconds.")
-                
-    def error_window(self):
-        pass
                 
 class Logic:
     @staticmethod
@@ -244,7 +257,7 @@ class QuitFrame(customtkinter.CTkFrame):
     def confwindow(self):
         confirmation_window = ConfirmationWindow(self.master)
         center_window(confirmation_window, 350, 100)
-        
+            
 def center_window(window, w, h):
     # get the screen width and height
     screen_x = window.winfo_screenwidth()
