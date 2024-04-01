@@ -11,10 +11,6 @@ import customtkinter
 from tkinter import filedialog, PhotoImage, StringVar
 from functools import partial
 
-# set UI theme
-customtkinter.set_appearance_mode("system")
-customtkinter.set_default_color_theme("green")
-
 class MainWindow(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -140,13 +136,18 @@ class SourcePathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         
-        # todo -> make path entry scrollable from side to side
+        #self.source_stringvar = StringVar(value="Source folder path ➙ ")
         
-        self.source_stringvar = StringVar(value="Source folder path ➙ ")
+        #self.source_entry = customtkinter.CTkEntry(self, textvariable=self.source_stringvar, width=560)
         
-        self.source_entry = customtkinter.CTkEntry(self, textvariable=self.source_stringvar, width=560, state="disabled")
-        self.source_entry.grid(row=1, column=0, padx=10, pady=(10, 10))
-
+        self.source_textbox = customtkinter.CTkTextbox(self, width=560, height=28, activate_scrollbars=False)
+        self.source_textbox.grid(row=0, column=0, padx=10, pady=(10, 10))
+        
+        self.source_scrollbar = customtkinter.CTkScrollbar(self, orientation="horizontal", command=self.source_textbox.xview)
+        self.source_scrollbar.grid(row=1, padx=10, sticky="nwe")
+        
+        self.source_textbox.configure(xscrollcommand=self.source_scrollbar.set)
+        
 class DestinationPathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
@@ -157,7 +158,7 @@ class DestinationPathFrame(customtkinter.CTkFrame):
         
         self.dest_entry = customtkinter.CTkEntry(self, textvariable=self.dest_stringvar, width=560, state="disabled")
         self.dest_entry.grid(row=1, column=0, padx=10, pady=(10, 10))
-
+        
 class ProgressBarFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -273,6 +274,10 @@ def icon(self):
     self.after(199, lambda: self.wm_iconphoto(False, PhotoImage(file='titlebar_icon.png')))
       
 if __name__ == ("__main__"):
+    # set UI theme
+    customtkinter.set_appearance_mode("system")
+    customtkinter.set_default_color_theme("green")
+    
     main_window = MainWindow()
     welcome_window = WelcomeWindow(main_window)
     src = SourceButtonFrame(main_window.sourcepath_frame, main_window)
