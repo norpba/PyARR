@@ -98,6 +98,22 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         self.cancel_button = customtkinter.CTkButton(master=self.cancel_buttonframe, text="No", command=self.destroy)
         self.cancel_button.grid(row=0, column=0, padx=5, pady=(5, 5))
 
+class OptionsFrame(customtkinter.CTkFrame):
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        
+        self.optionsbutton = customtkinter.CTkButton(self)
+        self.optionsbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
+        
+class QuitFrame(customtkinter.CTkFrame):
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        self.quitbutton = customtkinter.CTkButton(self, text="Quit", command=self.confwindow)
+        self.quitbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
+    def confwindow(self):
+        confirmation_window = ConfirmationWindow(self.master)
+        center_window(confirmation_window, 350, 100)
+        
 class ErrorWindow(customtkinter.CTkToplevel):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -132,22 +148,19 @@ class DestinationButtonFrame(customtkinter.CTkFrame):
         if self.dst_directory:
             self.destination_path_frame.dest_stringvar.set(f"Destination folder path ➙ {self.dst_directory}")
 
-class SourcePathFrame(customtkinter.CTkFrame):
-    def __init__(self, master):
-        super().__init__(master)
+class SourcePathFrame(customtkinter.CTkFrame): 
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
         
-        #self.source_stringvar = StringVar(value="Source folder path ➙ ")
+        self.source_stringvar = StringVar(value="Source folder path ➙ ")
         
-        #self.source_entry = customtkinter.CTkEntry(self, textvariable=self.source_stringvar, width=560)
+        self.scrollbar = customtkinter.CTkScrollbar(self)
+        self.scrollbar.grid(row=1, column=0, padx=10, pady=(10, 10))
         
-        self.source_textbox = customtkinter.CTkTextbox(self, width=560, height=28, activate_scrollbars=False)
-        self.source_textbox.grid(row=0, column=0, padx=10, pady=(10, 10))
+        self.s_entry = customtkinter.CTkEntry(master=self, textvariable=self.source_stringvar, width=560, xscrollcommand=self.scrollbar.set)
+        self.s_entry.grid(row=0, column=0, padx=10, pady=(10, 10))
         
-        self.source_scrollbar = customtkinter.CTkScrollbar(self, orientation="horizontal", command=self.source_textbox.xview)
-        self.source_scrollbar.grid(row=1, padx=10, sticky="nwe")
-        
-        self.source_textbox.configure(xscrollcommand=self.source_scrollbar.set)
-        
+        self.scrollbar.configure(command=self.s_entry.xview)     
 class DestinationPathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
@@ -157,23 +170,19 @@ class DestinationPathFrame(customtkinter.CTkFrame):
         self.dest_stringvar = StringVar(value="Destination folder path ➙ ")
         
         self.dest_entry = customtkinter.CTkEntry(self, textvariable=self.dest_stringvar, width=560, state="disabled")
-        self.dest_entry.grid(row=1, column=0, padx=10, pady=(10, 10))
+        self.dest_entry.grid(row=0, column=0, padx=10, pady=(10, 10))
         
 class ProgressBarFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
         self.progress_stringvar = StringVar(value="Waiting for the sorting to begin ...")
-        
         self.progress_label = customtkinter.CTkLabel(self, textvariable=self.progress_stringvar)
         self.progress_label.grid(row=0, column=0, columnspan=7, ipady=(5), pady=(10, 10), sticky="ew")
-        
-        # fix progress bar alignment <----------------------
         
         self.progress_bar = customtkinter.CTkProgressBar(self, width=370, height=20)
         self.progress_bar.grid(row=1, column=1, columnspan=5, padx=5, pady=(10, 10), sticky="we")
         self.progress_bar.set(100)
-        
     def update_progress(self, progress_percentage):
         self.progress_bar.set(progress_percentage)
         self.orig_percentage = int(progress_percentage * 100)
@@ -242,22 +251,6 @@ class Logic:
             
             progress_percentage = ((item_count / total_items) * 100) / 100.0
             yield progress_percentage
-            
-class OptionsFrame(customtkinter.CTkFrame):
-    def __init__(self, master, *args, **kwargs):
-        super().__init__(master, *args, **kwargs)
-        
-        self.optionsbutton = customtkinter.CTkButton(self)
-        self.optionsbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
-
-class QuitFrame(customtkinter.CTkFrame):
-    def __init__(self, master, *args, **kwargs):
-        super().__init__(master, *args, **kwargs)
-        self.quitbutton = customtkinter.CTkButton(self, text="Quit", command=self.confwindow)
-        self.quitbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
-    def confwindow(self):
-        confirmation_window = ConfirmationWindow(self.master)
-        center_window(confirmation_window, 350, 100)
             
 def center_window(window, w, h):
     # get the screen width and height
