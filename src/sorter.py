@@ -152,15 +152,23 @@ class SourcePathFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
-        self.source_stringvar = StringVar(value="Source folder path ➙ ")
+        def on_scroll(*args):
+            print("Scrollbar command:", args)
+            self.source_entry.xview(*args)
+            
+        self.source_stringvar = StringVar
+        self.scrollbar = customtkinter.CTkScrollbar(self, orientation="horizontal", command=on_scroll)
+        self.scrollbar.grid(row=1, column=0, padx=10, pady=10, sticky="nwe")
         
-        self.scrollbar = customtkinter.CTkScrollbar(self)
-        self.scrollbar.grid(row=1, column=0, padx=10, pady=(10, 10))
+        self.source_entry = customtkinter.CTkEntry(self, xscrollcommand=self.scrollbar.set)
+        self.source_entry.grid(row=0, column=0, padx=10, pady=10, sticky="nwe")
         
-        self.s_entry = customtkinter.CTkEntry(master=self, textvariable=self.source_stringvar, width=560, xscrollcommand=self.scrollbar.set)
-        self.s_entry.grid(row=0, column=0, padx=10, pady=(10, 10))
+        self.scrollbar.configure(command=self.source_entry.xview_moveto)
         
-        self.scrollbar.configure(command=self.s_entry.xview)     
+        self.path_string = "/path/to/your/long/file/path/here/very_long_path_name.txt"
+        self.source_entry.insert(0, self.path_string)
+        
+        
 class DestinationPathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
