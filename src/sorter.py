@@ -147,27 +147,25 @@ class DestinationButtonFrame(customtkinter.CTkFrame):
         self.dst_directory = filedialog.askdirectory()
         if self.dst_directory:
             self.destination_path_frame.dest_stringvar.set(f"Destination folder path ➙ {self.dst_directory}")
-
+            
 class SourcePathFrame(customtkinter.CTkFrame): 
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
         def on_scroll(*args):
             print("Scrollbar command:", args)
-            self.source_entry.xview(*args)
             
-        self.source_stringvar = StringVar
+            if args[0] == 'moveto':
+                self.source_entry.xview_moveto(args[1])
+
+        self.source_stringvar = StringVar()
         self.scrollbar = customtkinter.CTkScrollbar(self, orientation="horizontal", command=on_scroll)
         self.scrollbar.grid(row=1, column=0, padx=10, pady=10, sticky="nwe")
         
         self.source_entry = customtkinter.CTkEntry(self, xscrollcommand=self.scrollbar.set)
         self.source_entry.grid(row=0, column=0, padx=10, pady=10, sticky="nwe")
         
-        self.scrollbar.configure(command=self.source_entry.xview_moveto)
-        
-        self.path_string = "/path/to/your/long/file/path/here/very_long_path_name.txt"
-        self.source_entry.insert(0, self.path_string)
-        
+        self.scrollbar.configure(command=on_scroll)
         
 class DestinationPathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
