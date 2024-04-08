@@ -16,8 +16,7 @@ class MainWindow(customtkinter.CTk):
         super().__init__(*args, **kwargs)
 
         icon(self)
-        # calling the function center_window with the parameters; self, width * height
-        center_window(self, 600, 310)
+        center_window(self, 600, 310) # calling the function center_window with the parameters; self, width * height
         self.title("PyARR v0.1.0")
         self.resizable(False, False)
         
@@ -118,7 +117,7 @@ class ErrorWindow(customtkinter.CTkToplevel):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
-        icon(self) # if these  doesn't work on other error functions, try adding it inside the function that is being called
+        icon(self) # if these do not work on other error functions, try adding it inside the function that is being called
         self.title("An error occurred!")
         self.resizable(False, False)
         self.transient(master)
@@ -152,7 +151,7 @@ class SourcePathFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
-        def on_scroll(*args):
+        def on_scroll(*args): # handle arguments being passed from scrollbar
             if args[0] == 'moveto':
                 self.source_entry.xview_moveto(args[1])
                 
@@ -169,7 +168,7 @@ class DestinationPathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         
-        def on_scroll(*args):
+        def on_scroll(*args): # handle arguments being passed from scrollbar
             if args[0] == 'moveto':
                 self.dest_entry.xview_moveto(args[1])
                 
@@ -219,7 +218,7 @@ class SortButtonFrame(customtkinter.CTkFrame):
                 self.progressbar_thread = threading.Thread(target=self.sort_files, args=(source, destination))
                 self.progressbar_thread.start()
         except AttributeError:
-            pass #implement calling error class
+            pass # implement calling error class
             
     def sort_files(self, source, destination):
         start_time = time.time()
@@ -278,8 +277,7 @@ def icon(self):
     self.after(199, lambda: self.wm_iconphoto(False, PhotoImage(file='titlebar_icon.png')))
       
 if __name__ == ("__main__"):
-    # set UI theme
-    customtkinter.set_appearance_mode("system")
+    customtkinter.set_appearance_mode("system") # set UI theme
     customtkinter.set_default_color_theme("green")
     
     main_window = MainWindow()
