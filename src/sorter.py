@@ -17,7 +17,7 @@ class MainWindow(customtkinter.CTk):
 
         icon(self)
         # calling the function center_window with the parameters; self, width * height
-        center_window(self, 600, 300)
+        center_window(self, 600, 310)
         self.title("PyARR v0.1.0")
         self.resizable(False, False)
         
@@ -27,22 +27,22 @@ class MainWindow(customtkinter.CTk):
         self.protocol("WM_DELETE_WINDOW", partial(ConfirmationWindow, self)) # capture the user closing application from toolbar and bring up ConfirmationWindow
         
         self.sourcepath_frame = SourcePathFrame(self)
-        self.sourcepath_frame.grid(column=0, row=1, columnspan=3, rowspan=1, padx=10, pady=(0, 10), sticky="nwe")
+        self.sourcepath_frame.grid(column=0, row=1, columnspan=3, rowspan=1, padx=10, pady=(0, 5), sticky="nwe")
         
         self.destinationpath_frame = DestinationPathFrame(self)
-        self.destinationpath_frame.grid(column=0, row=2, columnspan=3, rowspan=1, padx=10, pady=(0, 10), sticky="nwe")
+        self.destinationpath_frame.grid(column=0, row=2, columnspan=3, rowspan=1, padx=10, pady=(0, 5), sticky="nwe")
         
         self.progressbar_frame = ProgressBarFrame(self)
         self.progressbar_frame.grid(column=0, row=3, columnspan=2, padx=10, pady=(0, 5), sticky="nwe")
         
         self.sourcebutton_frame = SourceButtonFrame(self.sourcepath_frame, self)
-        self.sourcebutton_frame.grid(column=0, row=0, padx=10, pady=(10, 10), sticky="nw")
+        self.sourcebutton_frame.grid(column=0, row=0, padx=10, pady=(5, 5), sticky="nw")
         
         self.destinationbutton_frame = DestinationButtonFrame(self.destinationpath_frame, self)
-        self.destinationbutton_frame.grid(column=1, row=0, padx=10, pady=(10, 10), sticky="nwe")
+        self.destinationbutton_frame.grid(column=1, row=0, padx=10, pady=(5, 5), sticky="nwe")
         
         self.sortingbutton_frame = SortButtonFrame(self, self.sourcebutton_frame, self.destinationbutton_frame, self.progressbar_frame)
-        self.sortingbutton_frame.grid(column=2, row=0, padx=10, pady=(10, 10), sticky="ne")
+        self.sortingbutton_frame.grid(column=2, row=0, padx=10, pady=(5, 5), sticky="ne")
         
         self.options_frame = OptionsFrame(self)
         self.options_frame.grid(column=2, row=3, columnspan=1, padx=10, pady=(0, 0), sticky="ne")
@@ -153,30 +153,34 @@ class SourcePathFrame(customtkinter.CTkFrame):
         super().__init__(master, *args, **kwargs)
         
         def on_scroll(*args):
-            print("Scrollbar command:", args)
-            
             if args[0] == 'moveto':
                 self.source_entry.xview_moveto(args[1])
-
-        self.source_stringvar = StringVar()
+                
+        self.source_stringvar = StringVar(value="Source folder path ➙ ")
+        
         self.scrollbar = customtkinter.CTkScrollbar(self, orientation="horizontal", command=on_scroll)
-        self.scrollbar.grid(row=1, column=0, padx=10, pady=10, sticky="nwe")
-        
-        self.source_entry = customtkinter.CTkEntry(self, xscrollcommand=self.scrollbar.set)
-        self.source_entry.grid(row=0, column=0, padx=10, pady=10, sticky="nwe")
-        
+        self.scrollbar.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nwe")
         self.scrollbar.configure(command=on_scroll)
+        
+        self.source_entry = customtkinter.CTkEntry(self, textvariable=self.source_stringvar, width=560, state="disabled", xscrollcommand=self.scrollbar.set)
+        self.source_entry.grid(row=0, column=0, padx=10, pady=(10, 3))
         
 class DestinationPathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         
-        # todo -> make path entry scrollable from side to side
-        
+        def on_scroll(*args):
+            if args[0] == 'moveto':
+                self.dest_entry.xview_moveto(args[1])
+                
         self.dest_stringvar = StringVar(value="Destination folder path ➙ ")
         
-        self.dest_entry = customtkinter.CTkEntry(self, textvariable=self.dest_stringvar, width=560, state="disabled")
-        self.dest_entry.grid(row=0, column=0, padx=10, pady=(10, 10))
+        self.scrollbar = customtkinter.CTkScrollbar(self, orientation="horizontal", command=on_scroll)
+        self.scrollbar.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nwe")
+        self.scrollbar.configure(command=on_scroll)
+        
+        self.dest_entry = customtkinter.CTkEntry(self, textvariable=self.dest_stringvar, width=560, state="disabled", xscrollcommand=self.scrollbar.set)
+        self.dest_entry.grid(row=0, column=0, padx=10, pady=(10, 3))
         
 class ProgressBarFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
@@ -189,11 +193,12 @@ class ProgressBarFrame(customtkinter.CTkFrame):
         self.progress_bar = customtkinter.CTkProgressBar(self, width=370, height=20)
         self.progress_bar.grid(row=1, column=1, columnspan=5, padx=5, pady=(10, 10), sticky="we")
         self.progress_bar.set(100)
+        
     def update_progress(self, progress_percentage):
         self.progress_bar.set(progress_percentage)
         self.orig_percentage = int(progress_percentage * 100)
         self.progress_stringvar.set(f"Sorting... {self.orig_percentage}% done.")
-            
+        
 class SortButtonFrame(customtkinter.CTkFrame):
     def __init__(self, master, source_button_frame, destination_button_frame, progressbar_frame, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -257,7 +262,7 @@ class Logic:
             
             progress_percentage = ((item_count / total_items) * 100) / 100.0
             yield progress_percentage
-            
+                       
 def center_window(window, w, h):
     # get the screen width and height
     screen_x = window.winfo_screenwidth()
