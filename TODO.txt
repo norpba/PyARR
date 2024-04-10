@@ -1,12 +1,12 @@
 Implementation ideas:
-- on macOS, the window can NOT be tiled with another app on a space (any desktop).
+- on macOS, the window can NOT be tiled with another app on a space (any desktop). ✅
 - Path elements need to be changed into entry boxes. ✅
-- Option menu for the user to choose with more sorting options
-  - more sorting option; implement a way to choose which file formats to exclude for example
-  - Sorting based on month and year, if the user chooses so
+- Option menu for the user to choose with more sorting options.
+  - more sorting option; implement a way to choose which file formats to exclude for example.
+  - Sorting based on month and year, if the user chooses so.
   - 
-- Some text graphics animation while the sorting process is running (maybe inside Logic-class for loop?)
-- Show information about each widget on mouse hover
+- Some text graphics animation while the sorting process is running (maybe inside Logic-class for loop?).
+- Show information about each widget on mouse hover. ✅
 
 Research etc:
 - research into installers and how to include dependencies in the installer. 
