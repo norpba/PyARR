@@ -102,7 +102,7 @@ class OptionsFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
-        self.optionsbutton = customtkinter.CTkButton(self)
+        self.optionsbutton = customtkinter.CTkButton(self, text="Options")
         self.optionsbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
         
 class QuitFrame(customtkinter.CTkFrame):
