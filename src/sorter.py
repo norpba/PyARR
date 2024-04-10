@@ -8,6 +8,7 @@ from pathlib import Path
 
 # UI modules
 import customtkinter
+from CTkToolTip import *
 from tkinter import filedialog, PhotoImage, StringVar
 from functools import partial
 
@@ -130,11 +131,16 @@ class SourceButtonFrame(customtkinter.CTkFrame):
         self.sourcepath_frame = sourcepath_frame
         self.source_button = customtkinter.CTkButton(self, text="Select a folder to sort", command=self.SourceFolder)
         self.source_button.grid(row=0, column=0, padx=10, pady=(10, 10))
+        self.tooltip = CTkToolTip(self.source_button, delay=0.5, message="Select a folder which you want to be sorted by the application.", wraplength=250)
+        
     def SourceFolder(self):
+        self.tooltip.hide()
         self.src_directory = filedialog.askdirectory()
         if self.src_directory:
             self.sourcepath_frame.source_stringvar.set(f"Source folder path ➙ {self.src_directory}")
-
+            self.tooltip.show()
+        else:
+            self.tooltip.show()
 class DestinationButtonFrame(customtkinter.CTkFrame):
     def __init__(self, destination_path_frame, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -142,11 +148,16 @@ class DestinationButtonFrame(customtkinter.CTkFrame):
         self.destination_path_frame = destination_path_frame
         self.destination_button = customtkinter.CTkButton(self, text="Select an output folder", command=self.DestinationFolder)
         self.destination_button.grid(row=0, column=1, padx=(15, 0), pady=(10, 10), sticky="we")
+        self.tooltip = CTkToolTip(self.destination_button, delay=0.5, message="Select an output directory where the application will sort the files to.\nFor example this could be your 'Pictures' or 'Documents' folder.", wraplength=250)
+        
     def DestinationFolder(self):
+        self.tooltip.hide()
         self.dst_directory = filedialog.askdirectory()
         if self.dst_directory:
             self.destination_path_frame.dest_stringvar.set(f"Destination folder path ➙ {self.dst_directory}")
-            
+            self.tooltip.show()
+        else:
+            self.tooltip.show()
 class SourcePathFrame(customtkinter.CTkFrame): 
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -156,14 +167,12 @@ class SourcePathFrame(customtkinter.CTkFrame):
                 self.source_entry.xview_moveto(args[1])
                 
         self.source_stringvar = StringVar(value="Source folder path ➙ ")
-        
         self.scrollbar = customtkinter.CTkScrollbar(self, orientation="horizontal", command=on_scroll)
         self.scrollbar.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nwe")
         self.scrollbar.configure(command=on_scroll)
         
         self.source_entry = customtkinter.CTkEntry(self, textvariable=self.source_stringvar, width=560, state="disabled", xscrollcommand=self.scrollbar.set)
         self.source_entry.grid(row=0, column=0, padx=10, pady=(10, 3))
-        
 class DestinationPathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
@@ -180,7 +189,6 @@ class DestinationPathFrame(customtkinter.CTkFrame):
         
         self.dest_entry = customtkinter.CTkEntry(self, textvariable=self.dest_stringvar, width=560, state="disabled", xscrollcommand=self.scrollbar.set)
         self.dest_entry.grid(row=0, column=0, padx=10, pady=(10, 3))
-        
 class ProgressBarFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -197,7 +205,6 @@ class ProgressBarFrame(customtkinter.CTkFrame):
         self.progress_bar.set(progress_percentage)
         self.orig_percentage = int(progress_percentage * 100)
         self.progress_stringvar.set(f"Sorting... {self.orig_percentage}% done.")
-        
 class SortButtonFrame(customtkinter.CTkFrame):
     def __init__(self, master, source_button_frame, destination_button_frame, progressbar_frame, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -208,15 +215,21 @@ class SortButtonFrame(customtkinter.CTkFrame):
         
         self.sorting_button = customtkinter.CTkButton(self, text="Sort", command=self.begin_sorting_task)
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
-
+        self.tooltip = CTkToolTip(self.sorting_button, message="Start the sorting process.")
     def begin_sorting_task(self):
         try:
+            self.tooltip.hide()
             if self.source_button_frame.src_directory and self.destination_button_frame.dst_directory:
+                self.tooltip.show()
                 self.sorting_button.configure(state='disabled')
+                
                 source = Path(self.source_button_frame.src_directory).expanduser()
                 destination = os.path.expanduser(self.destination_button_frame.dst_directory)
+                
                 self.progressbar_thread = threading.Thread(target=self.sort_files, args=(source, destination))
                 self.progressbar_thread.start()
+            else:
+                self.tooltip.show()
         except AttributeError:
             pass # implement calling error class
             
@@ -231,8 +244,7 @@ class SortButtonFrame(customtkinter.CTkFrame):
                 self.end_time = time.time()
                 self.time_decimal = self.end_time - start_time
                 self.progressbar_frame.progress_stringvar.set(f"Sorting completed. Task took {"%.2f" % self.time_decimal} seconds.")
-                print(f"Sorting completed in {self.time_decimal} seconds.")
-                
+                print(f"Sorting completed in {self.time_decimal} seconds.") 
 class Logic:
     @staticmethod
     def sorter_logic(source, destination):
@@ -261,7 +273,6 @@ class Logic:
             
             progress_percentage = ((item_count / total_items) * 100) / 100.0
             yield progress_percentage
-                       
 def center_window(window, w, h):
     # get the screen width and height
     screen_x = window.winfo_screenwidth()
@@ -270,12 +281,10 @@ def center_window(window, w, h):
     x = (screen_x - w) // 2
     y = (screen_y - h) // 2
     window.geometry(f'{w}x{h}+{x}+{y}')
-    
 def icon(self):
     # if this does not work on macos, use 'platform.system' and make a if-statement to check whether the script runs on os or windows.
     self.wm_iconbitmap()
     self.after(199, lambda: self.wm_iconphoto(False, PhotoImage(file='titlebar_icon.png')))
-      
 if __name__ == ("__main__"):
     customtkinter.set_appearance_mode("system") # set UI theme
     customtkinter.set_default_color_theme("green")
@@ -287,3 +296,4 @@ if __name__ == ("__main__"):
     sort_button_frame = SortButtonFrame(main_window, src, dst, main_window.progressbar_frame)
     main_window.update_idletasks()
     main_window.mainloop()
+    
