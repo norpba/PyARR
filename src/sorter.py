@@ -104,7 +104,6 @@ class OptionsFrame(customtkinter.CTkFrame):
         
         self.optionsbutton = customtkinter.CTkButton(self, text="Options")
         self.optionsbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
-        
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -113,17 +112,6 @@ class QuitFrame(customtkinter.CTkFrame):
     def confwindow(self):
         confirmation_window = ConfirmationWindow(self.master)
         center_window(confirmation_window, 350, 100)
-        
-class ErrorWindow(customtkinter.CTkToplevel):
-    def __init__(self, master, *args, **kwargs):
-        super().__init__(master, *args, **kwargs)
-        
-        icon(self) # if these do not work on other error functions, try adding it inside the function that is being called
-        self.title("An error occurred!")
-        self.resizable(False, False)
-        self.transient(master)
-        self.grab_set()
-        
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, sourcepath_frame, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -147,7 +135,7 @@ class DestinationButtonFrame(customtkinter.CTkFrame):
         
         self.destination_path_frame = destination_path_frame
         self.destination_button = customtkinter.CTkButton(self, text="Select an output folder", command=self.DestinationFolder)
-        self.destination_button.grid(row=0, column=1, padx=(15, 0), pady=(10, 10), sticky="we")
+        self.destination_button.grid(row=0, column=1, padx=(18, 0), pady=(10, 10), sticky="we")
         self.tooltip = CTkToolTip(self.destination_button, delay=0.5, message="Select an output directory where the application will sort the files to.\nFor example this could be your 'Pictures' or 'Documents' folder.", wraplength=250)
         
     def DestinationFolder(self):
@@ -267,12 +255,14 @@ class Logic:
             new_dir = os.path.join(destination, converted_date)
             if not os.path.exists(new_dir):
                 os.makedirs(new_dir)
-                        
             destination_file_path = os.path.join(new_dir, os.path.basename(i))
             shutil.copy2(i, destination_file_path)
             
-            progress_percentage = ((item_count / total_items) * 100) / 100.0
-            yield progress_percentage
+            
+            progress_percentage = round(((item_count / total_items)), 2)
+            if progress_percentage % 2 == 0:
+                yield progress_percentage
+                
 def center_window(window, w, h):
     # get the screen width and height
     screen_x = window.winfo_screenwidth()
@@ -281,6 +271,16 @@ def center_window(window, w, h):
     x = (screen_x - w) // 2
     y = (screen_y - h) // 2
     window.geometry(f'{w}x{h}+{x}+{y}')
+class ErrorWindow(customtkinter.CTkToplevel):
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        
+        icon(self) # if these do not work on other error functions, try adding it inside the function that is being called
+        self.title("An error occurred!")
+        self.resizable(False, False)
+        self.transient(master)
+        self.grab_set()
+        
 def icon(self):
     # if this does not work on macos, use 'platform.system' and make a if-statement to check whether the script runs on os or windows.
     self.wm_iconbitmap()
