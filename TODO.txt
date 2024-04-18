@@ -7,6 +7,12 @@ Implementation ideas:
   - 
 - Some text graphics animation while the sorting process is running (maybe inside Logic-class for loop?).
 - Show information about each widget on mouse hover. ✅
+- Show size of all items inside source dir in megabytes / gigabytes
 
+Optimization ideas:
+- 'percentage_check' variable should work more consistently with the variable 'progress_percentage'
+  - this could lead to even more of an optimized way to check in which part the sorter is on at a given moment
+  - maybe give 'percentage_check' the value of 'progress_percentage' and then check if it has doubled or something like that
+  
 Research etc:
 - research into installers and how to include dependencies in the installer. 

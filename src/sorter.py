@@ -170,7 +170,6 @@ class DestinationPathFrame(customtkinter.CTkFrame):
                 self.dest_entry.xview_moveto(args[1])
                 
         self.dest_stringvar = StringVar(value="Destination folder path ➙ ")
-        
         self.scrollbar = customtkinter.CTkScrollbar(self, orientation="horizontal", command=on_scroll)
         self.scrollbar.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nwe")
         self.scrollbar.configure(command=on_scroll)
@@ -227,17 +226,18 @@ class SortButtonFrame(customtkinter.CTkFrame):
         for progress_percentage in progress_generator:
             print("progress_value:", progress_percentage) #debug
             self.progressbar_frame.update_progress(progress_percentage)
-            if progress_percentage >= 1:
+            if progress_percentage == 1.0:
                 self.sorting_button.configure(state='normal')
                 self.end_time = time.time()
                 self.time_decimal = self.end_time - start_time
                 self.progressbar_frame.progress_stringvar.set(f"Sorting completed. Task took {"%.2f" % self.time_decimal} seconds.")
-                print(f"Sorting completed in {self.time_decimal} seconds.") 
+                print(f"Sorting completed in {round(self.time_decimal, 3)} seconds.")
 class Logic:
     @staticmethod
     def sorter_logic(source, destination):
         total_items = 0
         item_count = 0
+        percentage_check = 0.1
         item_list = []
         for root, dirs, files in os.walk(source):
             for f in files:
@@ -245,10 +245,8 @@ class Logic:
                     total_items+=1
                     fullpath = os.path.join(root, f)
                     item_list.append(fullpath)
-                    
         for i in item_list:
             item_count+=1
-            
             item_mod_date= time.ctime(os.path.getmtime(i))
             converted_date = item_mod_date[len(item_mod_date) - 4:]
             
@@ -258,19 +256,11 @@ class Logic:
             destination_file_path = os.path.join(new_dir, os.path.basename(i))
             shutil.copy2(i, destination_file_path)
             
-            
             progress_percentage = round(((item_count / total_items)), 2)
-            if progress_percentage % 2 == 0:
+            if progress_percentage > percentage_check and progress_percentage <= 1.0:
+                percentage_check+=0.1
                 yield progress_percentage
                 
-def center_window(window, w, h):
-    # get the screen width and height
-    screen_x = window.winfo_screenwidth()
-    screen_y = window.winfo_screenheight()
-    # calculate the x and y positions for centering the window
-    x = (screen_x - w) // 2
-    y = (screen_y - h) // 2
-    window.geometry(f'{w}x{h}+{x}+{y}')
 class ErrorWindow(customtkinter.CTkToplevel):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -280,7 +270,14 @@ class ErrorWindow(customtkinter.CTkToplevel):
         self.resizable(False, False)
         self.transient(master)
         self.grab_set()
-        
+def center_window(window, w, h):
+    # get the screen width and height
+    screen_x = window.winfo_screenwidth()
+    screen_y = window.winfo_screenheight()
+    # calculate the x and y positions for centering the window
+    x = (screen_x - w) // 2
+    y = (screen_y - h) // 2
+    window.geometry(f'{w}x{h}+{x}+{y}')
 def icon(self):
     # if this does not work on macos, use 'platform.system' and make a if-statement to check whether the script runs on os or windows.
     self.wm_iconbitmap()
