@@ -49,7 +49,6 @@ class MainWindow(customtkinter.CTk):
         
         self.quitframe = QuitFrame(self)
         self.quitframe.grid(column=2, row=3, columnspan=1, padx=10, pady=(50, 0), sticky="ne")
-
 class WelcomeWindow(customtkinter.CTkToplevel):
     def __init__(self, root, *args, **kwargs):
         super().__init__(root, *args, **kwargs)
@@ -60,7 +59,6 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         self.resizable(False, False)
         self.transient(root)
         self.grab_set()
-        
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
         
@@ -68,7 +66,6 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         welcome_text.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nwe")
         close_button = customtkinter.CTkButton(self, width=180, height=50, text="Close", command=self.destroy)
         close_button.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="swe")
-
 class ConfirmationWindow(customtkinter.CTkToplevel):
     def __init__(self, master):
         super().__init__(master)
@@ -79,7 +76,6 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         self.resizable(False, False)
         self.transient(master)
         self.grab_set()
-        
         self.rowconfigure((0, 1), weight=1)
         self.grid_columnconfigure((0, 1), weight=1)
         
@@ -97,7 +93,6 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         
         self.cancel_button = customtkinter.CTkButton(master=self.cancel_buttonframe, text="No", command=self.destroy)
         self.cancel_button.grid(row=0, column=0, padx=5, pady=(5, 5))
-
 class OptionsFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -146,7 +141,7 @@ class DestinationButtonFrame(customtkinter.CTkFrame):
             self.tooltip.show()
         else:
             self.tooltip.show()
-class SourcePathFrame(customtkinter.CTkFrame): 
+class SourcePathFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
@@ -206,6 +201,8 @@ class SortButtonFrame(customtkinter.CTkFrame):
     def begin_sorting_task(self):
         try:
             self.tooltip.hide()
+            print(self.source_button_frame.src_directory)
+            print(self.destination_button_frame.dst_directory)
             if self.source_button_frame.src_directory and self.destination_button_frame.dst_directory:
                 self.tooltip.show()
                 self.sorting_button.configure(state='disabled')
@@ -215,10 +212,14 @@ class SortButtonFrame(customtkinter.CTkFrame):
                 
                 self.progressbar_thread = threading.Thread(target=self.sort_files, args=(source, destination))
                 self.progressbar_thread.start()
-            else:
-                self.tooltip.show()
         except AttributeError:
-            pass # implement calling error class
+            if self.source_button_frame.src_directory == None:
+                error_window = ErrorWindow(self.master)
+                center_window(error_window, 200, 150)
+                
+            elif not self.destination_button_frame.dst_directory:
+                error_window = ErrorWindow(self.master)
+                center_window(error_window, 200, 150)
             
     def sort_files(self, source, destination):
         start_time = time.time()
@@ -231,7 +232,7 @@ class SortButtonFrame(customtkinter.CTkFrame):
                 self.end_time = time.time()
                 self.time_decimal = self.end_time - start_time
                 self.progressbar_frame.progress_stringvar.set(f"Sorting completed. Task took {"%.2f" % self.time_decimal} seconds.")
-                print(f"Sorting completed in {round(self.time_decimal, 3)} seconds.")
+                #print(f"Sorting completed in {round(self.time_decimal, 3)} seconds.") debug
 class Logic:
     @staticmethod
     def sorter_logic(source, destination):
@@ -245,22 +246,28 @@ class Logic:
                     total_items+=1
                     fullpath = os.path.join(root, f)
                     item_list.append(fullpath)
+                    
         for i in item_list:
             item_count+=1
-            item_mod_date= time.ctime(os.path.getmtime(i))
-            converted_date = item_mod_date[len(item_mod_date) - 4:]
+            item_mod_datetime = time.ctime(os.path.getmtime(i))
+            converted_date_year = item_mod_datetime[len(item_mod_datetime) - 4:] # file modification year
+            converted_date_month = item_mod_datetime[4:7]                        # file modification month
             
-            new_dir = os.path.join(destination, converted_date)
-            if not os.path.exists(new_dir):
-                os.makedirs(new_dir)
-            destination_file_path = os.path.join(new_dir, os.path.basename(i))
-            shutil.copy2(i, destination_file_path)
+            year_dir = os.path.join(destination, converted_date_year)
+            month_dir = os.path.join(destination, year_dir, converted_date_month)
+            
+            if not os.path.exists(year_dir):
+                os.makedirs(year_dir)
+            if not os.path.exists(month_dir):
+                os.makedirs(month_dir)
+            
+            final_file_path = os.path.join(month_dir, os.path.basename(i))
+            shutil.copy2(i, final_file_path)
             
             progress_percentage = round(((item_count / total_items)), 2)
             if progress_percentage > percentage_check and progress_percentage <= 1.0:
                 percentage_check+=0.1
                 yield progress_percentage
-                
 class ErrorWindow(customtkinter.CTkToplevel):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -270,6 +277,7 @@ class ErrorWindow(customtkinter.CTkToplevel):
         self.resizable(False, False)
         self.transient(master)
         self.grab_set()
+        center_window(self, 200, 150)      
 def center_window(window, w, h):
     # get the screen width and height
     screen_x = window.winfo_screenwidth()
@@ -293,4 +301,3 @@ if __name__ == ("__main__"):
     sort_button_frame = SortButtonFrame(main_window, src, dst, main_window.progressbar_frame)
     main_window.update_idletasks()
     main_window.mainloop()
-    
