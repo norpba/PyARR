@@ -82,7 +82,7 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         self.resizable(False, False)
         self.transient(master)
         self.grab_set()
-        self.rowconfigure((0, 1), weight=1)
+        self.grid_rowconfigure((0, 1), weight=1)
         self.grid_columnconfigure((0, 1), weight=1)
         
         self.confirmation_label = customtkinter.CTkLabel(self, text="Are you sure you want to quit?", font=("", 14))
@@ -90,30 +90,34 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         
         self.confirmation_buttonframe = customtkinter.CTkFrame(self)
         self.confirmation_buttonframe.grid(row=1, column=0, padx=10, pady=(10, 10))
-        
         self.cancel_buttonframe = customtkinter.CTkFrame(self)
         self.cancel_buttonframe.grid(row=1, column=1, padx=10, pady=(10, 10))
         
         self.confirmation_button = customtkinter.CTkButton(master=self.confirmation_buttonframe, text="Yes", command=self.quit)
         self.confirmation_button.grid(row=0, column=0, padx=5, pady=(5, 5))
-        
         self.cancel_button = customtkinter.CTkButton(master=self.cancel_buttonframe, text="No", command=self.destroy)
         self.cancel_button.grid(row=0, column=0, padx=5, pady=(5, 5))
-
 class OptionsWindow(customtkinter.CTkToplevel):
-    def __init__(self, master, *args, **kwargs):
+       def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
         icon(self)
         self.title("Options")
         self.resizable(False, False)
         self.grab_set()
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        
+        self.
+        
 class OptionsFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
-        self.optionsbutton = customtkinter.CTkButton(self, text="Options", command=self.optionswindow)
-        self.optionsbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
+        self.options_button = customtkinter.CTkButton(self, text="Options", command=self.optionswindow)
+        self.options_button.grid(row=0, column=0, padx=10, pady=(10, 10))
+        self.tooltip = CTkToolTip(self.options_button, delay=0.5, message="Access sorting options, for example which type of files to sort.", wraplength=250)
+        
     def optionswindow(self):
         options_window = OptionsWindow(self.master)
         center_window(options_window, 400, 200)
@@ -241,7 +245,7 @@ class SortButtonFrame(customtkinter.CTkFrame):
             
     def sort_files(self, source, destination):
         start_time = time.time()
-        progress_generator = Logic.sorter_logic(source, destination)
+        progress_generator = SortingLogic.sorter_logic(source, destination)
         for progress_percentage in progress_generator:
             print("progress_value:", progress_percentage) #debug
             self.progressbar_frame.update_progress(progress_percentage)
@@ -251,7 +255,7 @@ class SortButtonFrame(customtkinter.CTkFrame):
                 self.time_decimal = self.end_time - start_time
                 self.progressbar_frame.progress_stringvar.set(f"Sorting completed. Task took {"%.2f" % self.time_decimal} seconds.")
                 #print(f"Sorting completed in {round(self.time_decimal, 3)} seconds.") debug
-class Logic:
+class SortingLogic:
     @staticmethod
     def sorter_logic(source, destination):
         total_items = 0
