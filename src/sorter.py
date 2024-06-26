@@ -55,17 +55,23 @@ class WelcomeWindow(customtkinter.CTkToplevel):
 
         icon(self)
         center_window(self, 300, 120)
-        self.title("Welcome!")
         self.resizable(False, False)
         self.transient(root)
         self.grab_set()
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure((0, 1), weight=1)
+        self.grid_rowconfigure((0, 1), weight=1)
         
         welcome_text = customtkinter.CTkLabel(self, font=('', 16), text="Welcome to Python Arranger!")
-        welcome_text.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nwe")
-        close_button = customtkinter.CTkButton(self, width=180, height=50, text="Close", command=self.destroy)
-        close_button.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="swe")
+        welcome_text.grid(row=0, column=0, columnspan=2, padx=10, pady=(11, 0), sticky="nwe")
+        
+        close_button = customtkinter.CTkButton(self, width=90, height=50, text="Close", command=self.destroy)
+        close_button.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="se")
+        
+        info_button = customtkinter.CTkButton(self, width=90, height=50, text="About", command=self.about_window)
+        info_button.grid(row=1, column=1, padx=10, pady=(0, 10), sticky="sw")
+        
+    def about_window():
+        pass
 class ConfirmationWindow(customtkinter.CTkToplevel):
     def __init__(self, master):
         super().__init__(master)
@@ -93,12 +99,24 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         
         self.cancel_button = customtkinter.CTkButton(master=self.cancel_buttonframe, text="No", command=self.destroy)
         self.cancel_button.grid(row=0, column=0, padx=5, pady=(5, 5))
+
+class OptionsWindow(customtkinter.CTkToplevel):
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        
+        icon(self)
+        self.title("Options")
+        self.resizable(False, False)
+        self.grab_set()
 class OptionsFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
-        self.optionsbutton = customtkinter.CTkButton(self, text="Options")
+        self.optionsbutton = customtkinter.CTkButton(self, text="Options", command=self.optionswindow)
         self.optionsbutton.grid(row=0, column=0, padx=10, pady=(10, 10))
+    def optionswindow(self):
+        options_window = OptionsWindow(self.master)
+        center_window(options_window, 400, 200)
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -130,7 +148,7 @@ class DestinationButtonFrame(customtkinter.CTkFrame):
         
         self.destination_path_frame = destination_path_frame
         self.destination_button = customtkinter.CTkButton(self, text="Select an output folder", command=self.DestinationFolder)
-        self.destination_button.grid(row=0, column=1, padx=(18, 0), pady=(10, 10), sticky="we")
+        self.destination_button.grid(row=0, column=1, padx=(15, 0), pady=(10, 10), sticky="we")
         self.tooltip = CTkToolTip(self.destination_button, delay=0.5, message="Select an output directory where the application will sort the files to.\nFor example this could be your 'Pictures' or 'Documents' folder.", wraplength=250)
         
     def DestinationFolder(self):
