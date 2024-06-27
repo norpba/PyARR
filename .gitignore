@@ -1,6 +1,7 @@
 # macOS
 .DS_Store
 ._DS_Store
+/myenv/
 # IDE files
 .idea/
 .vscode/
