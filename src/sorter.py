@@ -28,7 +28,6 @@ class MainWindow(customtkinter.CTk):
 		
 		self.sourcepath_frame = SourcePathFrame(self)
 		self.sourcepath_frame.grid(column=0, row=1, columnspan=3, rowspan=1, padx=10, pady=(0, 5), sticky="nwe")
-		
 		self.destinationpath_frame = DestinationPathFrame(self)
 		self.destinationpath_frame.grid(column=0, row=2, columnspan=3, rowspan=1, padx=10, pady=(0, 5), sticky="nwe")
 		
@@ -37,16 +36,13 @@ class MainWindow(customtkinter.CTk):
 		
 		self.sourcebutton_frame = SourceButtonFrame(self.sourcepath_frame, self)
 		self.sourcebutton_frame.grid(column=0, row=0, padx=10, pady=(5, 5), sticky="nw")
-		
 		self.destinationbutton_frame = DestinationButtonFrame(self.destinationpath_frame, self)
 		self.destinationbutton_frame.grid(column=1, row=0, padx=10, pady=(5, 5), sticky="nwe")
-		
 		self.sortingbutton_frame = SortButtonFrame(self, self.sourcebutton_frame, self.destinationbutton_frame, self.progressbar_frame)
 		self.sortingbutton_frame.grid(column=2, row=0, padx=10, pady=(5, 5), sticky="ne")
 		
 		self.options_frame = OptionsFrame(self)
 		self.options_frame.grid(column=2, row=3, columnspan=1, padx=10, pady=(0, 0), sticky="ne")
-		
 		self.quitframe = QuitFrame(self)
 		self.quitframe.grid(column=2, row=3, columnspan=1, padx=10, pady=(50, 0), sticky="ne")
 class WelcomeWindow(customtkinter.CTkToplevel):
@@ -105,27 +101,52 @@ class OptionsWindow(customtkinter.CTkToplevel):
         self.title("Options")
         self.resizable(False, False)
         self.grab_set()
-        self.grid_columnconfigure((0, 1), weight=1)
-        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure((0, 1, 2), weight=1)
+        self.grid_rowconfigure((0, 5), weight=1)
         
-        #self.checkbox_info_frame = OptionsCheckboxFrame(self)
-        #self.checkbox_info_frame.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="nsw")
+        self.checkbox_frame = OptionsCheckboxFrame(self, values=["Images", "Audio", "Video", "Documents"])
+        self.checkbox_frame.grid(row=0, column=1, columnspan=2, padx=10, pady=(5, 0), sticky="e")
         
-        self.checkbox_frame = OptionsCheckboxFrame(self)
-        self.checkbox_frame.grid(row=0, column=1, padx=10, pady=(10, 10), sticky="nse")
+        self.info_frame = OptionsInfoFrame(self, text="Select which type of files you want to sort.")
+        self.info_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=(5, 0), sticky="nsw")
         
-class OptionsCheckboxFrame(customtkinter.CTkFrame):
-    def __init__(self, master):
+        self.apply_button = customtkinter.CTkButton(self, width=55, text="Apply", command=self.checkbox_button_callback)
+        self.apply_button.grid(row=3, column=2, padx=10, columnspan=2, pady=(5, 0), sticky="se")
+        self.clear_checks_button = customtkinter.CTkButton(self, text="Clear selection", command=self.clear_selections)
+        self.clear_checks_button.grid(row=3, column=0, columnspan=2, padx=10, pady=(5, 0))
+        self.close_button = customtkinter.CTkButton(self, width=55, text="Close", command=self.destroy)
+        self.close_button.grid(row=3, column=2, padx=75, columnspan=2, pady=(5, 0), sticky="e")
+        
+    def clear_selections(self):
+        self.checkbox_frame.clear_checkboxes()
+        
+    def checkbox_button_callback(self):
+        print(self.checkbox_frame.get())
+class OptionsInfoFrame(customtkinter.CTkFrame):
+    def __init__(self, master, text):
         super().__init__(master)
+        self.infolabel = customtkinter.CTkLabel(self, text=text, wraplength=70)
+        self.infolabel.grid(row=0, column=0, padx=10, pady=(10, 10))
+class OptionsCheckboxFrame(customtkinter.CTkFrame):
+    def __init__(self, master, values):
+        super().__init__(master)
+        self.values = values
+        self.checkboxes = []
         
-        self.images_checkbox = customtkinter.CTkCheckBox(self, text="Image files")
-        self.images_checkbox.grid(row=1, column=0, padx=10, pady=(10, 10), sticky="w")
-        
-        self.documents_checkbox = customtkinter.CTkCheckBox(self, text="Text, PDF and data files")
-        self.documents_checkbox.grid(row=2, column=0, padx=10, pady=(10, 10), sticky="w")
-        
-        self.audiovideo_checkbox = customtkinter.CTkCheckBox(self, text="Audio and video files")
-        self.audiovideo_checkbox.grid(row=3, column=0, padx=10, pady=(10, 10), sticky="w")
+        for i, value in enumerate(self.values):
+            checkbox = customtkinter.CTkCheckBox(self, text=value)
+            checkbox.grid(row=i, column=1, padx=10, pady=(10, 10), sticky="e")
+            self.checkboxes.append(checkbox)
+            
+    def get(self):
+        checked_checkboxes = []
+        for checkbox in self.checkboxes:
+            if checkbox.get() == 1:
+                checked_checkboxes.append(checkbox.cget("text"))
+        return checked_checkboxes
+    def clear_checkboxes(self):
+        for checkbox in self.checkboxes:
+            checkbox.deselect()
 class OptionsFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -136,7 +157,7 @@ class OptionsFrame(customtkinter.CTkFrame):
     
     def optionswindow(self):
         options_window = OptionsWindow(self.master)
-        center_window(options_window, 400, 200)
+        center_window(options_window, 300, 230)
 class QuitFrame(customtkinter.CTkFrame):
 	def __init__(self, master, *args, **kwargs):
 		super().__init__(master, *args, **kwargs)
