@@ -98,20 +98,34 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
 		self.cancel_button = customtkinter.CTkButton(master=self.cancel_buttonframe, text="No", command=self.destroy)
 		self.cancel_button.grid(row=0, column=0, padx=5, pady=(5, 5))
 class OptionsWindow(customtkinter.CTkToplevel):
-    def __init__(self, master, *args, **kwargs):
-        super().__init__(master, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         
         icon(self)
         self.title("Options")
         self.resizable(False, False)
         self.grab_set()
-        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure((0, 1), weight=1)
         self.grid_rowconfigure(0, weight=1)
         
-        self.
+        #self.checkbox_info_frame = OptionsCheckboxFrame(self)
+        #self.checkbox_info_frame.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="nsw")
+        
+        self.checkbox_frame = OptionsCheckboxFrame(self)
+        self.checkbox_frame.grid(row=0, column=1, padx=10, pady=(10, 10), sticky="nse")
         
 class OptionsCheckboxFrame(customtkinter.CTkFrame):
-    pass
+    def __init__(self, master):
+        super().__init__(master)
+        
+        self.images_checkbox = customtkinter.CTkCheckBox(self, text="Image files")
+        self.images_checkbox.grid(row=1, column=0, padx=10, pady=(10, 10), sticky="w")
+        
+        self.documents_checkbox = customtkinter.CTkCheckBox(self, text="Text, PDF and data files")
+        self.documents_checkbox.grid(row=2, column=0, padx=10, pady=(10, 10), sticky="w")
+        
+        self.audiovideo_checkbox = customtkinter.CTkCheckBox(self, text="Audio and video files")
+        self.audiovideo_checkbox.grid(row=3, column=0, padx=10, pady=(10, 10), sticky="w")
 class OptionsFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
