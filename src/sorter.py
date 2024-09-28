@@ -50,21 +50,28 @@ class WelcomeWindow(customtkinter.CTkToplevel):
 		super().__init__(root, *args, **kwargs)
 
 		icon(self)
-		center_window(self, 300, 120)
+		center_window(self, 260, 90)
+		self.title("Welcome to PyARR!")
+  
 		self.resizable(False, False)
 		self.transient(root)
 		self.grab_set()
 		self.grid_columnconfigure((0, 1), weight=1)
 		self.grid_rowconfigure((0, 1), weight=1)
 		
-		welcome_text = customtkinter.CTkLabel(self, font=('', 16), text="Welcome to Python Arranger!")
-		welcome_text.grid(row=0, column=0, columnspan=2, padx=10, pady=(11, 0), sticky="nwe")
-		
-		close_button = customtkinter.CTkButton(self, width=90, height=50, text="Close", command=self.destroy)
-		close_button.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="se")
-		
-		info_button = customtkinter.CTkButton(self, width=90, height=50, text="About", command=self.about_window)
-		info_button.grid(row=1, column=1, padx=10, pady=(0, 10), sticky="sw")
+		self.welcome_textframe = customtkinter.CTkFrame(self, corner_radius=20)
+		self.welcome_textframe.grid(row=0, column=0, columnspan=2, padx=10, pady=(5, 0), sticky="n")
+		self.close_buttonframe = customtkinter.CTkFrame(self)
+		self.close_buttonframe.grid(row=1, column=0, padx=10, sticky="e")
+		self.about_buttonframe = customtkinter.CTkFrame(self)
+		self.about_buttonframe.grid(row=1, column=1, padx=10, sticky="w")
+  
+		self.welcome_text = customtkinter.CTkLabel(master=self.welcome_textframe, font=('', 16), text="Welcome to Python Arranger!")
+		self.welcome_text.grid(row=0, column=0, padx=7, pady=2)
+		self.close_button = customtkinter.CTkButton(master=self.close_buttonframe, width=90, height=30, text="Close", command=self.destroy)
+		self.close_button.grid(row=0, column=0, padx=5, pady=5)
+		self.about_button = customtkinter.CTkButton(master=self.about_buttonframe, width=90, height=30, text="About", command=self.about_window)
+		self.about_button.grid(row=0, column=0, padx=5, pady=5)
 		
 	def about_window():
 		pass
@@ -101,21 +108,21 @@ class OptionsWindow(customtkinter.CTkToplevel):
         self.title("Options")
         self.resizable(False, False)
         self.grab_set()
-        self.grid_columnconfigure((0, 1, 2), weight=1)
+        self.grid_columnconfigure((0, 1, 2, 3), weight=1)
         self.grid_rowconfigure((0, 5), weight=1)
         
         self.checkbox_frame = OptionsCheckboxFrame(self, values=["Images", "Audio", "Video", "Documents"])
-        self.checkbox_frame.grid(row=0, column=1, columnspan=2, padx=10, pady=(5, 0), sticky="e")
+        self.checkbox_frame.grid(row=0, column=2, columnspan=2, padx=10, pady=(5, 0), sticky="e")
         
         self.info_frame = OptionsInfoFrame(self, text="Select which type of files you want to sort.")
-        self.info_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=(5, 0), sticky="nsw")
+        self.info_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=(10, 0), sticky="nw")
         
         self.apply_button = customtkinter.CTkButton(self, width=55, text="Apply", command=self.checkbox_button_callback)
-        self.apply_button.grid(row=3, column=2, padx=10, columnspan=2, pady=(5, 0), sticky="se")
-        self.clear_checks_button = customtkinter.CTkButton(self, text="Clear selection", command=self.clear_selections)
-        self.clear_checks_button.grid(row=3, column=0, columnspan=2, padx=10, pady=(5, 0))
+        self.apply_button.grid(row=5, column=2, padx=10, columnspan=2, pady=(5, 0), sticky="se")
+        self.clear_checks_button = customtkinter.CTkButton(self, width=55, text="Clear", command=self.clear_selections)
+        self.clear_checks_button.grid(row=5, column=0, padx=10, pady=(5, 0), sticky="e")
         self.close_button = customtkinter.CTkButton(self, width=55, text="Close", command=self.destroy)
-        self.close_button.grid(row=3, column=2, padx=75, columnspan=2, pady=(5, 0), sticky="e")
+        self.close_button.grid(row=5, column=2, padx=75, columnspan=2, pady=(5, 0), sticky="e")
         
     def clear_selections(self):
         self.checkbox_frame.clear_checkboxes()
@@ -157,7 +164,7 @@ class OptionsFrame(customtkinter.CTkFrame):
     
     def optionswindow(self):
         options_window = OptionsWindow(self.master)
-        center_window(options_window, 300, 230)
+        center_window(options_window, 400, 235)
 class QuitFrame(customtkinter.CTkFrame):
 	def __init__(self, master, *args, **kwargs):
 		super().__init__(master, *args, **kwargs)
