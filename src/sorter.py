@@ -52,7 +52,6 @@ class WelcomeWindow(customtkinter.CTkToplevel):
 		icon(self)
 		center_window(self, 260, 90)
 		self.title("Welcome to PyARR!")
-  
 		self.resizable(False, False)
 		self.transient(root)
 		self.grab_set()
@@ -108,32 +107,36 @@ class OptionsWindow(customtkinter.CTkToplevel):
         self.title("Options")
         self.resizable(False, False)
         self.grab_set()
-        self.grid_columnconfigure((0, 1, 2, 3), weight=1)
-        self.grid_rowconfigure((0, 5), weight=1)
+        self.columnconfigure(3, weight=1)
+        self.columnconfigure(1, weight=2)
+        self.rowconfigure((0, 1), weight=1)
+        
+        self.info_boxframe = customtkinter.CTkFrame(self)
+        self.info_boxframe.grid(row=0, column=0, columnspan=3, padx=7, pady=(7, 0), sticky="nw")
+        self.info_box = customtkinter.CTkLabel(master=self.info_boxframe, text="Select the types of files you would like the program to sort using the checkboxes.\n\n Selecting none will result in the program sorting all file types from the source directory (except for hidden files).", wraplength=250)
+        self.info_box.grid(row=0, column=0, padx=15, pady=(5, 8), sticky="we")
         
         self.checkbox_frame = OptionsCheckboxFrame(self, values=["Images", "Audio", "Video", "Documents"])
-        self.checkbox_frame.grid(row=0, column=2, columnspan=2, padx=10, pady=(5, 0), sticky="e")
+        self.checkbox_frame.grid(row=0, column=3, rowspan=2, padx=5, pady=(7, 0), sticky="ne")
         
-        self.info_frame = OptionsInfoFrame(self, text="Select which type of files you want to sort.")
-        self.info_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=(10, 0), sticky="nw")
+        self.clear_buttonframe = customtkinter.CTkFrame(self)
+        self.clear_buttonframe.grid(row=1, column=0, padx=7, pady=(0, 2), sticky="e")
+        self.apply_buttonframe = customtkinter.CTkFrame(self)
+        self.apply_buttonframe.grid(row=1, column=1, padx=19, pady=(0, 2), sticky="ew")
+        self.close_buttonframe = customtkinter.CTkFrame(self)
+        self.close_buttonframe.grid(row=1, column=2, padx=5, pady=(0, 2), sticky="e")
         
-        self.apply_button = customtkinter.CTkButton(self, width=55, text="Apply", command=self.checkbox_button_callback)
-        self.apply_button.grid(row=5, column=2, padx=10, columnspan=2, pady=(5, 0), sticky="se")
-        self.clear_checks_button = customtkinter.CTkButton(self, width=55, text="Clear", command=self.clear_selections)
-        self.clear_checks_button.grid(row=5, column=0, padx=10, pady=(5, 0), sticky="e")
-        self.close_button = customtkinter.CTkButton(self, width=55, text="Close", command=self.destroy)
-        self.close_button.grid(row=5, column=2, padx=75, columnspan=2, pady=(5, 0), sticky="e")
+        self.clear_button = customtkinter.CTkButton(master=self.clear_buttonframe, width=65, text="Clear", command=self.clear_selections)
+        self.clear_button.grid(row=0, column=0, padx=5, pady=(5, 5), sticky="e")
+        self.apply_button = customtkinter.CTkButton(master=self.apply_buttonframe, width=65, text="Apply", command=self.checkbox_button_callback)
+        self.apply_button.grid(row=0, column=0, padx=6, pady=(5, 5), sticky="e")
+        self.close_button = customtkinter.CTkButton(master=self.close_buttonframe, width=65, text="Close", command=self.destroy)
+        self.close_button.grid(row=0, column=0, padx=5, pady=(5, 5), sticky="e")
         
     def clear_selections(self):
-        self.checkbox_frame.clear_checkboxes()
-        
+         self.checkbox_frame.clear_checkboxes()
     def checkbox_button_callback(self):
         print(self.checkbox_frame.get())
-class OptionsInfoFrame(customtkinter.CTkFrame):
-    def __init__(self, master, text):
-        super().__init__(master)
-        self.infolabel = customtkinter.CTkLabel(self, text=text, wraplength=70)
-        self.infolabel.grid(row=0, column=0, padx=10, pady=(10, 10))
 class OptionsCheckboxFrame(customtkinter.CTkFrame):
     def __init__(self, master, values):
         super().__init__(master)
@@ -164,7 +167,7 @@ class OptionsFrame(customtkinter.CTkFrame):
     
     def optionswindow(self):
         options_window = OptionsWindow(self.master)
-        center_window(options_window, 400, 235)
+        center_window(options_window, 420, 190)
 class QuitFrame(customtkinter.CTkFrame):
 	def __init__(self, master, *args, **kwargs):
 		super().__init__(master, *args, **kwargs)
