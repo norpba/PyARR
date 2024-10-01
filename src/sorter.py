@@ -100,74 +100,76 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
 		self.cancel_button = customtkinter.CTkButton(master=self.cancel_buttonframe, text="No", command=self.destroy)
 		self.cancel_button.grid(row=0, column=0, padx=5, pady=(5, 5))
 class OptionsWindow(customtkinter.CTkToplevel):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        icon(self)
-        self.title("Options")
-        self.resizable(False, False)
-        self.grab_set()
-        self.columnconfigure(3, weight=1)
-        self.columnconfigure(1, weight=2)
-        self.rowconfigure((0, 1), weight=1)
-        
-        self.info_boxframe = customtkinter.CTkFrame(self)
-        self.info_boxframe.grid(row=0, column=0, columnspan=3, padx=7, pady=(7, 0), sticky="nw")
-        self.info_box = customtkinter.CTkLabel(master=self.info_boxframe, text="Select the types of files you would like the program to sort using the checkboxes.\n\n Selecting none will result in the program sorting all file types from the source directory (except for hidden files).", wraplength=250)
-        self.info_box.grid(row=0, column=0, padx=15, pady=(5, 8), sticky="we")
-        
-        self.checkbox_frame = OptionsCheckboxFrame(self, values=["Images", "Audio", "Video", "Documents"])
-        self.checkbox_frame.grid(row=0, column=3, rowspan=2, padx=5, pady=(7, 0), sticky="ne")
-        
-        self.clear_buttonframe = customtkinter.CTkFrame(self)
-        self.clear_buttonframe.grid(row=1, column=0, padx=7, pady=(0, 2), sticky="e")
-        self.apply_buttonframe = customtkinter.CTkFrame(self)
-        self.apply_buttonframe.grid(row=1, column=1, padx=19, pady=(0, 2), sticky="ew")
-        self.close_buttonframe = customtkinter.CTkFrame(self)
-        self.close_buttonframe.grid(row=1, column=2, padx=5, pady=(0, 2), sticky="e")
-        
-        self.clear_button = customtkinter.CTkButton(master=self.clear_buttonframe, width=65, text="Clear", command=self.clear_selections)
-        self.clear_button.grid(row=0, column=0, padx=5, pady=(5, 5), sticky="e")
-        self.apply_button = customtkinter.CTkButton(master=self.apply_buttonframe, width=65, text="Apply", command=self.checkbox_button_callback)
-        self.apply_button.grid(row=0, column=0, padx=6, pady=(5, 5), sticky="e")
-        self.close_button = customtkinter.CTkButton(master=self.close_buttonframe, width=65, text="Close", command=self.destroy)
-        self.close_button.grid(row=0, column=0, padx=5, pady=(5, 5), sticky="e")
-        
-    def clear_selections(self):
-         self.checkbox_frame.clear_checkboxes()
-    def checkbox_button_callback(self):
-        print(self.checkbox_frame.get())
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		
+		icon(self)
+		self.title("Options")
+		self.resizable(False, False)
+		self.grab_set()
+		self.columnconfigure(3, weight=1)
+		self.columnconfigure(1, weight=2)
+		self.rowconfigure((0, 1), weight=1)
+		
+		self.info_boxframe = customtkinter.CTkFrame(self)
+		self.info_boxframe.grid(row=0, column=0, columnspan=3, padx=7, pady=(7, 0), sticky="nw")
+		self.info_box = customtkinter.CTkLabel(master=self.info_boxframe, text="Select the types of files you would like the program to sort using the checkboxes.\n\n Selecting none will result in the program sorting all file types from the source directory (except for hidden files).", wraplength=250)
+		self.info_box.grid(row=0, column=0, padx=15, pady=(5, 8), sticky="we")
+		
+		self.checkbox_frame = OptionsCheckboxFrame(self, values=["Images", "Audio", "Video", "Documents"])
+		self.checkbox_frame.grid(row=0, column=3, rowspan=2, padx=5, pady=(7, 0), sticky="ne")
+		
+		self.clear_buttonframe = customtkinter.CTkFrame(self)
+		self.clear_buttonframe.grid(row=1, column=0, padx=7, pady=(0, 2), sticky="e")
+		self.apply_buttonframe = customtkinter.CTkFrame(self)
+		self.apply_buttonframe.grid(row=1, column=1, padx=19, pady=(0, 2), sticky="ew")
+		self.close_buttonframe = customtkinter.CTkFrame(self)
+		self.close_buttonframe.grid(row=1, column=2, padx=5, pady=(0, 2), sticky="e")
+		
+		self.clear_button = customtkinter.CTkButton(master=self.clear_buttonframe, width=65, text="Clear", command=self.clear_selections)
+		self.clear_button.grid(row=0, column=0, padx=5, pady=(5, 5), sticky="e")
+		self.apply_button = customtkinter.CTkButton(master=self.apply_buttonframe, width=65, text="Apply", command=self.checkbox_button_callback)
+		self.apply_button.grid(row=0, column=0, padx=6, pady=(5, 5), sticky="e")
+		self.close_button = customtkinter.CTkButton(master=self.close_buttonframe, width=65, text="Close", command=self.destroy)
+		self.close_button.grid(row=0, column=0, padx=5, pady=(5, 5), sticky="e")
+		
+	def clear_selections(self):
+		 self.checkbox_frame.clear_checkboxes()
+   	def checkbox_button_callback(self):
+		print(self.checkbox_frame.get())
+	
 class OptionsCheckboxFrame(customtkinter.CTkFrame):
-    def __init__(self, master, values):
-        super().__init__(master)
-        self.values = values
-        self.checkboxes = []
-        
-        for i, value in enumerate(self.values):
-            checkbox = customtkinter.CTkCheckBox(self, text=value)
-            checkbox.grid(row=i, column=1, padx=10, pady=(10, 10), sticky="e")
-            self.checkboxes.append(checkbox)
-            
-    def get(self):
-        checked_checkboxes = []
-        for checkbox in self.checkboxes:
-            if checkbox.get() == 1:
-                checked_checkboxes.append(checkbox.cget("text"))
-        return checked_checkboxes
-    def clear_checkboxes(self):
-        for checkbox in self.checkboxes:
-            checkbox.deselect()
+	def __init__(self, master, values):
+		super().__init__(master)
+		self.values = values
+		self.checkboxes = []
+		
+		for i, value in enumerate(self.values):
+			checkbox = customtkinter.CTkCheckBox(self, text=value)
+			checkbox.grid(row=i, column=1, padx=10, pady=(10, 10), sticky="e")
+			self.checkboxes.append(checkbox)
+			
+	def get(self):
+		checked_checkboxes = []
+		for checkbox in self.checkboxes:
+			if checkbox.get() == 1:
+				checked_checkboxes.append(checkbox.cget("text"))
+		return checked_checkboxes
+	
+	def clear_checkboxes(self):
+		for checkbox in self.checkboxes:
+			checkbox.deselect()
 class OptionsFrame(customtkinter.CTkFrame):
-    def __init__(self, master, *args, **kwargs):
-        super().__init__(master, *args, **kwargs)
-        
-        self.options_button = customtkinter.CTkButton(self, text="Options", command=self.optionswindow)
-        self.options_button.grid(row=0, column=0, padx=10, pady=(10, 10))
-        self.tooltip = CTkToolTip(self.options_button, delay=0.5, message="Access sorting options, for example which type of files to sort.", wraplength=250)
-    
-    def optionswindow(self):
-        options_window = OptionsWindow(self.master)
-        center_window(options_window, 420, 190)
+	def __init__(self, master, *args, **kwargs):
+		super().__init__(master, *args, **kwargs)
+		
+		self.options_button = customtkinter.CTkButton(self, text="Options", command=self.optionswindow)
+		self.options_button.grid(row=0, column=0, padx=10, pady=(10, 10))
+		self.tooltip = CTkToolTip(self.options_button, delay=0.5, message="Access sorting options, for example which type of files to sort.", wraplength=250)
+	
+	def optionswindow(self):
+		options_window = OptionsWindow(self.master)
+		center_window(options_window, 420, 190)
 class QuitFrame(customtkinter.CTkFrame):
 	def __init__(self, master, *args, **kwargs):
 		super().__init__(master, *args, **kwargs)
@@ -289,7 +291,6 @@ class SortButtonFrame(customtkinter.CTkFrame):
 			elif not self.destination_button_frame.dst_directory:
 				error_window = ErrorWindow(self.master)
 				center_window(error_window, 200, 150)
-			
 	def sort_files(self, source, destination):
 		start_time = time.time()
 		progress_generator = SortingLogic.sorter_logic(source, destination)
@@ -309,6 +310,7 @@ class SortingLogic:
 		item_count = 0
 		percentage_check = 0.1
 		item_list = []
+
 		for root, dirs, files in os.walk(source):
 			for f in files:
 				if not f.startswith('.'):
