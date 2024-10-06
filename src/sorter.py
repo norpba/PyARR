@@ -132,16 +132,13 @@ class OptionsWindow(customtkinter.CTkToplevel):
         self.apply_button.grid(row=0, column=0, padx=6, pady=(5, 5), sticky="e")
         self.close_button = customtkinter.CTkButton(master=self.close_buttonframe, width=65, text="Close", command=self.destroy)
         self.close_button.grid(row=0, column=0, padx=5, pady=(5, 5), sticky="e")
+        
     def clear_selections(self):
         self.checkbox_frame.clear_checkboxes()
-        
     def checkbox_button_callback(self):
         print(self.checkbox_frame.get())
         
 class OptionsCheckboxFrame(customtkinter.CTkFrame):
-    
-    #def checkbox_button_callback(self):
-        #print(self.checkbox_frame.get())
     def __init__(self, master, values):
         super().__init__(master)
         self.values = values
@@ -156,7 +153,7 @@ class OptionsCheckboxFrame(customtkinter.CTkFrame):
         checked_checkboxes = []
         for checkbox in self.checkboxes:
             if checkbox.get() == 1:
-                checked_checkboxes.append(checkbox.cget("text"))
+            	checked_checkboxes.append(checkbox.cget("text"))
         return checked_checkboxes
     
     def clear_checkboxes(self):
