@@ -4,6 +4,7 @@ import os
 import threading
 import shutil
 import time
+import file_extension_dictionary
 from pathlib import Path
 
 # UI modules
@@ -124,7 +125,7 @@ class OptionsWindow(customtkinter.CTkToplevel):
         self.apply_buttonframe = customtkinter.CTkFrame(self)
         self.apply_buttonframe.grid(row=1, column=1, padx=19, pady=(0, 2), sticky="ew")
         self.close_buttonframe = customtkinter.CTkFrame(self)
-        self.close_buttonframe.grid(row=1, column=2, padx=5, pady=(0, 2), sticky="e")
+        self.close_buttonframe.grid(row=1, column=2, padx=6, pady=(0, 2), sticky="e")
         
         self.clear_button = customtkinter.CTkButton(master=self.clear_buttonframe, width=65, text="Clear", command=self.clear_selections)
         self.clear_button.grid(row=0, column=0, padx=5, pady=(5, 5), sticky="e")
@@ -136,7 +137,7 @@ class OptionsWindow(customtkinter.CTkToplevel):
     def clear_selections(self):
         self.checkbox_frame.clear_checkboxes()
     def checkbox_button_callback(self):
-        print(self.checkbox_frame.get())
+        self.checkbox_frame.get()
         
 class OptionsCheckboxFrame(customtkinter.CTkFrame):
     def __init__(self, master, values):
@@ -148,13 +149,13 @@ class OptionsCheckboxFrame(customtkinter.CTkFrame):
             checkbox = customtkinter.CTkCheckBox(self, text=value)
             checkbox.grid(row=i, column=1, padx=10, pady=(10, 10), sticky="e")
             self.checkboxes.append(checkbox)
-   
+            
     def get(self):
         checked_checkboxes = []
         for checkbox in self.checkboxes:
             if checkbox.get() == 1:
             	checked_checkboxes.append(checkbox.cget("text"))
-        return checked_checkboxes
+        print(checked_checkboxes)
     
     def clear_checkboxes(self):
         for checkbox in self.checkboxes:
