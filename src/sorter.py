@@ -5,6 +5,7 @@ import threading
 import shutil
 import time
 import file_extension_dictionary
+import re
 from pathlib import Path
 
 # UI modules
@@ -129,34 +130,32 @@ class OptionsWindow(customtkinter.CTkToplevel):
         
         self.clear_button = customtkinter.CTkButton(master=self.clear_buttonframe, width=65, text="Clear", command=self.clear_selections)
         self.clear_button.grid(row=0, column=0, padx=5, pady=(5, 5), sticky="e")
-        self.apply_button = customtkinter.CTkButton(master=self.apply_buttonframe, width=65, text="Apply", command=self.checkbox_button_callback)
+        self.apply_button = customtkinter.CTkButton(master=self.apply_buttonframe, width=65, text="Apply", command=self.checkbox_apply_callback)
         self.apply_button.grid(row=0, column=0, padx=6, pady=(5, 5), sticky="e")
         self.close_button = customtkinter.CTkButton(master=self.close_buttonframe, width=65, text="Close", command=self.destroy)
         self.close_button.grid(row=0, column=0, padx=5, pady=(5, 5), sticky="e")
         
     def clear_selections(self):
         self.checkbox_frame.clear_checkboxes()
-    def checkbox_button_callback(self):
+    def checkbox_apply_callback(self):
         self.checkbox_frame.get()
-        
 class OptionsCheckboxFrame(customtkinter.CTkFrame):
-    def __init__(self, master, values):
+    def __init__(self, master, values, checked_checkboxes):
         super().__init__(master)
         self.values = values
         self.checkboxes = []
+        self.checked_checkboxes = checked_checkboxes
         
         for i, value in enumerate(self.values):
             checkbox = customtkinter.CTkCheckBox(self, text=value)
             checkbox.grid(row=i, column=1, padx=10, pady=(10, 10), sticky="e")
             self.checkboxes.append(checkbox)
             
-    def get(self):
-        checked_checkboxes = []
+    def get(self, checked_checkboxes):
+        self.checked_checkboxes = []
         for checkbox in self.checkboxes:
             if checkbox.get() == 1:
-            	checked_checkboxes.append(checkbox.cget("text"))
-        print(checked_checkboxes)
-    
+                self.checked_checkboxes.append(checkbox.cget("text"))
     def clear_checkboxes(self):
         for checkbox in self.checkboxes:
             checkbox.deselect()
@@ -278,7 +277,6 @@ class SortButtonFrame(customtkinter.CTkFrame):
             if self.source_button_frame.src_directory and self.destination_button_frame.dst_directory:
                 self.tooltip.show()
                 self.sorting_button.configure(state='disabled')
-                
                 source = Path(self.source_button_frame.src_directory).expanduser()
                 destination = os.path.expanduser(self.destination_button_frame.dst_directory)
                 
@@ -288,10 +286,10 @@ class SortButtonFrame(customtkinter.CTkFrame):
             if self.source_button_frame.src_directory == None:
                 error_window = ErrorWindow(self.master)
                 center_window(error_window, 200, 150)
-                
             elif not self.destination_button_frame.dst_directory:
                 error_window = ErrorWindow(self.master)
                 center_window(error_window, 200, 150)
+                
     def sort_files(self, source, destination):
         start_time = time.time()
         progress_generator = SortingLogic.sorter_logic(source, destination)
@@ -311,13 +309,14 @@ class SortingLogic:
         item_count = 0
         percentage_check = 0.1
         item_list = []
+        extension_pattern = re.compile("|".join(map(re.escape, file_extension_dictionary.file_extension_dict())))
         for root, dirs, files in os.walk(source):
             for f in files:
                 if not f.startswith('.'):
-                    total_items+=1
-                    fullpath = os.path.join(root, f)
-                    item_list.append(fullpath)
-                    
+                    if pattern.search(f):
+                        total_items+=1
+                        fullpath = os.path.join(root, f)
+                        item_list.append(fullpath)
         for i in item_list:
             item_count+=1
             item_mod_datetime = time.ctime(os.path.getmtime(i))

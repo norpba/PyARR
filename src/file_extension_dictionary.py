@@ -8,22 +8,22 @@
 # will be added to the 'item_list' in the os.walk for-loop.
 
 file_extension_dict = {
-    "images": [
+    "Images": [
         ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif", 
         ".svg", ".webp", ".heic", ".raw", ".cr2", ".nef", ".orf", 
         ".sr2", ".arw", ".psd", ".ai", ".eps", ".indd"
     ],
-    "videos": [
+    "Videos": [
         ".mp4", ".mov", ".avi", ".mkv", ".flv", ".wmv", ".webm", 
         ".m4v", ".mpg", ".mpeg"
     ],
-    "documents": [
+    "Documents": [
         ".pdf", ".docx", ".doc", ".txt", ".rtf", ".odt", ".xls", 
         ".xlsx", ".ppt", ".pptx", ".epub", ".pages", ".key", 
         ".numbers", ".md", ".csv", ".json", ".xml", ".yaml", ".yml",
         ".tex", ".latex", ".bib", ".log"
     ],
-    "audio": [
+    "Audio": [
         ".mp3", ".wav", ".aac", ".flac", ".ogg", ".wma", ".m4a", 
         ".aiff", ".alac"
     ]
