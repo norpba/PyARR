@@ -151,7 +151,7 @@ class OptionsCheckboxFrame(customtkinter.CTkFrame):
             checkbox.grid(row=i, column=1, padx=10, pady=(10, 10), sticky="e")
             self.checkboxes.append(checkbox)
             
-    def get(self, checked_checkboxes):
+    def get(self):
         self.checked_checkboxes = []
         for checkbox in self.checkboxes:
             if checkbox.get() == 1:
