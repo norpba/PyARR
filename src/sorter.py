@@ -139,12 +139,13 @@ class OptionsWindow(customtkinter.CTkToplevel):
         self.checkbox_frame.clear_checkboxes()
     def checkbox_apply_callback(self):
         self.checkbox_frame.get()
+        print(OptionsCheckboxFrame.checked_checkboxes)
 class OptionsCheckboxFrame(customtkinter.CTkFrame):
-    def __init__(self, master, values, checked_checkboxes):
+    def __init__(self, master, values, checked_checkboxes=None):
         super().__init__(master)
         self.values = values
         self.checkboxes = []
-        self.checked_checkboxes = checked_checkboxes
+        self.checked_checkboxes = checked_checkboxes if checked_checkboxes is not None else []
         
         for i, value in enumerate(self.values):
             checkbox = customtkinter.CTkCheckBox(self, text=value)
@@ -152,7 +153,6 @@ class OptionsCheckboxFrame(customtkinter.CTkFrame):
             self.checkboxes.append(checkbox)
             
     def get(self):
-        self.checked_checkboxes = []
         for checkbox in self.checkboxes:
             if checkbox.get() == 1:
                 self.checked_checkboxes.append(checkbox.cget("text"))
@@ -259,7 +259,7 @@ class ProgressBarFrame(customtkinter.CTkFrame):
         self.orig_percentage = int(progress_percentage * 100)
         self.progress_stringvar.set(f"Sorting... {self.orig_percentage}% done.")
 class SortButtonFrame(customtkinter.CTkFrame):
-    def __init__(self, master, source_button_frame, destination_button_frame, progressbar_frame, *args, **kwargs):
+    def __init__(self, master, source_button_frame, destination_button_frame, progressbar_frame,  *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         self.source_button_frame = source_button_frame
@@ -313,7 +313,7 @@ class SortingLogic:
         for root, dirs, files in os.walk(source):
             for f in files:
                 if not f.startswith('.'):
-                    if pattern.search(f):
+                    if extension_pattern.search(f):
                         total_items+=1
                         fullpath = os.path.join(root, f)
                         item_list.append(fullpath)
@@ -347,7 +347,7 @@ class ErrorWindow(customtkinter.CTkToplevel):
         self.resizable(False, False)
         self.transient(master)
         self.grab_set()
-        center_window(self, 200, 150)      
+        center_window(self, 200, 150)
 def center_window(window, w, h):
     # get the screen width and height
     screen_x = window.winfo_screenwidth()
