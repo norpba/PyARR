@@ -4,9 +4,9 @@ import os
 import threading
 import shutil
 import time
-import file_extension_dictionary
 import re
 from pathlib import Path
+from file_extension_dictionary import file_extension_dict
 
 # UI modules
 import customtkinter
@@ -27,6 +27,7 @@ class MainWindow(customtkinter.CTk):
         self.grid_rowconfigure((0, 1, 2, 3, 4), weight=1)
         
         self.protocol("WM_DELETE_WINDOW", partial(ConfirmationWindow, self)) # capture the user closing application from toolbar and bring up ConfirmationWindow
+        self.options_window = OptionsWindow(self)
         
         self.sourcepath_frame = SourcePathFrame(self)
         self.sourcepath_frame.grid(column=0, row=1, columnspan=3, rowspan=1, padx=10, pady=(0, 5), sticky="nwe")
@@ -40,10 +41,15 @@ class MainWindow(customtkinter.CTk):
         self.sourcebutton_frame.grid(column=0, row=0, padx=10, pady=(5, 5), sticky="nw")
         self.destinationbutton_frame = DestinationButtonFrame(self.destinationpath_frame, self)
         self.destinationbutton_frame.grid(column=1, row=0, padx=10, pady=(5, 5), sticky="nwe")
-        self.sortingbutton_frame = SortButtonFrame(self, self.sourcebutton_frame, self.destinationbutton_frame, self.progressbar_frame)
+        
+        self.sortingbutton_frame = SortButtonFrame(self,
+                                                   self.sourcebutton_frame,
+                                                   self.destinationbutton_frame,
+                                                   self.progressbar_frame,
+                                                   self.options_window)
         self.sortingbutton_frame.grid(column=2, row=0, padx=10, pady=(5, 5), sticky="ne")
         
-        self.options_frame = OptionsFrame(self)
+        self.options_frame = OptionsFrame(self, self.options_window)
         self.options_frame.grid(column=2, row=3, columnspan=1, padx=10, pady=(0, 0), sticky="ne")
         self.quitframe = QuitFrame(self)
         self.quitframe.grid(column=2, row=3, columnspan=1, padx=10, pady=(50, 0), sticky="ne")
@@ -105,6 +111,8 @@ class OptionsWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
+        self.withdraw()
+        
         icon(self)
         self.title("Options")
         self.resizable(False, False)
@@ -118,7 +126,7 @@ class OptionsWindow(customtkinter.CTkToplevel):
         self.info_box = customtkinter.CTkLabel(master=self.info_boxframe, text="Select the types of files you would like the program to sort using the checkboxes.\n\n Selecting none will result in the program sorting all file types from the source directory (except for hidden files).", wraplength=250)
         self.info_box.grid(row=0, column=0, padx=15, pady=(5, 8), sticky="we")
         
-        self.checkbox_frame = OptionsCheckboxFrame(self, values=["Images", "Audio", "Video", "Documents"])
+        self.checkbox_frame = OptionsCheckboxFrame(self, values=["Images", "Video", "Documents", "Audio"])
         self.checkbox_frame.grid(row=0, column=3, rowspan=2, padx=5, pady=(7, 0), sticky="ne")
         
         self.clear_buttonframe = customtkinter.CTkFrame(self)
@@ -135,11 +143,15 @@ class OptionsWindow(customtkinter.CTkToplevel):
         self.close_button = customtkinter.CTkButton(master=self.close_buttonframe, width=65, text="Close", command=self.destroy)
         self.close_button.grid(row=0, column=0, padx=5, pady=(5, 5), sticky="e")
         
+        self.selected_categories = []
+        
     def clear_selections(self):
         self.checkbox_frame.clear_checkboxes()
     def checkbox_apply_callback(self):
         self.checkbox_frame.get()
-        print(OptionsCheckboxFrame.checked_checkboxes)
+        self.selected_categories = self.checkbox_frame.checked_checkboxes
+        print("Inside class OptionsWindow, 'selected_categories': ", self.selected_categories)
+        
 class OptionsCheckboxFrame(customtkinter.CTkFrame):
     def __init__(self, master, values, checked_checkboxes=None):
         super().__init__(master)
@@ -153,23 +165,26 @@ class OptionsCheckboxFrame(customtkinter.CTkFrame):
             self.checkboxes.append(checkbox)
             
     def get(self):
+        self.checked_checkboxes = []
         for checkbox in self.checkboxes:
             if checkbox.get() == 1:
                 self.checked_checkboxes.append(checkbox.cget("text"))
     def clear_checkboxes(self):
         for checkbox in self.checkboxes:
             checkbox.deselect()
+        self.checked_checkboxes = []
 class OptionsFrame(customtkinter.CTkFrame):
-    def __init__(self, master, *args, **kwargs):
+    def __init__(self, master, options_window, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
+        self.options_window = options_window
         
-        self.options_button = customtkinter.CTkButton(self, text="Options", command=self.optionswindow)
+        self.options_button = customtkinter.CTkButton(self, text="Options", command=self.open_optionswindow)
         self.options_button.grid(row=0, column=0, padx=10, pady=(10, 10))
         self.tooltip = CTkToolTip(self.options_button, delay=0.5, message="Access sorting options, for example which type of files to sort.", wraplength=250)
     
-    def optionswindow(self):
-        options_window = OptionsWindow(self.master)
-        center_window(options_window, 420, 190)
+    def open_optionswindow(self):
+        self.options_window.deiconify()
+        center_window(self.options_window, 420, 190)
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -259,12 +274,13 @@ class ProgressBarFrame(customtkinter.CTkFrame):
         self.orig_percentage = int(progress_percentage * 100)
         self.progress_stringvar.set(f"Sorting... {self.orig_percentage}% done.")
 class SortButtonFrame(customtkinter.CTkFrame):
-    def __init__(self, master, source_button_frame, destination_button_frame, progressbar_frame,  *args, **kwargs):
+    def __init__(self, master, source_button_frame, destination_button_frame, progressbar_frame, options_window, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         self.source_button_frame = source_button_frame
         self.destination_button_frame = destination_button_frame
         self.progressbar_frame = progressbar_frame
+        self.options_window = options_window
         
         self.sorting_button = customtkinter.CTkButton(self, text="Sort", command=self.begin_sorting_task)
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
@@ -280,7 +296,9 @@ class SortButtonFrame(customtkinter.CTkFrame):
                 source = Path(self.source_button_frame.src_directory).expanduser()
                 destination = os.path.expanduser(self.destination_button_frame.dst_directory)
                 
-                self.progressbar_thread = threading.Thread(target=self.sort_files, args=(source, destination))
+                selected_categories = self.options_window.selected_categories
+                
+                self.progressbar_thread = threading.Thread(target=self.sort_files, args=(source, destination, selected_categories))
                 self.progressbar_thread.start()
         except AttributeError:
             if self.source_button_frame.src_directory == None:
@@ -290,9 +308,9 @@ class SortButtonFrame(customtkinter.CTkFrame):
                 error_window = ErrorWindow(self.master)
                 center_window(error_window, 200, 150)
                 
-    def sort_files(self, source, destination):
+    def sort_files(self, source, destination, selected_categories):
         start_time = time.time()
-        progress_generator = SortingLogic.sorter_logic(source, destination)
+        progress_generator = SortingLogic.sorter_logic(source, destination, selected_categories)
         for progress_percentage in progress_generator:
             print("progress_value:", progress_percentage) #debug
             self.progressbar_frame.update_progress(progress_percentage)
@@ -301,15 +319,20 @@ class SortButtonFrame(customtkinter.CTkFrame):
                 self.end_time = time.time()
                 self.time_decimal = self.end_time - start_time
                 self.progressbar_frame.progress_stringvar.set(f"Sorting completed. Task took {"%.2f" % self.time_decimal} seconds.")
-                #print(f"Sorting completed in {round(self.time_decimal, 3)} seconds.") debug
 class SortingLogic:
     @staticmethod
-    def sorter_logic(source, destination):
+    def sorter_logic(source, destination, selected_categories):
         total_items = 0
         item_count = 0
         percentage_check = 0.1
         item_list = []
-        extension_pattern = re.compile("|".join(map(re.escape, file_extension_dictionary.file_extension_dict())))
+        
+        print("Inside function sorter_logic, 'selected_categories': ", selected_categories) #debug
+        
+        for category in selected_categories:
+            selected_categories.extend(file_extension_dict.get(category, []))
+        extension_pattern = re.compile("|".join(map(re.escape, selected_categories)))
+        
         for root, dirs, files in os.walk(source):
             for f in files:
                 if not f.startswith('.'):
@@ -368,6 +391,6 @@ if __name__ == ("__main__"):
     welcome_window = WelcomeWindow(main_window)
     src = SourceButtonFrame(main_window.sourcepath_frame, main_window)
     dst = DestinationButtonFrame(main_window.destinationpath_frame, main_window)
-    sort_button_frame = SortButtonFrame(main_window, src, dst, main_window.progressbar_frame)
+    sort_button_frame = SortButtonFrame(main_window, src, dst, main_window.options_window,  main_window.progressbar_frame)
     main_window.update_idletasks()
     main_window.mainloop()
