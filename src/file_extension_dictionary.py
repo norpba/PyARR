@@ -13,10 +13,10 @@ file_extension_dict = {
         ".svg", ".webp", ".heic", ".raw", ".cr2", ".nef", ".orf", 
         ".sr2", ".arw", ".psd", ".ai", ".eps", ".indd"
     ],
-    "Videos": [
+    "Video": [
         ".mp4", ".mov", ".avi", ".mkv", ".flv", ".wmv", ".webm", 
         ".m4v", ".mpg", ".mpeg"
-    ],
+    ], 
     "Documents": [
         ".pdf", ".docx", ".doc", ".txt", ".rtf", ".odt", ".xls", 
         ".xlsx", ".ppt", ".pptx", ".epub", ".pages", ".key", 

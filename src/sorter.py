@@ -123,7 +123,9 @@ class OptionsWindow(customtkinter.CTkToplevel):
         
         self.info_boxframe = customtkinter.CTkFrame(self)
         self.info_boxframe.grid(row=0, column=0, columnspan=3, padx=7, pady=(7, 0), sticky="nw")
-        self.info_box = customtkinter.CTkLabel(master=self.info_boxframe, text="Select the types of files you would like the program to sort using the checkboxes.\n\n Selecting none will result in the program sorting all file types from the source directory (except for hidden files).", wraplength=250)
+        self.info_box = customtkinter.CTkLabel(master=self.info_boxframe, 
+                                               text="Select the types of files you would like the program to sort using the checkboxes.\n\n Selecting none will result in the program sorting all file types from the source directory (except for hidden files).",
+                                               wraplength=250)
         self.info_box.grid(row=0, column=0, padx=15, pady=(5, 8), sticky="we")
         
         self.checkbox_frame = OptionsCheckboxFrame(self, values=["Images", "Video", "Documents", "Audio"])
@@ -143,14 +145,26 @@ class OptionsWindow(customtkinter.CTkToplevel):
         self.close_button = customtkinter.CTkButton(master=self.close_buttonframe, width=65, text="Close", command=self.destroy)
         self.close_button.grid(row=0, column=0, padx=5, pady=(5, 5), sticky="e")
         
-        self.selected_categories = []
-        
     def clear_selections(self):
         self.checkbox_frame.clear_checkboxes()
+        
     def checkbox_apply_callback(self):
+        self.selected_categories = []
         self.checkbox_frame.get()
-        self.selected_categories = self.checkbox_frame.checked_checkboxes
-        print("Inside class OptionsWindow, 'selected_categories': ", self.selected_categories)
+        
+        for category in self.checkbox_frame.checked_checkboxes:
+            self.selected_categories.extend(file_extension_dict.get(category, []))
+        
+        print("Selected extensions:", self.selected_categories)
+        
+        pattern_str = "|".join(map(re.escape, self.selected_categories))
+        print("Pattern string:", pattern_str,"\n")  # Debugging line to check the full string
+        
+        self.extension_pattern = re.compile(pattern_str)
+        print("Compiled pattern:", self.extension_pattern, "\n")
+        
+    	#self.extension_pattern = re.compile("|".join(map(re.escape, self.selected_categories)))
+        #print(self.extension_pattern)
         
 class OptionsCheckboxFrame(customtkinter.CTkFrame):
     def __init__(self, master, values, checked_checkboxes=None):
@@ -183,7 +197,12 @@ class OptionsFrame(customtkinter.CTkFrame):
         self.tooltip = CTkToolTip(self.options_button, delay=0.5, message="Access sorting options, for example which type of files to sort.", wraplength=250)
     
     def open_optionswindow(self):
+        if not hasattr(self, 'options_window') or not self.options_window.winfo_exists():
+            self.options_window = OptionsWindow(self)
+            self.options_window.withdraw()
+            
         self.options_window.deiconify()
+        self.options_window.lift()
         center_window(self.options_window, 420, 190)
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
@@ -296,9 +315,9 @@ class SortButtonFrame(customtkinter.CTkFrame):
                 source = Path(self.source_button_frame.src_directory).expanduser()
                 destination = os.path.expanduser(self.destination_button_frame.dst_directory)
                 
-                selected_categories = self.options_window.selected_categories
+                extension_pattern = self.options_window.extension_pattern
                 
-                self.progressbar_thread = threading.Thread(target=self.sort_files, args=(source, destination, selected_categories))
+                self.progressbar_thread = threading.Thread(target=self.sort_files, args=(source, destination, extension_pattern))
                 self.progressbar_thread.start()
         except AttributeError:
             if self.source_button_frame.src_directory == None:
@@ -308,9 +327,9 @@ class SortButtonFrame(customtkinter.CTkFrame):
                 error_window = ErrorWindow(self.master)
                 center_window(error_window, 200, 150)
                 
-    def sort_files(self, source, destination, selected_categories):
+    def sort_files(self, source, destination, extension_pattern):
         start_time = time.time()
-        progress_generator = SortingLogic.sorter_logic(source, destination, selected_categories)
+        progress_generator = SortingLogic.sorter_logic(source, destination, extension_pattern)
         for progress_percentage in progress_generator:
             print("progress_value:", progress_percentage) #debug
             self.progressbar_frame.update_progress(progress_percentage)
@@ -321,17 +340,11 @@ class SortButtonFrame(customtkinter.CTkFrame):
                 self.progressbar_frame.progress_stringvar.set(f"Sorting completed. Task took {"%.2f" % self.time_decimal} seconds.")
 class SortingLogic:
     @staticmethod
-    def sorter_logic(source, destination, selected_categories):
+    def sorter_logic(source, destination, extension_pattern):
         total_items = 0
         item_count = 0
         percentage_check = 0.1
         item_list = []
-        
-        print("Inside function sorter_logic, 'selected_categories': ", selected_categories) #debug
-        
-        for category in selected_categories:
-            selected_categories.extend(file_extension_dict.get(category, []))
-        extension_pattern = re.compile("|".join(map(re.escape, selected_categories)))
         
         for root, dirs, files in os.walk(source):
             for f in files:

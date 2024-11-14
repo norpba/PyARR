@@ -1,10 +1,13 @@
 Implementation ideas:
 - on macOS, the window can NOT be tiled with another app on a space (any desktop). ✅
 - Path elements need to be changed into entry boxes. ✅
-- Option menu for the user to choose with more sorting options.
+- Option menu for the user to choose with more sorting options. ✅
   - more sorting option; implement a way to choose which file formats to exclude for example.
   - Sorting based on month and year, if the user chooses so.
-  - 
+  - Bug: New file format options are not being saved as the current search pattern even after pressing "Apply".
+  - Bug: If the input folder contains items whose file format is not specified in the currently applied search pattern, the program hangs.
+
+
 - Some text graphics animation while the sorting process is running (maybe inside Logic-class for loop?).
 - Show information about each widget on mouse hover. ✅
 - Show size of all items inside source dir in megabytes / gigabytes
