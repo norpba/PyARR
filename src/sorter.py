@@ -17,7 +17,7 @@ from functools import partial
 class MainWindow(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        
         icon(self)
         center_window(self, 600, 310) # calling the function center_window with the parameters; self, width * height
         self.title("PyARR v0.1.0")
@@ -53,6 +53,7 @@ class MainWindow(customtkinter.CTk):
         self.options_frame.grid(column=2, row=3, columnspan=1, padx=10, pady=(0, 0), sticky="ne")
         self.quitframe = QuitFrame(self)
         self.quitframe.grid(column=2, row=3, columnspan=1, padx=10, pady=(50, 0), sticky="ne")
+
 class WelcomeWindow(customtkinter.CTkToplevel):
     def __init__(self, root, *args, **kwargs):
         super().__init__(root, *args, **kwargs)
@@ -82,6 +83,7 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         
     def about_window():
         pass
+
 class ConfirmationWindow(customtkinter.CTkToplevel):
     def __init__(self, master):
         super().__init__(master)
@@ -107,12 +109,12 @@ class ConfirmationWindow(customtkinter.CTkToplevel):
         self.confirmation_button.grid(row=0, column=0, padx=5, pady=(5, 5))
         self.cancel_button = customtkinter.CTkButton(master=self.cancel_buttonframe, text="No", command=self.destroy)
         self.cancel_button.grid(row=0, column=0, padx=5, pady=(5, 5))
+
 class OptionsWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
         self.withdraw()
-        
         icon(self)
         self.title("Options")
         self.resizable(False, False)
@@ -138,34 +140,36 @@ class OptionsWindow(customtkinter.CTkToplevel):
         self.close_buttonframe = customtkinter.CTkFrame(self)
         self.close_buttonframe.grid(row=1, column=2, padx=6, pady=(0, 2), sticky="e")
         
-        self.clear_button = customtkinter.CTkButton(master=self.clear_buttonframe, width=65, text="Clear", command=self.clear_selections)
+        self.clear_button = customtkinter.CTkButton(master=self.clear_buttonframe, width=65, text="Clear", command=self.checkbox_frame.clear_checkboxes)
         self.clear_button.grid(row=0, column=0, padx=5, pady=(5, 5), sticky="e")
         self.apply_button = customtkinter.CTkButton(master=self.apply_buttonframe, width=65, text="Apply", command=self.checkbox_apply_callback)
         self.apply_button.grid(row=0, column=0, padx=6, pady=(5, 5), sticky="e")
-        self.close_button = customtkinter.CTkButton(master=self.close_buttonframe, width=65, text="Close", command=self.destroy)
+        self.close_button = customtkinter.CTkButton(master=self.close_buttonframe, width=65, text="Close", command=self.close_options_window)
         self.close_button.grid(row=0, column=0, padx=5, pady=(5, 5), sticky="e")
         
-    def clear_selections(self):
-        self.checkbox_frame.clear_checkboxes()
+        self.selected_categories = []
         
     def checkbox_apply_callback(self):
-        self.selected_categories = []
+        print("before get:", self.checkbox_frame.get())
         self.checkbox_frame.get()
         
         for category in self.checkbox_frame.checked_checkboxes:
             self.selected_categories.extend(file_extension_dict.get(category, []))
+        print("after for loop in apply:", self.selected_categories)
         
-        print("Selected extensions:", self.selected_categories)
-        
-        pattern_str = "|".join(map(re.escape, self.selected_categories))
-        print("Pattern string:", pattern_str,"\n")  # Debugging line to check the full string
-        
-        self.extension_pattern = re.compile(pattern_str)
-        print("Compiled pattern:", self.extension_pattern, "\n")
-        
-    	#self.extension_pattern = re.compile("|".join(map(re.escape, self.selected_categories)))
-        #print(self.extension_pattern)
-        
+    def get_extension_pattern(self):
+        self.pattern_str = []
+        print("selected categories:", self.selected_categories)
+        if self.selected_categories:
+            self.pattern_str = "|".join(map(re.escape, self.selected_categories))
+        else:
+            self.pattern_str = '.*'
+        print("pattern_str:", self.pattern_str)
+        return re.compile(self.pattern_str)
+    
+    def close_options_window(self):
+        self.withdraw()
+        MainWindow.lift(self)
 class OptionsCheckboxFrame(customtkinter.CTkFrame):
     def __init__(self, master, values, checked_checkboxes=None):
         super().__init__(master)
@@ -183,10 +187,12 @@ class OptionsCheckboxFrame(customtkinter.CTkFrame):
         for checkbox in self.checkboxes:
             if checkbox.get() == 1:
                 self.checked_checkboxes.append(checkbox.cget("text"))
+                
     def clear_checkboxes(self):
         for checkbox in self.checkboxes:
             checkbox.deselect()
         self.checked_checkboxes = []
+
 class OptionsFrame(customtkinter.CTkFrame):
     def __init__(self, master, options_window, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -204,6 +210,7 @@ class OptionsFrame(customtkinter.CTkFrame):
         self.options_window.deiconify()
         self.options_window.lift()
         center_window(self.options_window, 420, 190)
+
 class QuitFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -212,6 +219,7 @@ class QuitFrame(customtkinter.CTkFrame):
     def confwindow(self):
         confirmation_window = ConfirmationWindow(self.master)
         center_window(confirmation_window, 350, 100)
+
 class SourceButtonFrame(customtkinter.CTkFrame):
     def __init__(self, sourcepath_frame, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -229,6 +237,7 @@ class SourceButtonFrame(customtkinter.CTkFrame):
             self.tooltip.show()
         else:
             self.tooltip.show()
+
 class DestinationButtonFrame(customtkinter.CTkFrame):
     def __init__(self, destination_path_frame, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -246,6 +255,7 @@ class DestinationButtonFrame(customtkinter.CTkFrame):
             self.tooltip.show()
         else:
             self.tooltip.show()
+
 class SourcePathFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -261,6 +271,7 @@ class SourcePathFrame(customtkinter.CTkFrame):
         
         self.source_entry = customtkinter.CTkEntry(self, textvariable=self.source_stringvar, width=560, state="disabled", xscrollcommand=self.scrollbar.set)
         self.source_entry.grid(row=0, column=0, padx=10, pady=(10, 3))
+
 class DestinationPathFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
@@ -276,6 +287,7 @@ class DestinationPathFrame(customtkinter.CTkFrame):
         
         self.dest_entry = customtkinter.CTkEntry(self, textvariable=self.dest_stringvar, width=560, state="disabled", xscrollcommand=self.scrollbar.set)
         self.dest_entry.grid(row=0, column=0, padx=10, pady=(10, 3))
+
 class ProgressBarFrame(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -292,6 +304,7 @@ class ProgressBarFrame(customtkinter.CTkFrame):
         self.progress_bar.set(progress_percentage)
         self.orig_percentage = int(progress_percentage * 100)
         self.progress_stringvar.set(f"Sorting... {self.orig_percentage}% done.")
+
 class SortButtonFrame(customtkinter.CTkFrame):
     def __init__(self, master, source_button_frame, destination_button_frame, progressbar_frame, options_window, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -304,23 +317,27 @@ class SortButtonFrame(customtkinter.CTkFrame):
         self.sorting_button = customtkinter.CTkButton(self, text="Sort", command=self.begin_sorting_task)
         self.sorting_button.grid(row=0, column=2, padx=10, pady=(10, 10))
         self.tooltip = CTkToolTip(self.sorting_button, message="Start the sorting process.")
+        
     def begin_sorting_task(self):
         try:
             self.tooltip.hide()
-            print(self.source_button_frame.src_directory)
-            print(self.destination_button_frame.dst_directory)
             if self.source_button_frame.src_directory and self.destination_button_frame.dst_directory:
                 self.tooltip.show()
                 self.sorting_button.configure(state='disabled')
+                
                 source = Path(self.source_button_frame.src_directory).expanduser()
                 destination = os.path.expanduser(self.destination_button_frame.dst_directory)
                 
-                extension_pattern = self.options_window.extension_pattern
+                extension_pattern = self.options_window.get_extension_pattern()
                 
-                self.progressbar_thread = threading.Thread(target=self.sort_files, args=(source, destination, extension_pattern))
+                self.progressbar_thread = threading.Thread(
+                    target=self.sort_files,
+                    args=(source, destination, extension_pattern)
+                )
                 self.progressbar_thread.start()
+                
         except AttributeError:
-            if self.source_button_frame.src_directory == None:
+            if not self.source_button_frame.src_directory:
                 error_window = ErrorWindow(self.master)
                 center_window(error_window, 200, 150)
             elif not self.destination_button_frame.dst_directory:
@@ -330,14 +347,24 @@ class SortButtonFrame(customtkinter.CTkFrame):
     def sort_files(self, source, destination, extension_pattern):
         start_time = time.time()
         progress_generator = SortingLogic.sorter_logic(source, destination, extension_pattern)
+        
         for progress_percentage in progress_generator:
+            if progress_percentage == -1:
+                print("No items found for sorting.") #debug
+                self.progressbar_frame.progress_stringvar.set("No items to sort.")
+                break
+            
             print("progress_value:", progress_percentage) #debug
             self.progressbar_frame.update_progress(progress_percentage)
-            if progress_percentage == 1.0:
-                self.sorting_button.configure(state='normal')
-                self.end_time = time.time()
-                self.time_decimal = self.end_time - start_time
-                self.progressbar_frame.progress_stringvar.set(f"Sorting completed. Task took {"%.2f" % self.time_decimal} seconds.")
+        
+        self.sorting_button.configure(state='normal')
+        self.end_time = time.time()
+        if progress_percentage == 1.0:
+            self.time_decimal = self.end_time - start_time
+            self.progressbar_frame.progress_stringvar.set(
+                f"Sorting completed. Task took {"%.2f" % self.time_decimal} seconds."
+            )
+                
 class SortingLogic:
     @staticmethod
     def sorter_logic(source, destination, extension_pattern):
@@ -347,15 +374,21 @@ class SortingLogic:
         item_list = []
         
         for root, dirs, files in os.walk(source):
-            for f in files:
-                if not f.startswith('.'):
-                    if extension_pattern.search(f):
-                        total_items+=1
-                        fullpath = os.path.join(root, f)
+            dirs[:] = [d for d in dirs if not d.startswith('.')]
+            for file in files:
+                if not file.startswith('.'):
+                    if not extension_pattern or extension_pattern.search(file):
+                        fullpath = os.path.join(root, file)
                         item_list.append(fullpath)
-        for i in item_list:
+            
+        if not len(item_list):
+            yield -1
+            return
+        total_items = len(item_list)
+                
+        for item in item_list:
             item_count+=1
-            item_mod_datetime = time.ctime(os.path.getmtime(i))
+            item_mod_datetime = time.ctime(os.path.getmtime(item))
             converted_date_year = item_mod_datetime[len(item_mod_datetime) - 4:] # file modification year
             converted_date_month = item_mod_datetime[4:7]                        # file modification month
             
@@ -367,13 +400,14 @@ class SortingLogic:
             if not os.path.exists(month_dir):
                 os.makedirs(month_dir)
             
-            final_file_path = os.path.join(month_dir, os.path.basename(i))
-            shutil.copy2(i, final_file_path)
+            final_file_path = os.path.join(month_dir, os.path.basename(item))
+            shutil.copy2(item, final_file_path)
             
             progress_percentage = round(((item_count / total_items)), 2)
             if progress_percentage > percentage_check and progress_percentage <= 1.0:
                 percentage_check+=0.1
                 yield progress_percentage
+                
 class ErrorWindow(customtkinter.CTkToplevel):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -384,6 +418,7 @@ class ErrorWindow(customtkinter.CTkToplevel):
         self.transient(master)
         self.grab_set()
         center_window(self, 200, 150)
+        
 def center_window(window, w, h):
     # get the screen width and height
     screen_x = window.winfo_screenwidth()
@@ -392,10 +427,12 @@ def center_window(window, w, h):
     x = (screen_x - w) // 2
     y = (screen_y - h) // 2
     window.geometry(f'{w}x{h}+{x}+{y}')
+    
 def icon(self):
     # if this does not work on macos, use 'platform.system' and make a if-statement to check whether the script runs on os or windows.
     self.wm_iconbitmap()
     self.after(199, lambda: self.wm_iconphoto(False, PhotoImage(file='titlebar_icon.png')))
+    
 if __name__ == ("__main__"):
     customtkinter.set_appearance_mode("system") # set UI theme
     customtkinter.set_default_color_theme("green")
