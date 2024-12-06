@@ -20,7 +20,7 @@ class MainWindow(customtkinter.CTk):
         
         icon(self)
         center_window(self, 600, 310) # calling the function center_window with the parameters; self, width * height
-        self.title("PyARR v0.1.0")
+        self.title("PyARR v0.5.0")
         self.resizable(False, False)
         
         self.grid_columnconfigure((0, 1, 2), weight=1)
@@ -46,7 +46,8 @@ class MainWindow(customtkinter.CTk):
                                                    self.sourcebutton_frame,
                                                    self.destinationbutton_frame,
                                                    self.progressbar_frame,
-                                                   self.options_window)
+                                                   self.options_window
+                                                   )
         self.sortingbutton_frame.grid(column=2, row=0, padx=10, pady=(5, 5), sticky="ne")
         
         self.options_frame = OptionsFrame(self, self.options_window)
@@ -170,6 +171,7 @@ class OptionsWindow(customtkinter.CTkToplevel):
     def close_options_window(self):
         self.withdraw()
         MainWindow.lift(self)
+
 class OptionsCheckboxFrame(customtkinter.CTkFrame):
     def __init__(self, master, values, checked_checkboxes=None):
         super().__init__(master)
