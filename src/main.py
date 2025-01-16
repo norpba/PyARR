@@ -1,17 +1,17 @@
 
-# sorter logic modules
 import os
 import threading
 import shutil
 import time
 import re
 from pathlib import Path
+from datetime import datetime
 from file_extension_dictionary import file_extension_dict
 
-# UI modules
 import customtkinter
 from CTkToolTip import *
-from tkinter import filedialog, PhotoImage, StringVar
+from tkinter import filedialog, StringVar
+from platform import system
 from functools import partial
 
 class MainWindow(customtkinter.CTk):
@@ -19,7 +19,7 @@ class MainWindow(customtkinter.CTk):
         super().__init__(*args, **kwargs)
         
         icon(self)
-        center_window(self, 600, 310) # calling the function center_window with the parameters; self, width * height
+        center_window(self, 600, 310)
         self.title("PyARR v0.5.0")
         self.resizable(False, False)
         
@@ -151,6 +151,7 @@ class OptionsWindow(customtkinter.CTkToplevel):
         self.selected_categories = []
         
     def checkbox_apply_callback(self):
+        self.selected_categories = []
         print("before get:", self.checkbox_frame.get())
         self.checkbox_frame.get()
         
@@ -352,11 +353,8 @@ class SortButtonFrame(customtkinter.CTkFrame):
         
         for progress_percentage in progress_generator:
             if progress_percentage == -1:
-                print("No items found for sorting.") #debug
                 self.progressbar_frame.progress_stringvar.set("No items to sort.")
                 break
-            
-            print("progress_value:", progress_percentage) #debug
             self.progressbar_frame.update_progress(progress_percentage)
         
         self.sorting_button.configure(state='normal')
@@ -366,9 +364,17 @@ class SortButtonFrame(customtkinter.CTkFrame):
             self.progressbar_frame.progress_stringvar.set(
                 f"Sorting completed. Task took {"%.2f" % self.time_decimal} seconds."
             )
-                
+
 class SortingLogic:
     @staticmethod
+    def get_creation_date(filepath):
+        try:
+            stat = os.stat(filepath)
+            print("st_birthtime value:", datetime.fromtimestamp(stat.st_birthtime))
+            return datetime.fromtimestamp(stat.st_birthtime)
+        except AttributeError:
+            return datetime.fromtimestamp(os.path.getctime(filepath))
+            
     def sorter_logic(source, destination, extension_pattern):
         total_items = 0
         item_count = 0
@@ -382,39 +388,47 @@ class SortingLogic:
                     if not extension_pattern or extension_pattern.search(file):
                         fullpath = os.path.join(root, file)
                         item_list.append(fullpath)
-            
+        
         if not len(item_list):
             yield -1
             return
         total_items = len(item_list)
-                
+        
         for item in item_list:
             item_count+=1
-            item_mod_datetime = time.ctime(os.path.getmtime(item))
-            converted_date_year = item_mod_datetime[len(item_mod_datetime) - 4:] # file modification year
-            converted_date_month = item_mod_datetime[4:7]                        # file modification month
+            item_date = SortingLogic.get_creation_date(item)
             
-            year_dir = os.path.join(destination, converted_date_year)
-            month_dir = os.path.join(destination, year_dir, converted_date_month)
+            year = item_date.strftime("%Y")
+            month = item_date.strftime("%b")
+            day = item_date.strftime("%d. %A")
             
-            if not os.path.exists(year_dir):
-                os.makedirs(year_dir)
-            if not os.path.exists(month_dir):
-                os.makedirs(month_dir)
+            if day.startswith('0'):
+                day = day[1:]
+                
+            print("item_count:",item_count)
             
-            final_file_path = os.path.join(month_dir, os.path.basename(item))
+            print(f"Year:{year} Month:{month} Day:{day}")
+            print("full datetime:", item_date)
+            
+            year_dir = os.path.join(destination, year)
+            month_dir = os.path.join(year_dir, month)
+            day_dir = os.path.join(month_dir, day)
+            
+            os.makedirs(day_dir, exist_ok=True)
+            
+            final_file_path = os.path.join(day_dir, os.path.basename(item))
             shutil.copy2(item, final_file_path)
-            
+            print(final_file_path)
             progress_percentage = round(((item_count / total_items)), 2)
             if progress_percentage > percentage_check and progress_percentage <= 1.0:
                 percentage_check+=0.1
                 yield progress_percentage
-                
+
 class ErrorWindow(customtkinter.CTkToplevel):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
-        icon(self) # if these do not work on other error functions, try adding it inside the function that is being called
+        icon(self)
         self.title("An error occurred!")
         self.resizable(False, False)
         self.transient(master)
@@ -430,10 +444,19 @@ def center_window(window, w, h):
     y = (screen_y - h) // 2
     window.geometry(f'{w}x{h}+{x}+{y}')
     
-def icon(self):
-    # if this does not work on macos, use 'platform.system' and make a if-statement to check whether the script runs on os or windows.
-    self.wm_iconbitmap()
-    self.after(199, lambda: self.wm_iconphoto(False, PhotoImage(file='titlebar_icon.png')))
+def icon(window):
+    platform = system().lower()
+    icon_path = ""
+    
+    if platform == "windows":
+        icon_path = os.path.join(os.path.dirname(__file__), "icon", "icon_windows.ico")
+    elif platform == "darwin":
+        icon_path = os.path.join(os.path.dirname(__file__), "icon", "icon_darwin.icns")
+        
+    if os.path.exists(icon_path) and platform == 'windows':
+        window.iconbitmap(icon_path)
+    else:
+        print(f"Icon file not found: {icon_path}")
     
 if __name__ == ("__main__"):
     customtkinter.set_appearance_mode("system") # set UI theme
